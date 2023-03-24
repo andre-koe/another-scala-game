@@ -62,7 +62,4 @@ case class CorvetteConstruction(rank: Int = 0, timeToFinish: Int = 2) extends Un
 }
 
 
-def acquire(str: String): UnderConstruction = {
-  str match
-    case 
-}
+def acquire(str: String): UnderConstruction = ???

@@ -27,13 +27,9 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: 'sbt'
-    - name: Run tests
-      run: sbt test
-    - name: Generate coverage report
-      run: sbt coverageReport
+    - name: Run tests and Generate coverage report
+      run: sbt clean coverage test coverageReport
     - name: Upload coverage reports to Codecov
-      steps:
-      - uses: actions/checkout@master
-      - uses: codecov/codecov-action@v3
-        with:
+      uses: codecov/codecov-action@v3
+      with:
           token: ${{ secrets.CODECOV_TOKEN }}

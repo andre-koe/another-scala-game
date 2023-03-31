@@ -1,58 +1,43 @@
 package view.tui
 
 import controller.Controller
-import controller.gamestate.GameState
+import model.game.gamestate.GameState.{EXITED, INIT}
+import model.game.gamestate.GameState
 import utils.Observer
 
 import scala.annotation.tailrec
 import scala.io.StdIn
 
 case class Tui(controller: Controller) extends Observer {
+
   def gameTitle: String = "TBD"
+
   def introductionMessage: String =
     f"""Welcome to $gameTitle
-      | This is an introduction
-      |""".stripMargin
-  def helpMessage: String =
-    f"""The following actions should be implemented:
-      | > [build] <building name> | help to get an overview of all available buildings
-      | > [recruit] <unit name> | help to get an overview of all available units
-      | > [research] <technology name> | help to get an overview of all available technologies
-      | > [exit] to quit
-      | > [go back] to undo the last action
-      |""".stripMargin
+       | This is an introduction
+       |""".stripMargin
 
-  def goodbyeMessage: String = f"Goodbye!"
-  def undefinedUserInputResponse(input: String): String = input.length match
-    case 0 => "Enter 'h' to get an overview of all commands\n"
-    case _ => f"'$input' is unknown enter 'h' for an overview of all commands\n"
-
-
-  def run(): Unit = {
+  def run(): GameState = {
     controller.registerObserver(this)
-    print(introductionMessage)
-    getInput()
+
+    println(gameTitle + "\n" + introductionMessage)
+
     @tailrec
-    def getInput(): Unit = {
-      val input = StdIn.readLine(">>> ")
-      controller.processInput(input)
-      update()
-      controller.getState match
-        case GameState.RUNNING => getInput()
-        case GameState.HELP_REQUEST =>
-          println(helpMessage)
-          getInput()
-        case GameState.UNDEFINED_USER_INPUT =>
-          println(undefinedUserInputResponse(input))
-          getInput()
-        case GameState.END_ROUND =>
+    def runGameLoop(gameState: GameState): GameState = {
+      gameState match
+        case EXITED => endGame(gameState)
         case _ =>
+          val input = StdIn.readLine(">>> ")
+          val state = controller.processInput(input)
+          runGameLoop(state)
     }
-    println(goodbyeMessage)
+    runGameLoop(INIT)
   }
 
-  @Override
-  def update(): Unit = {
-    // TODO: Implement the necessary functionality in the Controller and call it here
-  }
+  private def endGame(exitState: GameState): GameState =
+    controller.removeObserver(this)
+    exitState
+
+  override def update(): Unit = println(controller.toString)
+
 }

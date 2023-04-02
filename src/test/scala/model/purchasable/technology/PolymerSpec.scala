@@ -6,7 +6,8 @@ import org.scalatest.matchers.should.Matchers._
 class PolymerSpec extends AnyWordSpec {
   "Polymer" should {
     "have a name of Polymer" in {
-      Polymer().name should be("Polymer")
+      val polymer: Technology = Polymer()
+      polymer.name should be("Polymer")
     }
     "have a fitting toString representation" in {
       Polymer().toString should be("Polymer")

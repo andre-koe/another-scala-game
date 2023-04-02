@@ -1,15 +1,27 @@
 package model.game.gamestate
 
-import GameState._
+import GameState.*
 import controller.playeractions.ActionType
 import model.countable.{Balance, Research}
-import model.game.Round
+import model.game.{Coordinate, GameValues, IValues, PlayerValues, Round}
+import model.purchasable.building.{Building, BuildingFactory, EnergyGrid, Factory, Hangar, Mine, ResearchLab, Shipyard}
+import model.purchasable.technology.{AdvancedMaterials, AdvancedPropulsion, NanoRobotics, Polymer, Technology, TechnologyFactory}
+import model.purchasable.types.EntityType
+import model.purchasable.units.{Battleship, Corvette, Cruiser, Destroyer, Ship, UnitFactory}
+
+import scala.+:
+import scala.compiletime.ops.string
 
 case class GameStateManager(round: Round = Round(),
                             funds: Balance = Balance(),
                             researchOutput: Research = Research(),
                             message: String = "",
-                            gameState: GameState = GameState.INIT) {
+                            playerValues: IValues = PlayerValues(),
+                            gameState: GameState = GameState.INIT) extends IGameStateManager {
+
+
+  private val gameValues: IValues = GameValues()
+
   private def nextRound: GameStateManager =
     val newRound = round.next
     //val newFunds = funds.increase(calculateBalance())
@@ -22,92 +34,93 @@ case class GameStateManager(round: Round = Round(),
       researchOutput = researchOutput,
       message = GameStateStringFormatter(round = newRound, funds = funds, researchOutput = researchOutput).overview()
     )
-  
-  def handlePlayerAction(action: ActionType): GameStateManager = action match
-    case ActionType.EMPTY => this.copy(gameState = GameState.RUNNING, message = GameStateStringFormatter().empty)
-    case ActionType.EXIT => handleExitAction()
-    case ActionType.HELP => handleHelpAction()
-    case ActionType.FINISH_ROUND_REQUEST => handleFinishRoundRequest()
-    case ActionType.BUILD(value) => handleBuildAction(value)
-    case ActionType.RESEARCH(value) => handleResearchAction(value)
-    case ActionType.RECRUIT(value1, value2) => handleRecruitAction(value1, value2)
-    case ActionType.SHOW(value) => handleShowAction(value)
-    case ActionType.LIST(value) => handleListAction(value)
-    case ActionType.SELL(value) => handleSellAction(value)
-    case ActionType.INVALID(value) => handleInvalidAction(value)
-    case ActionType.MOVE(x, y) => handleMoveAction(x, y)
-    case ActionType.SAVE(value) => handleSaveAction(value)
-    case ActionType.LOAD(value) => handleLoadAction(value)
-    case ActionType.USER_ACCEPT | ActionType.USER_DECLINE => handleUserConfirmation(action)
-
-
-  private def handleExitAction(): GameStateManager =
-    this.copy(gameState = GameState.EXITED, message = GameStateStringFormatter().goodbyeResponse)
-
-  private def handleInvalidAction(value: Option[String]): GameStateManager =
-    this.copy(gameState = GameState.RUNNING, message = GameStateStringFormatter().invalidInputResponse(value.get))
-
-  private def handleHelpAction(): GameStateManager =
-    this.copy(gameState = GameState.RUNNING, message = GameStateStringFormatter().helpResponse)
-
-  private def handleShowAction(what: Option[String]): GameStateManager =
-    what.get match
-      case "buildings" => this.copy(gameState = GameState.RUNNING, message = s"some buildings")
-      case "technology" => this.copy(gameState = GameState.RUNNING, message = s"some technology")
-      case "units" => this.copy(gameState = GameState.RUNNING, message = s"some units")
-      case "overview" =>
-        this.copy(gameState = GameState.RUNNING,
-          message = GameStateStringFormatter().overview(round, funds, researchOutput))
-      case other =>
-        this.copy(gameState = GameState.RUNNING,
-          message = GameStateStringFormatter()
-            .invalidInputResponse(s"show '$other' doesn't exist try show <buildings | technology | units | overview>"))
-
-  private def handleListAction(what: Option[String]): GameStateManager =
-    what.get match
-      case "buildings" => this.copy(gameState = GameState.RUNNING, message = s"some buildings")
-      case "technology" => this.copy(gameState = GameState.RUNNING, message = s"some technology")
-      case "units" => this.copy(gameState = GameState.RUNNING, message = s"some units")
-      case other =>
-        this.copy(gameState = GameState.RUNNING,
-          message = GameStateStringFormatter()
-            .invalidInputResponse(s"list '$other' doesn't exist try show <buildings | technology | units>"))
-
-  private def handleSellAction(what: Option[String]): GameStateManager =
-    this.copy(gameState = RUNNING, message = s"sold ${what.get}")
-
-  private def handleFinishRoundRequest(): GameStateManager =
-    this.copy(gameState = END_ROUND_REQUEST, message = GameStateStringFormatter().askForConfirmation)
-
-  private def handleUserConfirmation(action: ActionType): GameStateManager =
-    if gameState != END_ROUND_REQUEST
-    then this.copy(
-      gameState = RUNNING,
-      message = GameStateStringFormatter().invalidInputResponse("You must end the round by entering [done] first")
-    )
-    else
-      action match
-        case ActionType.USER_ACCEPT => nextRound
-        case _ => this.copy(gameState = RUNNING, message = GameStateStringFormatter().empty)
-
-
-  // TODO: Implement Methods
-  private def handleSaveAction(maybeString: Option[String]) =
-    this.copy(gameState = RUNNING, message = s"saving ${maybeString.get}")
-  private def handleLoadAction(maybeString: Option[String]) =
-    this.copy(gameState = RUNNING, message = s"loading ${maybeString.get}")
-  private def handleMoveAction(maybeString: Option[String], maybeString1: Option[String]) =
-    this.copy(gameState = RUNNING, message = s"moving to ${maybeString.get}, ${maybeString1.get}")
-  private def handleBuildAction(maybeString: Option[String]) =
-    this.copy(gameState = RUNNING, message = s"constructing ${maybeString.get}")
-  private def handleRecruitAction(maybeString: Option[String], quantity: Option[String]) =
-    this.copy(gameState = RUNNING, message = s"recruiting ${maybeString.get}")
-  private def handleResearchAction(maybeString: Option[String]) =
-    this.copy(gameState = RUNNING, message = s"researching ${maybeString.get}")
-
 
   // private def calculateBalance(): Balance = ???
   // private def calculateResearch(): Research = ???
 
   override def toString: String = message
+
+  override def build(what: String): IGameStateManager =
+    val building: Building = BuildingFactory().create(what.toLowerCase).get
+    this.copy(
+      gameState = RUNNING,
+      playerValues = PlayerValues(listOfBuildings = playerValues.listOfBuildings.+:(building)),
+      message = s"Constructing: ${building.name}")
+
+  override def research(what: String): IGameStateManager =
+    val tech: Technology = TechnologyFactory().create(what.toLowerCase).get
+    this.copy(
+      gameState = RUNNING,
+      playerValues = PlayerValues(listOfTechnologies = playerValues.listOfTechnologies.+:(tech)),
+      message = s"Researching: ${tech.name}")
+
+  override def recruit(what: String, howMany: Int): IGameStateManager =
+    val unit: Ship = UnitFactory().create(what.toLowerCase, howMany).get
+    this.copy(
+      gameState = RUNNING,
+      playerValues = PlayerValues(listOfUnits = playerValues.listOfUnits.+:(unit)),
+      message = s"Recruiting: $howMany x ${unit.name}")
+
+  override def sell(what: String, howMany: Int): IGameStateManager =
+    this.copy(gameState = RUNNING, message = "sell not implemented yet")
+
+  override def list(what: Option[EntityType]): IGameStateManager =
+    what match
+      case None => this.copy(gameState = RUNNING, message = GameStateStringFormatter().listAll)
+      case Some(EntityType.TECHNOLOGY) =>
+        this.copy(gameState = RUNNING, message = GameStateStringFormatter().listTechnologies)
+      case Some(EntityType.UNIT) =>
+        this.copy(gameState = RUNNING, message = GameStateStringFormatter().listUnits)
+      case Some(EntityType.BUILDING) =>
+        this.copy(gameState = RUNNING, message = GameStateStringFormatter().listBuildings)
+  override def show(): IGameStateManager =
+    this.copy(gameState = RUNNING,
+      message = GameStateStringFormatter().overview(round, funds, researchOutput))
+  override def help(what: Option[String]): IGameStateManager =
+    what match
+      case Some("building") =>
+        this.copy(gameState = RUNNING,
+          message = "A building can impact the game in various ways, such as increasing research output, " +
+          "providing energy, or increasing unit capacity.")
+      case Some("technology") =>
+        this.copy(gameState = RUNNING,
+          message = "A technology in the game that can be researched by " +
+            "players to unlock new abilities, units, or buildings.")
+      case Some("unit") =>
+        this.copy(gameState = RUNNING, message = "A unit can be used to fight over sectors and conquer new sectors.")
+      case None =>
+        this.copy(gameState = RUNNING, message = GameStateStringFormatter().helpResponse)
+      case _ =>
+        this.copy(gameState = RUNNING, message = findInLists(what.get))
+
+  override def move(what: String, where: Coordinate): IGameStateManager =
+    this.copy(gameState = RUNNING, message = "move not implemented yet")
+  override def invalid(input: String): IGameStateManager =
+    this.copy(gameState = RUNNING, message = GameStateStringFormatter().invalidInputResponse(input))
+  override def endRoundRequest(): IGameStateManager =
+    this.copy(gameState = END_ROUND_REQUEST, message = GameStateStringFormatter().askForConfirmation)
+  override def endRoundConfirmation(): IGameStateManager =
+    if (gameState == END_ROUND_REQUEST) nextRound
+    else this.copy(gameState = RUNNING, message = GameStateStringFormatter().empty)
+  override def resetGameState(): IGameStateManager =
+    this.copy(gameState = RUNNING, message = GameStateStringFormatter().empty)
+  override def exit(): IGameStateManager =
+    this.copy(gameState = EXITED, message = GameStateStringFormatter().goodbyeResponse)
+  override def save(as: Option[String]): IGameStateManager =
+    this.copy(gameState = RUNNING, message = "save not implemented yet")
+  override def load(as: Option[String]): IGameStateManager =
+    this.copy(gameState = RUNNING, message = "load not implemented yet")
+  override def message(what: String): IGameStateManager =
+    this.copy(gameState = RUNNING, message = GameStateStringFormatter(userMsg = what).showMessage)
+  override def empty(): IGameStateManager =
+    this.copy(gameState = RUNNING, message = GameStateStringFormatter().empty)
+  private def findInLists(str: String): String =
+    if (gameValues.listOfTechnologies.exists(_.name.toLowerCase == str))
+      gameValues.listOfTechnologies.find(_.name.toLowerCase == str).get.toString
+    else if (gameValues.listOfBuildings.exists(_.name.toLowerCase() == str))
+      gameValues.listOfBuildings.find(_.name.toLowerCase() == str).get.toString
+    else if (gameValues.listOfUnits.exists(_.name.toLowerCase() == str))
+      gameValues.listOfUnits.find(_.name.toLowerCase() == str).get.toString
+    else
+      s"Could not find any information on '$str'"
 }

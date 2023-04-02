@@ -1,16 +1,18 @@
 package model.game.gamestate
 
 import model.countable.{Balance, Research}
-import model.game.Round
+import model.game.{GameValues, IValues, Round}
 
 case class GameStateStringFormatter(round: Round = Round(),
                                     funds: Balance = Balance(),
                                     researchOutput: Research = Research(),
-                                    userMsg: String = ""):
+                                    userMsg: String = "",
+                                    gameValues: IValues = GameValues()):
 
   def separator(len: Int = 4): String = " |" + "-" * len + "| "
   def vertBar(len: Int = 30): String = "=" * len
   def empty: String = ""
+  def showMessage: String = userMsg
   def overview(round: Round = round, funds: Balance = funds, research: Research= researchOutput): String = {
     val len: Int = (round.toString + funds.toString + research.toString + separator() + separator()).length + 2
     vertBar(len) + "\n" + " " + round + separator() + funds + separator() + research + " " + "\n" + vertBar(len)
@@ -32,4 +34,15 @@ case class GameStateStringFormatter(round: Round = Round(),
 
   def goodbyeResponse: String = f"Goodbye!"
 
-  def invalidInputResponse(msg: String): String = f"$msg\nEnter help to get an overview of all available commands"
+  def invalidInputResponse(msg: String): String =
+    f"$msg - invalid\nEnter help to get an overview of all available commands"
+
+  def listBuildings: String =
+    s"==== Buildings ====\n${gameValues.listOfBuildings.map(x => prependString(x.name)).mkString("\n")}\n"
+  def listUnits: String =
+    s"==== Units ====\n${gameValues.listOfUnits.map(x => prependString(x.name)).mkString("\n")}\n"
+  def listTechnologies: String =
+    s"==== Technologies ====\n${gameValues.listOfTechnologies.map(x => prependString(x.name)).mkString("\n")}\n"
+  def listAll: String = listBuildings + listTechnologies + listUnits
+
+  private def prependString(str: String) = str.prependedAll(" - ")

@@ -1,8 +1,11 @@
 package model.game.gamestate
 
-import model.game.Round
+import model.game.{GameValues, Round}
 import model.countable.{Balance, Research}
 import model.game.gamestate.GameStateStringFormatter
+import model.purchasable.building.Mine
+import model.purchasable.technology.AdvancedMaterials
+import model.purchasable.units.Corvette
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers.*
 
@@ -51,8 +54,26 @@ class GameStateStringFormatterSpec extends AnyWordSpec {
     "Asked for a 'invalidInputResponse'" should {
       "return the message and a string to explain what to do" in {
         GameStateStringFormatter()
-          .invalidInputResponse("this is a test") should be ("this is a test\nEnter help to get an " +
+          .invalidInputResponse("this is a test") should be ("this is a test - invalid\nEnter help to get an " +
           "overview of all available commands")
+      }
+    }
+    "Asked for a 'list' of buildings" should {
+      "return the formatted list of prepended building names" in {
+        GameStateStringFormatter(gameValues = GameValues(listOfBuildings = List(Mine())))
+          .listBuildings should be("==== Buildings ====\n - Mine\n")
+      }
+    }
+    "Asked for a 'list' of units" should {
+      "return the formatted list of prepended building names" in {
+        GameStateStringFormatter(gameValues = GameValues(listOfUnits = List(Corvette())))
+          .listUnits should be("==== Units ====\n - Corvette\n")
+      }
+    }
+    "Asked for a 'list' of technologies" should {
+      "return the formatted list of prepended building names" in {
+        GameStateStringFormatter(gameValues = GameValues(listOfTechnologies = List(AdvancedMaterials())))
+          .listTechnologies should be("==== Technologies ====\n - Advanced Materials\n")
       }
     }
   }

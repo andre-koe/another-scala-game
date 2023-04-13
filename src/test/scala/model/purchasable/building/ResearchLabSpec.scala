@@ -11,7 +11,10 @@ class ResearchLabSpec extends AnyWordSpec {
     }
     "have an appropriate toString representation" in {
       researchLab
-        .toString should be("The Research Lab increases research output and unlocks new technologies for players.")
+        .toString should be("Research Lab")
+    }
+    "return a new ResearchLab object when round is decreased" in {
+      researchLab.decreaseRoundsToComplete.roundsToComplete.value should be(ResearchLab().roundsToComplete.value - 1)
     }
   }
 

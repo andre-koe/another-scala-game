@@ -11,8 +11,10 @@ class FactorySpec extends AnyWordSpec {
     }
     "have an appropriate toString representation" in {
       factory
-        .toString should be("The Factory processes minerals into alloys " +
-        "which are needed for construction of buildings and ships.")
+        .toString should be("Factory")
+    }
+    "return a new Factory object when round is decreased" in {
+      factory.decreaseRoundsToComplete.roundsToComplete.value should be(Factory().roundsToComplete.value - 1)
     }
   }
 

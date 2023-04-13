@@ -1,7 +1,8 @@
 package model.game
 
+import model.game.map.Coordinate
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.matchers.should.Matchers._
+import org.scalatest.matchers.should.Matchers.*
 
 class CoordinateSpec extends AnyWordSpec {
 

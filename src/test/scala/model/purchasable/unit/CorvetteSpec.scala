@@ -12,8 +12,10 @@ class CorvetteSpec extends AnyWordSpec {
     }
     "have a fitting toString representation" in {
       Corvette()
-        .toString should be("The Corvette is a fast and agile naval unit that excels at " +
-        "harassing enemy fleets and scouting enemy positions.")
+        .toString should be("Corvette")
+    }
+    "return a new Corvette object when round is decreased" in {
+      Corvette().decreaseRoundsToComplete.roundsToComplete.value should be(Corvette().roundsToComplete.value - 1)
     }
   }
 

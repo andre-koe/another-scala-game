@@ -1,10 +1,10 @@
 package model.game
 
-import model.purchasable.building.Building
-import model.purchasable.technology.Technology
-import model.purchasable.units.Ship
+import model.purchasable.building.IBuilding
+import model.purchasable.technology.ITechnology
+import model.purchasable.units.IUnit
 
 trait IValues:
-  def listOfBuildings: List[Building]
-  def listOfTechnologies: List[Technology]
-  def listOfUnits: List[Ship]
+  def listOfBuildings: List[IBuilding]
+  def listOfTechnologies: List[ITechnology]
+  def listOfUnits: List[IUnit]

@@ -11,5 +11,9 @@ class AdvancedPropulsionSpec extends AnyWordSpec {
     "have a fitting toString representation" in {
       AdvancedPropulsion().toString should be("Advanced Propulsion")
     }
+    "return a new AdvancedPropulsion object when round is decreased" in {
+      AdvancedPropulsion().decreaseRoundsToComplete
+        .roundsToComplete.value should be(AdvancedPropulsion().roundsToComplete.value - 1)
+    }
   }
 }

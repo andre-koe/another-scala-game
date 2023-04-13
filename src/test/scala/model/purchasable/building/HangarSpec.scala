@@ -11,8 +11,10 @@ class HangarSpec extends AnyWordSpec {
     }
     "have an appropriate toString representation" in {
       hangar
-        .toString should be("The Hangar provides additional capacity " +
-        "for air units and allows players to repair and upgrade them.")
+        .toString should be("Hangar")
+    }
+    "return a new Hangar object when round is decreased" in {
+      hangar.decreaseRoundsToComplete.roundsToComplete.value should be(Hangar().roundsToComplete.value - 1)
     }
   }
 

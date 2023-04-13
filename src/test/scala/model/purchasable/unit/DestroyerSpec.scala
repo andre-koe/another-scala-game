@@ -12,7 +12,10 @@ class DestroyerSpec extends AnyWordSpec {
     }
     "have a fitting toString representation" in {
       Destroyer()
-        .toString should be("The Destroyer is a specialized naval unit that can detect and track enemy ships.")
+        .toString should be("Destroyer")
+    }
+    "return a new Destroyer object when round is decreased" in {
+      Destroyer().decreaseRoundsToComplete.roundsToComplete.value should be(Destroyer().roundsToComplete.value - 1)
     }
   }
 

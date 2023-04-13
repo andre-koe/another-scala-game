@@ -11,5 +11,9 @@ class AdvancedMaterialsSpec extends AnyWordSpec {
     "have a fitting toString representation" in {
       AdvancedMaterials().toString should be("Advanced Materials")
     }
+    "return a new AdvancedMaterials object when round is decreased" in {
+      AdvancedMaterials().decreaseRoundsToComplete
+        .roundsToComplete.value should be(AdvancedMaterials().roundsToComplete.value - 1)
+    }
   }
 }

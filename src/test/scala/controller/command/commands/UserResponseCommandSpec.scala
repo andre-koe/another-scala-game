@@ -40,11 +40,11 @@ class UserResponseCommandSpec extends AnyWordSpec {
       val resp2Command: UserResponseCommand = UserResponseCommand("Y", gameStateManager)
       val resp3Command: UserResponseCommand = UserResponseCommand("Yas", gameStateManager)
       resp1Command.execute().gameState should be(GameState.RUNNING)
-      resp1Command.execute().toString should be(GameStateStringFormatter().overview(round = Round(2)))
+      resp1Command.execute().toString should be(GameStateStringFormatter(playerValues = gameStateManager.playerValues).overview(round = Round(2)))
       resp2Command.execute().gameState should be(GameState.RUNNING)
-      resp2Command.execute().toString should be(GameStateStringFormatter().overview(round = Round(2)))
+      resp2Command.execute().toString should be(GameStateStringFormatter(playerValues = gameStateManager.playerValues).overview(round = Round(2)))
       resp3Command.execute().gameState should be(GameState.RUNNING)
-      resp3Command.execute().toString should be(GameStateStringFormatter().overview(round = Round(2)))
+      resp3Command.execute().toString should be(GameStateStringFormatter(playerValues = gameStateManager.playerValues).overview(round = Round(2)))
     }
   }
 

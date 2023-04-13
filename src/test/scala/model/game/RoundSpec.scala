@@ -21,6 +21,19 @@ class RoundSpec extends AnyWordSpec {
        round.next.value should be (2)
      }
    }
+   "decreased" should {
+     val round: Round = Round(10)
+     "give us a new Round object" in {
+       round.decrease should not be equal(round)
+     }
+     "have the value 9 when decreased after being initialized with 10" in {
+       round.decrease.get.value should be(9)
+     }
+     "return None when decreased after being initialized with 1" in {
+       val newRound: Round = Round()
+       newRound.decrease.isDefined should be(false)
+     }
+   }
    "asked for its String representation" should {
      val aTestRoundValue: Int = 32
      val round: Round = Round(32)

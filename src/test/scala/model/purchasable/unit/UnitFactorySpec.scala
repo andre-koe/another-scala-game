@@ -9,16 +9,16 @@ class UnitFactorySpec extends AnyWordSpec {
   "The UnitFactory" should {
     val unitFactory: UnitFactory = UnitFactory()
     "return Options" in {
-      unitFactory.create("corvette", 1) should be(Option(Corvette()))
+      unitFactory.create("corvette") should be(Option(Corvette()))
     }
     "create the following units based on their name" in {
-      unitFactory.create("battleship", 1).get should be(Battleship())
-      unitFactory.create("corvette", 1).get should be(Corvette())
-      unitFactory.create("cruiser", 1).get should be(Cruiser())
-      unitFactory.create("destroyer", 1).get should be(Destroyer())
+      unitFactory.create("battleship").get should be(Battleship())
+      unitFactory.create("corvette").get should be(Corvette())
+      unitFactory.create("cruiser").get should be(Cruiser())
+      unitFactory.create("destroyer").get should be(Destroyer())
     }
     "return None if an nonexitent unit name is passed to it" in {
-      unitFactory.create("test unit", 1) should be(None)
+      unitFactory.create("test unit") should be(None)
     }
   }
 

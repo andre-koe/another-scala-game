@@ -3,8 +3,6 @@ package controller
 import controller.command.ICommand
 import controller.command.commands.{BuildCommand, EmptyCommand, EndGameCommand, EndRoundCommand, HelpCommand, InvalidCommand, ListCommand, LoadCommand, MoveCommand, RecruitCommand, ResearchCommand, SaveCommand, SellCommand, ShowCommand, UserResponseCommand}
 import utils.{Observable, Observer}
-import controller.playeractions.ActionType.*
-import controller.playeractions.ActionType
 import model.game.gamestate.{GameState, GameStateManager, IGameStateManager}
 
 class Controller extends Observable {
@@ -31,9 +29,9 @@ class Controller extends Observable {
       case "sell" :: tail => SellCommand(tail.mkString(" "), gameStateManager)
       case ("help" | "h") :: tail => HelpCommand(tail.mkString(" "), gameStateManager)
       case ("no" | "n" | "y" | "yes") :: Nil => UserResponseCommand(string, gameStateManager)
+      case ("exit" | "quit") :: Nil => EndGameCommand(gameStateManager)
       case "done" :: Nil => EndRoundCommand(gameStateManager)
       case "" :: Nil => EmptyCommand(gameStateManager)
-      case ("exit" | "quit") :: Nil => EndGameCommand(gameStateManager)
       case _ => InvalidCommand(string, gameStateManager)
   override def toString: String = gameStateManager.toString
 

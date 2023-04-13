@@ -11,5 +11,9 @@ class NanoRoboticsSpec extends AnyWordSpec {
     "have a fitting toString representation" in {
       NanoRobotics().toString should be("Nano Robotics")
     }
+    "return a new NanoRobotics object when round is decreased" in {
+      NanoRobotics().decreaseRoundsToComplete
+        .roundsToComplete.value should be(NanoRobotics().roundsToComplete.value - 1)
+    }
   }
 }

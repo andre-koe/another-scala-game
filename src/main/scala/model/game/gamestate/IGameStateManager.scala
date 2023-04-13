@@ -1,22 +1,29 @@
 package model.game.gamestate
 
-import model.countable.{Balance, Research}
-import model.game.{Coordinate, IValues, Round}
+import model.game.map.Coordinate
+import model.game.{Capacity, IValues, PlayerValues, Round}
+import model.purchasable.IUpkeep
+import model.purchasable.building.IBuilding
+import model.purchasable.technology.ITechnology
 import model.purchasable.types.EntityType
+import model.purchasable.units.IUnit
+import model.resources.ResourceHolder
+import model.resources.resourcetypes.{Energy, ResearchPoints}
 
 trait IGameStateManager {
-  def playerValues: IValues
   def round: Round
-  def funds: Balance
-  def researchOutput: Research
+  def playerValues: PlayerValues
   def gameState: GameState
-  def build(what: String): IGameStateManager
-  def research(what: String): IGameStateManager
-  def recruit(what: String, howMany: Int): IGameStateManager
-  def sell(what: String, howMany: Int): IGameStateManager
-  def list(what: Option[EntityType]): IGameStateManager
+  def build(building: IBuilding, newBalance: ResourceHolder, msg: String): IGameStateManager
+  def research(technology: ITechnology, newBalance: ResourceHolder, msg: String): IGameStateManager
+  def recruit(what: Vector[IUnit], newBalance: ResourceHolder, msg: String): IGameStateManager
+  def sell(newUnits: Option[List[IUnit]],
+           newBuildings: Option[List[IBuilding]],
+           profit: ResourceHolder,
+           capacity: Capacity,
+           savedUpkeep: ResourceHolder,
+           message: String): IGameStateManager
   def show(): IGameStateManager
-  def help(what: Option[String]): IGameStateManager
   def move(what: String, where: Coordinate): IGameStateManager
   def invalid(input: String): IGameStateManager
   def endRoundRequest(): IGameStateManager

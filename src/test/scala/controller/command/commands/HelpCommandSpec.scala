@@ -11,14 +11,24 @@ class HelpCommandSpec extends AnyWordSpec {
       val gameStateManager: IGameStateManager = GameStateManager()
       "used without parameter the general help menu should be loaded as GameState" in {
         val helpCommand: HelpCommand = HelpCommand("", gameStateManager)
-        helpCommand.execute().toString should be(GameStateStringFormatter().helpResponse)
+        helpCommand.execute().toString should be(
+          f"""The following actions should be implemented:
+             | > [overview] | to get an overview of your current account balance/research points
+             | > [build] <building name> | to begin construction of a building
+             | > [recruit] <unit name> (quantity) | to begin recruitment of 1 or (quantity) units
+             | > [research] <technology name> | to begin researching a technology
+             | > [done] | to end the current round
+             | > [help | h] | to show this menu
+             | > [exit | quit] to quit
+             | > [undo] to undo the last action
+             | > [redo] to undo the last redo""".stripMargin)
         helpCommand.execute().gameState should be(GameState.RUNNING)
       }
       "used with input building an information about buildings should be loaded as GameState" in {
         val helpCommand: HelpCommand = HelpCommand("building", gameStateManager)
         helpCommand.execute()
-          .toString should be("A building can impact the game in various ways, such as increasing research output, " +
-        "providing energy, or increasing unit capacity.")
+          .toString should be("A building can impact the game in various ways, " +
+          "such as increasing research output, providing energy, or increasing unit capacity.")
         helpCommand.execute().gameState should be(GameState.RUNNING)
       }
       "used with input technology an information about technologies should be loaded as GameState" in {
@@ -34,26 +44,27 @@ class HelpCommandSpec extends AnyWordSpec {
           .toString should be("A unit can be used to fight over sectors and conquer new sectors.")
         helpCommand.execute().gameState should be(GameState.RUNNING)
       }
-      "used with an specific unit name such as battleship an information about " +
+      "used with a specific unit name such as battleship an information about " +
         "this unit should be loaded as GameState" in {
         val helpCommand: HelpCommand = HelpCommand("battleship", gameStateManager)
         helpCommand.execute()
-          .toString should be("The Battleship is a heavily armed and armored naval unit that can deal " +
-        "massive damage to enemy ships and structures from a distance.")
+          .toString should be("Some description for Unit Battleship")
         helpCommand.execute().gameState should be(GameState.RUNNING)
       }
-      "used with an specific technology name such as advanced materials an information about " +
+      "used with a specific technology name such as advanced materials an information about " +
         "this technology should be loaded as GameState" in {
         val helpCommand: HelpCommand = HelpCommand("advanced materials", gameStateManager)
         helpCommand.execute()
           .toString should be("Advanced Materials")
         helpCommand.execute().gameState should be(GameState.RUNNING)
       }
-      "used with an specific building name such as mine an information about " +
+      "used with a specific building name such as mine an information about " +
         "this building should be loaded as GameState" in {
         val helpCommand: HelpCommand = HelpCommand("mine", gameStateManager)
         helpCommand.execute()
-          .toString should be("The Mine extracts minerals which are used to produce alloys.")
+          .toString should be("The Mine extracts minerals which are used for " +
+          "the construction of units and buildings. " +
+          "Minerals are the base resource for the production of alloys.")
         helpCommand.execute().gameState should be(GameState.RUNNING)
       }
       "used with an unknown input lol an information about the absence of information should loaded as GameState" in {

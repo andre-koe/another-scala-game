@@ -1,6 +1,7 @@
-package model.countable
+package model.resources
 
-trait ICountable[T] {
+trait IResource[T] {
+  def name: String
   def increase(other: T): T
   def decrease(other: T): Option[T]
 }

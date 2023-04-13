@@ -11,7 +11,8 @@ class ShowCommandSpec extends AnyWordSpec {
       val gameStateManager: IGameStateManager = GameStateManager()
       val showCommand: ShowCommand = ShowCommand("overview", gameStateManager)
       showCommand.execute().gameState should be(GameState.RUNNING)
-      showCommand.execute().toString should be(GameStateStringFormatter().overview())
+      showCommand.execute().toString should be(
+        GameStateStringFormatter(playerValues = gameStateManager.playerValues).overview())
     }
     "should set the GameState to running and display an explanatory String" in {
       val gameStateManager: IGameStateManager = GameStateManager()

@@ -11,7 +11,10 @@ class ShipyardSpec extends AnyWordSpec {
     }
     "have an appropriate toString representation" in {
       shipyard
-        .toString should be("The Shipyard allows players to construct and upgrade naval units for their fleet.")
+        .toString should be("Shipyard")
+    }
+    "return a new Shipyard object when round is decreased" in {
+      shipyard.decreaseRoundsToComplete.roundsToComplete.value should be(Shipyard().roundsToComplete.value - 1)
     }
   }
 

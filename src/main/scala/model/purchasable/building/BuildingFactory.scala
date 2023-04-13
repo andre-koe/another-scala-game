@@ -2,7 +2,7 @@ package model.purchasable.building
 
 case class BuildingFactory():
 
-  def create(string: String): Option[Building] =
+  def create(string: String): Option[IBuilding] =
     string match
       case "hangar" => Option(Hangar())
       case "energy grid" => Option(EnergyGrid())

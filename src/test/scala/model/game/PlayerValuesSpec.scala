@@ -1,8 +1,8 @@
 package model.game
 
-import model.purchasable.building.{Building, EnergyGrid, Factory, Hangar, Mine, ResearchLab, Shipyard}
-import model.purchasable.technology.{AdvancedMaterials, AdvancedPropulsion, NanoRobotics, Polymer, Technology}
-import model.purchasable.units.{Battleship, Corvette, Cruiser, Destroyer, Ship}
+import model.purchasable.building.{IBuilding, EnergyGrid, Factory, Hangar, Mine, ResearchLab, Shipyard}
+import model.purchasable.technology.{AdvancedMaterials, AdvancedPropulsion, NanoRobotics, Polymer, ITechnology}
+import model.purchasable.units.{Battleship, Corvette, Cruiser, Destroyer, IUnit}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers.*
 
@@ -18,7 +18,7 @@ class PlayerValuesSpec extends AnyWordSpec {
       playerValues.listOfTechnologies should be(empty)
     }
     "be re-initializable" in {
-      val playerValues: IValues
+      val playerValues: PlayerValues
       = PlayerValues(listOfBuildings = List(ResearchLab(), EnergyGrid(), Shipyard(), Hangar(), Factory(), Mine()),
         listOfUnits = List(Corvette(), Cruiser(), Destroyer(), Battleship()),
         listOfTechnologies = List(Polymer(), AdvancedMaterials(), NanoRobotics(), AdvancedPropulsion()))
@@ -31,11 +31,11 @@ class PlayerValuesSpec extends AnyWordSpec {
       playerValues.listOfTechnologies should not be(empty)
     }
     "the lists should return new lists if something is appended re-initializable" in {
-      val playerValues: IValues = PlayerValues()
+      val playerValues: PlayerValues = PlayerValues()
 
-      playerValues.listOfUnits.:+(Destroyer()) should be(List[Ship](Destroyer()))
-      playerValues.listOfBuildings.:+(ResearchLab()) should be(List[Building](ResearchLab()))
-      playerValues.listOfTechnologies.:+(AdvancedMaterials()) should be(List[Technology](AdvancedMaterials()))
+      playerValues.listOfUnits.:+(Destroyer()) should be(List[IUnit](Destroyer()))
+      playerValues.listOfBuildings.:+(ResearchLab()) should be(List[IBuilding](ResearchLab()))
+      playerValues.listOfTechnologies.:+(AdvancedMaterials()) should be(List[ITechnology](AdvancedMaterials()))
     }
   }
 }

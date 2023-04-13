@@ -1,7 +1,7 @@
 package model.purchasable.technology
 
 case class TechnologyFactory():
-  def create(string: String): Option[Technology] =
+  def create(string: String): Option[ITechnology] =
     string match
       case "advanced materials" => Option(AdvancedMaterials())
       case "polymer" => Option(Polymer())

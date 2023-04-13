@@ -11,7 +11,10 @@ class MineSpec extends AnyWordSpec {
     }
     "have an appropriate toString representation" in {
       mine
-        .toString should be("The Mine extracts minerals which are used to produce alloys.")
+        .toString should be("Mine")
+    }
+    "return a new Mine object when round is decreased" in {
+      mine.decreaseRoundsToComplete.roundsToComplete.value should be(Mine().roundsToComplete.value - 1)
     }
   }
 

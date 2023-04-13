@@ -12,8 +12,10 @@ class CruiserSpec extends AnyWordSpec {
     }
     "have a fitting toString representation" in {
       Cruiser()
-        .toString should be("The Cruiser is a versatile naval unit that can engage both " +
-        "ground and air targets with its array of weapons and sensors.")
+        .toString should be("Cruiser")
+    }
+    "return a new Cruiser object when round is decreased" in {
+      Cruiser().decreaseRoundsToComplete.roundsToComplete.value should be(Cruiser().roundsToComplete.value - 1)
     }
   }
 

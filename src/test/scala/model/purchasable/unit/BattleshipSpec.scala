@@ -12,8 +12,10 @@ class BattleshipSpec extends AnyWordSpec {
     }
     "have a fitting toString representation" in {
       Battleship()
-        .toString should be("The Battleship is a heavily armed and armored naval unit that can deal " +
-        "massive damage to enemy ships and structures from a distance.")
+        .toString should be("Battleship")
+    }
+    "return a new BattleShip object when round is decreased" in {
+      Battleship().decreaseRoundsToComplete.roundsToComplete.value should be(Battleship().roundsToComplete.value - 1)
     }
   }
 

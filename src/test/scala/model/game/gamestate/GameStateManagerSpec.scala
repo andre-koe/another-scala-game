@@ -1,13 +1,14 @@
 package model.game.gamestate
 
-import model.countable.{Balance, Research}
 import model.game.*
 import model.purchasable.types.EntityType
 import model.purchasable.*
 import model.game.gamestate.{GameStateStringFormatter, IGameStateManager}
-import model.purchasable.building.{Building, ResearchLab}
-import model.purchasable.technology.{Polymer, Technology}
-import model.purchasable.units.{Corvette, Ship}
+import model.game.map.Coordinate
+import model.purchasable.building.{Hangar, IBuilding, ResearchLab}
+import model.purchasable.technology.{AdvancedMaterials, ITechnology, Polymer}
+import model.purchasable.units.{Corvette, IUnit}
+import model.resources.resourcetypes.{Energy, ResearchPoints}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers.*
 
@@ -20,32 +21,38 @@ class GameStateManagerSpec extends AnyWordSpec {
       "have a Round value of 1" in {
         state.round.value should be(1)
       }
-      "have a Funds value of 1000" in {
-        state.funds.value should be(1000)
+      "have an Energy value of 100" in {
+        state.playerValues.resourceHolder.energy.value should be(100)
+      }
+      "have a Mineral value of 100" in {
+        state.playerValues.resourceHolder.minerals.value should be(100)
+      }
+      "have an Alloy value of 10" in {
+        state.playerValues.resourceHolder.alloys.value should be(10)
       }
       "have a Research value of 100" in {
-        state.researchOutput.value should be(100)
+        state.playerValues.resourceHolder.researchPoints.value should be(100)
       }
       "have a GameState of type INIT" in {
         state.gameState should be(GameState.INIT)
       }
       "have a list of buildings" in {
-        val gameStateManager = GameStateManager(playerValues = PlayerValues(listOfBuildings = List[Building](ResearchLab())))
+        val gameStateManager = GameStateManager(playerValues = PlayerValues(listOfBuildings = List[IBuilding](ResearchLab())))
         gameStateManager.playerValues.listOfBuildings shouldBe a[List[_]]
         gameStateManager.playerValues.listOfBuildings should not be (empty)
-        gameStateManager.playerValues.listOfBuildings.head shouldBe a[Building]
+        gameStateManager.playerValues.listOfBuildings.head shouldBe a[IBuilding]
       }
       "have a list of technologies" in {
-        val gameStateManager = GameStateManager(playerValues = PlayerValues(listOfTechnologies = List[Technology](Polymer())))
+        val gameStateManager = GameStateManager(playerValues = PlayerValues(listOfTechnologies = List[ITechnology](Polymer())))
         gameStateManager.playerValues.listOfTechnologies shouldBe a[List[_]]
         gameStateManager.playerValues.listOfTechnologies should not be (empty)
-        gameStateManager.playerValues.listOfTechnologies.head shouldBe a[Technology]
+        gameStateManager.playerValues.listOfTechnologies.head shouldBe a[ITechnology]
       }
       "have a list of units" in {
-        val gameStateManager = GameStateManager(playerValues = PlayerValues(listOfUnits = List[Ship](Corvette())))
+        val gameStateManager = GameStateManager(playerValues = PlayerValues(listOfUnits = List[IUnit](Corvette())))
         gameStateManager.playerValues.listOfUnits shouldBe a[List[_]]
         gameStateManager.playerValues.listOfUnits should not be (empty)
-        gameStateManager.playerValues.listOfUnits.head shouldBe a[Ship]
+        gameStateManager.playerValues.listOfUnits.head shouldBe a[IUnit]
       }
     }
     "handling a player command" should {
@@ -71,46 +78,24 @@ class GameStateManagerSpec extends AnyWordSpec {
         state.exit().gameState should be (GameState.EXITED)
         state.exit().toString should be (GameStateStringFormatter().goodbyeResponse)
       }
-      "update the game state and the string representation if help is invoked" in {
-        state.help(None).gameState should be(GameState.RUNNING)
-        state.help(None).toString should be (GameStateStringFormatter().helpResponse)
-      }
       "update the game state and the string representation if research is invoked" in {
-        state.research("Advanced Materials").gameState should be(GameState.RUNNING)
-        state.research("Advanced Materials").toString should be("Researching: Advanced Materials")
+        state.research(AdvancedMaterials(), AdvancedMaterials().cost, "Researching: Advanced Materials").gameState should be(GameState.RUNNING)
+        state.research(AdvancedMaterials(), AdvancedMaterials().cost, "Researching: Advanced Materials").toString should be("Researching: Advanced Materials")
       }
       "update the game state and the string representation if build is invoked" in {
-        state.build("Hangar").gameState should be(GameState.RUNNING)
-        state.build("Hangar").toString should be("Constructing: Hangar")
+        state.build(Hangar(), Hangar().cost, "Constructing: Hangar").gameState should be(GameState.RUNNING)
+        state.build(Hangar(), Hangar().cost, "Constructing: Hangar").toString should be("Constructing: Hangar")
       }
       "update the game state and the string representation if recruit is invoked" in {
-        state.recruit("Corvette", 2).gameState should be(GameState.RUNNING)
-        state.recruit("Corvette", 2).toString should be("Recruiting: 2 x Corvette")
+        state.recruit(Vector(Corvette()), Corvette().cost, "Recruiting: 1 x Corvette").gameState should be(GameState.RUNNING)
+        state.recruit(Vector(Corvette()), Corvette().cost, "Recruiting: 1 x Corvette").toString should be("Recruiting: 1 x Corvette")
       }
       "update the game state and the string representation if show is invoked" in {
         state.show().gameState should be(GameState.RUNNING)
-        state.show().toString should be(GameStateStringFormatter().overview())
+        state.show()
+          .toString should be(GameStateStringFormatter(playerValues = state.playerValues).overview())
       }
-      "update the game state and the string representation if list (None) is invoked" in {
-        state.list(None).gameState should be(GameState.RUNNING)
-        state.list(None).toString should be(GameStateStringFormatter().listAll)
-      }
-      "update the game state and the string representation if list (building) is invoked" in {
-        state.list(Option(EntityType.BUILDING)).gameState should be(GameState.RUNNING)
-        state.list(Option(EntityType.BUILDING)).toString should be(GameStateStringFormatter().listBuildings)
-      }
-      "update the game state and the string representation if list (technology) is invoked" in {
-        state.list(Option(EntityType.TECHNOLOGY)).gameState should be(GameState.RUNNING)
-        state.list(Option(EntityType.TECHNOLOGY)).toString should be(GameStateStringFormatter().listTechnologies)
-      }
-      "update the game state and the string representation if list (units) is invoked" in {
-        state.list(Option(EntityType.UNIT)).gameState should be(GameState.RUNNING)
-        state.list(Option(EntityType.UNIT)).toString should be(GameStateStringFormatter().listUnits)
-      }
-      "update the game state and the string representation if sell is invoked" in {
-        state.sell("something", 1).gameState should be(GameState.RUNNING)
-        state.sell("something", 1).toString should be("sell not implemented yet")
-      }
+
       "update the game state and the string if an invalid command is invoked" in {
         state.invalid("testst").gameState should be(GameState.RUNNING)
         state.invalid("testst")
@@ -121,7 +106,7 @@ class GameStateManagerSpec extends AnyWordSpec {
       val tmpGameState: IGameStateManager = GameStateManager().endRoundRequest()
       "prompt the user for input and wait if end round action was triggered" in {
         tmpGameState.gameState should be (GameState.END_ROUND_REQUEST)
-        tmpGameState.toString should be (GameStateStringFormatter().askForConfirmation)
+        tmpGameState.toString should be ("Are you sure? [yes (y) / no (n)]")
       }
       "end the round if the user accepts after the prompt" in {
         var endRoundGameState: IGameStateManager = tmpGameState

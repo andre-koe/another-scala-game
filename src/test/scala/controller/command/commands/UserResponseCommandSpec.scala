@@ -15,11 +15,11 @@ class UserResponseCommandSpec extends AnyWordSpec {
       val resp2Command: UserResponseCommand = UserResponseCommand("Y", gameStateManager)
       val resp3Command: UserResponseCommand = UserResponseCommand("Yas", gameStateManager)
       resp1Command.execute().gameState should be(GameState.RUNNING)
-      resp1Command.execute().toString should be(GameStateStringFormatter().empty)
+      resp1Command.execute().toString should be(GameStateStringFormatter(gameStateManager = gameStateManager).empty)
       resp2Command.execute().gameState should be(GameState.RUNNING)
-      resp2Command.execute().toString should be(GameStateStringFormatter().empty)
+      resp2Command.execute().toString should be(GameStateStringFormatter(gameStateManager = gameStateManager).empty)
       resp3Command.execute().gameState should be(GameState.RUNNING)
-      resp3Command.execute().toString should be(GameStateStringFormatter().empty)
+      resp3Command.execute().toString should be(GameStateStringFormatter(gameStateManager = gameStateManager).empty)
     }
     "map any input not beginning with y or Y to resetGameState even if GameState == GameState.END_ROUND_REQUEST" in {
       val gameStateManager: IGameStateManager = GameStateManager()
@@ -27,11 +27,11 @@ class UserResponseCommandSpec extends AnyWordSpec {
       val resp2Command: UserResponseCommand = UserResponseCommand("", gameStateManager)
       val resp3Command: UserResponseCommand = UserResponseCommand("lol", gameStateManager)
       resp1Command.execute().gameState should be(GameState.RUNNING)
-      resp1Command.execute().toString should be(GameStateStringFormatter().empty)
+      resp1Command.execute().toString should be(GameStateStringFormatter(gameStateManager = gameStateManager).empty)
       resp2Command.execute().gameState should be(GameState.RUNNING)
-      resp2Command.execute().toString should be(GameStateStringFormatter().empty)
+      resp2Command.execute().toString should be(GameStateStringFormatter(gameStateManager = gameStateManager).empty)
       resp3Command.execute().gameState should be(GameState.RUNNING)
-      resp3Command.execute().toString should be(GameStateStringFormatter().empty)
+      resp3Command.execute().toString should be(GameStateStringFormatter(gameStateManager = gameStateManager).empty)
     }
     "map any input beginning with y or Y to endRoundConfirmation which should enter next round if gamestate == " +
       "to END_ROUND_REQUEST" in {
@@ -40,11 +40,11 @@ class UserResponseCommandSpec extends AnyWordSpec {
       val resp2Command: UserResponseCommand = UserResponseCommand("Y", gameStateManager)
       val resp3Command: UserResponseCommand = UserResponseCommand("Yas", gameStateManager)
       resp1Command.execute().gameState should be(GameState.RUNNING)
-      resp1Command.execute().toString should be(GameStateStringFormatter(playerValues = gameStateManager.playerValues).overview(round = Round(2)))
+      resp1Command.execute().toString should be(GameStateStringFormatter(playerValues = gameStateManager.playerValues, gameStateManager = gameStateManager).overview(round = Round(2)))
       resp2Command.execute().gameState should be(GameState.RUNNING)
-      resp2Command.execute().toString should be(GameStateStringFormatter(playerValues = gameStateManager.playerValues).overview(round = Round(2)))
+      resp2Command.execute().toString should be(GameStateStringFormatter(playerValues = gameStateManager.playerValues, gameStateManager = gameStateManager).overview(round = Round(2)))
       resp3Command.execute().gameState should be(GameState.RUNNING)
-      resp3Command.execute().toString should be(GameStateStringFormatter(playerValues = gameStateManager.playerValues).overview(round = Round(2)))
+      resp3Command.execute().toString should be(GameStateStringFormatter(playerValues = gameStateManager.playerValues, gameStateManager = gameStateManager).overview(round = Round(2)))
     }
   }
 

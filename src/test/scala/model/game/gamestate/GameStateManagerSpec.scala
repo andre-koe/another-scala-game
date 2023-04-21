@@ -8,7 +8,8 @@ import model.game.map.Coordinate
 import model.purchasable.building.{Hangar, IBuilding, ResearchLab}
 import model.purchasable.technology.{AdvancedMaterials, ITechnology, Polymer}
 import model.purchasable.units.{Corvette, IUnit}
-import model.resources.resourcetypes.{Energy, ResearchPoints}
+import model.resources.ResourceHolder
+import model.resources.resourcetypes.{Alloys, Energy, Minerals, ResearchPoints}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers.*
 
@@ -17,7 +18,13 @@ class GameStateManagerSpec extends AnyWordSpec {
 
   "The GameStateManager" when {
     "initialized" should {
-      val state: IGameStateManager = GameStateManager()
+      val playerVal: PlayerValues =
+        PlayerValues(resourceHolder = ResourceHolder(energy = Energy(100),
+          minerals = Minerals(100),
+          alloys = Alloys(10),
+          researchPoints = ResearchPoints(100)
+        ), capacity = Capacity(20))
+      val state: IGameStateManager = GameStateManager(playerValues = playerVal)
       "have a Round value of 1" in {
         state.round.value should be(1)
       }
@@ -76,7 +83,7 @@ class GameStateManagerSpec extends AnyWordSpec {
       }
       "update the game state and the string representation if exit is invoked" in {
         state.exit().gameState should be (GameState.EXITED)
-        state.exit().toString should be (GameStateStringFormatter().goodbyeResponse)
+        state.exit().toString should be (GameStateStringFormatter(gameStateManager = state).goodbyeResponse)
       }
       "update the game state and the string representation if research is invoked" in {
         state.research(AdvancedMaterials(), AdvancedMaterials().cost, "Researching: Advanced Materials").gameState should be(GameState.RUNNING)
@@ -87,19 +94,21 @@ class GameStateManagerSpec extends AnyWordSpec {
         state.build(Hangar(), Hangar().cost, "Constructing: Hangar").toString should be("Constructing: Hangar")
       }
       "update the game state and the string representation if recruit is invoked" in {
-        state.recruit(Vector(Corvette()), Corvette().cost, "Recruiting: 1 x Corvette").gameState should be(GameState.RUNNING)
-        state.recruit(Vector(Corvette()), Corvette().cost, "Recruiting: 1 x Corvette").toString should be("Recruiting: 1 x Corvette")
+        state.recruit(Vector(Corvette()), Corvette().cost, Corvette().capacity, "Recruiting: 1 x Corvette")
+          .gameState should be(GameState.RUNNING)
+        state.recruit(Vector(Corvette()), Corvette().cost, Corvette().capacity, "Recruiting: 1 x Corvette")
+          .toString should be("Recruiting: 1 x Corvette")
       }
       "update the game state and the string representation if show is invoked" in {
         state.show().gameState should be(GameState.RUNNING)
         state.show()
-          .toString should be(GameStateStringFormatter(playerValues = state.playerValues).overview())
+          .toString should be(GameStateStringFormatter(playerValues = state.playerValues,
+          gameStateManager = state).overview())
       }
-
       "update the game state and the string if an invalid command is invoked" in {
         state.invalid("testst").gameState should be(GameState.RUNNING)
         state.invalid("testst")
-          .toString should be(GameStateStringFormatter().invalidInputResponse("testst"))
+          .toString should be(GameStateStringFormatter(gameStateManager = state).invalidInputResponse("testst"))
       }
     }
     "handling the [end round] mechanic" should {

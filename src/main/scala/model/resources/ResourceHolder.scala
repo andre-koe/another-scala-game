@@ -97,3 +97,15 @@ case class ResourceHolder(descriptor: String = "Cost",
       alloys = nAlloys,
       researchPoints = nResearchPoints
     )
+    
+  def subtract(other: ResourceHolder): ResourceHolder =
+    val nEnergy: Energy = Energy(energy.value - other.energy.value)
+    val nAlloys: Alloys = Alloys(alloys.value - other.alloys.value)
+    val nMinerals: Minerals = Minerals(minerals.value - other.minerals.value)
+    val nResearchPoints: ResearchPoints = ResearchPoints(researchPoints.value - other.researchPoints.value)
+    
+    this.copy(
+      energy = nEnergy,
+      minerals = nMinerals,
+      alloys = nAlloys,
+      researchPoints = nResearchPoints)

@@ -36,7 +36,7 @@ class RecruitCommandSpec extends AnyWordSpec {
           ))
         val gsM: IGameStateManager = GameStateManager(playerValues = plV)
         val commandValid: RecruitCommand = RecruitCommand("Cruiser", gsM)
-        commandValid.execute().playerValues.listOfUnitsUnderConstruction should not be (empty)
+        commandValid.execute().playerValues.listOfUnitsUnderConstruction should not be empty
         commandValid.execute().toString should be("Beginning construction of 1 x Cruiser " +
           "for Total Cost: [Energy: 150] [Minerals: 100] [Alloys: 75], completion in 4 rounds.")
         commandValid.execute().gameState should be(GameState.RUNNING)
@@ -51,13 +51,16 @@ class RecruitCommandSpec extends AnyWordSpec {
           ))
         val gsM: IGameStateManager = GameStateManager(playerValues = plV)
         val commandValid: RecruitCommand = RecruitCommand("Cruiser 4", gsM)
-        commandValid.execute().playerValues.listOfUnitsUnderConstruction should not be (empty)
+        commandValid.execute().playerValues.listOfUnitsUnderConstruction should not be empty
         commandValid.execute().playerValues.listOfUnitsUnderConstruction.length should be(4)
         commandValid.execute().toString should be("Beginning construction of 4 x Cruiser " +
           "for Total Cost: [Energy: 600] [Minerals: 400] [Alloys: 300], completion in 4 rounds.")
         commandValid.execute().gameState should be(GameState.RUNNING)
       }
       "initialized with an valid input string but insufficient player funds return the appropriate response" in {
+        val playerValue: PlayerValues =
+          PlayerValues(resourceHolder = ResourceHolder(energy = Energy(100), minerals = Minerals(100), alloys = Alloys(10)))
+        val gameStateManager: IGameStateManager = GameStateManager(playerValues = playerValue)
         val commandInvalid: RecruitCommand = RecruitCommand("Cruiser 4", gameStateManager)
         commandInvalid.execute().gameState should be(GameState.RUNNING)
         commandInvalid.execute()

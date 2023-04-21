@@ -63,7 +63,9 @@ class ListCommandSpec extends AnyWordSpec {
         val listInvalid: ListCommand = ListCommand("test", gameStateManager)
 
         listInvalid.execute().gameState should be(GameState.RUNNING)
-        listInvalid.execute().toString should be(GameStateStringFormatter().invalidInputResponse("list: 'test'"))
+        listInvalid.execute()
+          .toString should be(GameStateStringFormatter(gameStateManager = gameStateManager)
+          .invalidInputResponse("list: 'test'"))
       }
     }
     "return a building list with red colored items if the player has insufficient funds for any of them" +

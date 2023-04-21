@@ -1,7 +1,7 @@
 package controller.command.commands
 
 import controller.command.{ICommand, IUndoable}
-import model.game.GameValues
+import model.game.{Capacity, GameValues}
 import model.game.gamestate.IGameStateManager
 import model.purchasable.units.{IUnit, UnitFactory}
 import model.resources.ResourceHolder
@@ -16,6 +16,8 @@ case class RecruitCommand(string: String,
   private def successMsg(recruit: IUnit, quantity: Int) =
     s"Beginning construction of ${quantity} x ${recruit.name} " +
       s"for ${recruit.cost.multiplyBy(quantity)}, completion in ${recruit.roundsToComplete.value} rounds."
+  private def insufficientCapsMsg(capacity: Capacity): String =
+    s"Insufficient Capacity --- ${gameStateManager.playerValues.capacity.lacking(capacity)}."
   private def insufficientFundsMsg(cost: ResourceHolder): String =
     s"Insufficient Funds --- ${gameStateManager.playerValues.resourceHolder.lacking(cost)}."
 
@@ -44,10 +46,14 @@ case class RecruitCommand(string: String,
       case Some(recruit) => handleRecruitment(recruit, quantity)
       case None => gameStateManager.message(unitDoesNotExist(name))
   private def handleRecruitment(recruit: IUnit, quantity: Int): IGameStateManager =
-    checkFunds(recruit.cost, quantity) match
-      case Some(newBalance) =>
-        gameStateManager.recruit(Vector.fill(quantity)(recruit), newBalance, successMsg(recruit, quantity))
-      case None => gameStateManager.message(insufficientFundsMsg(recruit.cost.multiplyBy(quantity)))
+    (checkFunds(recruit.cost, quantity), checkCapacity(recruit.capacity, quantity)) match
+      case (Some(newBalance), Some(newCapacity)) =>
+        gameStateManager.recruit(Vector.fill(quantity)(recruit), newBalance, newCapacity, successMsg(recruit, quantity))
+      case (Some(_), None) =>
+        gameStateManager.message(insufficientCapsMsg(recruit.capacity.multiplyBy(quantity)))
+      case _ => gameStateManager.message(insufficientFundsMsg(recruit.cost.multiplyBy(quantity)))
+  private def checkCapacity(cap: Capacity, quantity: Int): Option[Capacity] =
+    gameStateManager.playerValues.capacity.decrease(cap.multiplyBy(quantity))
   private def checkFunds(cost: ResourceHolder, quantity: Int): Option[ResourceHolder] =
     gameStateManager.playerValues.resourceHolder.decrease(cost.multiplyBy(quantity))
   private def unitExists(name: String): Option[IUnit] =

@@ -29,8 +29,8 @@ class RoundSpec extends AnyWordSpec {
      "have the value 9 when decreased after being initialized with 10" in {
        round.decrease.get.value should be(9)
      }
-     "return None when decreased after being initialized with 1" in {
-       val newRound: Round = Round()
+     "return None when decreased after being initialized with 0" in {
+       val newRound: Round = Round(0)
        newRound.decrease.isDefined should be(false)
      }
    }

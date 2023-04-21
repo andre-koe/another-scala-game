@@ -7,7 +7,6 @@ import model.game.gamestate.{GameState, GameStateManager, IGameStateManager}
 
 class Controller extends Observable {
   private var gameStateManager: IGameStateManager = GameStateManager()
-
   def inputSanitation(str: String): List[String] =
     str.strip().toLowerCase.split(" ").toList
   def processInput(str: String): GameState =
@@ -15,7 +14,7 @@ class Controller extends Observable {
     gameStateManager = command.execute()
     notifyObservers()
     gameStateManager.gameState
-
+    
   def mapToCommand(str: List[String], string: String): ICommand =
     str match
       case "build" :: tail => BuildCommand(tail.mkString(" "), gameStateManager)

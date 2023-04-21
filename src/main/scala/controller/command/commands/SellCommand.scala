@@ -62,25 +62,21 @@ case class SellCommand(string: String, gameStateManager: IGameStateManager) exte
     else gameStateManager.message(playerDoesNotOwnGameObject(what, quantity))
   private def sellUnit(str: String, quantity: Int): IGameStateManager =
     val tupleUnit = removeFromUnitList(gameStateManager.playerValues.listOfUnits, quantity, str)
-    val upkeepSaved = returnUpkeep(tupleUnit._2)
     val capacitySaved = returnSavedCapacity(tupleUnit._2)
       gameStateManager.sell(
       newUnits = Option(tupleUnit._1),
       newBuildings = None,
       profit = calcProfit(tupleUnit._2),
       capacity = capacitySaved,
-      savedUpkeep = upkeepSaved,
       message = sellSuccessMsg(str, quantity, calcProfit(tupleUnit._2)))
   private def sellBuilding(str: String, quantity: Int): IGameStateManager =
     val tupleBuilding = removeFromBuildingList(gameStateManager.playerValues.listOfBuildings, quantity, str)
-    val upkeepSaved = returnUpkeep(tupleBuilding._2)
     val outputAcc = returnOutput(tupleBuilding._2)
     gameStateManager.sell(
       newUnits = None,
       newBuildings = Option(tupleBuilding._1),
       profit = calcProfit(tupleBuilding._2),
       capacity = outputAcc.capacity,
-      savedUpkeep = upkeepSaved,
       message = sellSuccessMsg(str, quantity, calcProfit(tupleBuilding._2)))
   private def calcProfit(list: List[IUpkeep]): ResourceHolder =
     if list.length > 1
@@ -101,8 +97,6 @@ case class SellCommand(string: String, gameStateManager: IGameStateManager) exte
   private def gameObjectCanBeSold(str: String): Boolean =
     buildingExist(str.toLowerCase).isDefined || unitExist(str.toLowerCase).isDefined
   private def validInputLength(list: List[Any]): Boolean = if list.length > 3 | list.length < 1 then false else true
-  private def returnUpkeep(list: List[IUpkeep]): ResourceHolder =
-    if list.length > 1 then list.map(_.upkeep).reduce((a, b) => a.increase(b)) else list.map(_.upkeep).head
   private def returnOutput(list: List[IBuilding]): Output =
     list.map(_.output).reduce((a, b) => a.increaseOutput(b))
   private def returnSavedCapacity(list: List[IUnit]): Capacity =

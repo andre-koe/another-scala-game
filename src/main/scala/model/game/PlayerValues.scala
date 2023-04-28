@@ -1,15 +1,16 @@
 package model.game
 
-import model.purchasable.IGameObject
-import model.purchasable.building.IBuilding
-import model.purchasable.technology.ITechnology
-import model.purchasable.units.IUnit
-import model.resources.ResourceHolder
-import model.resources.resourcetypes.{Alloys, Energy, Minerals, ResearchPoints}
+import model.game.map.Coordinate
 import model.game.map.system.System
 import model.game.map.system.SystemType.BASE
 import model.game.map.system.Affiliation.PLAYER
-import model.purchasable.utils.Output
+import model.game.purchasable.IGameObject
+import model.game.purchasable.building.IBuilding
+import model.game.purchasable.technology.ITechnology
+import model.game.purchasable.units.IUnit
+import model.game.purchasable.utils.Output
+import model.game.resources.ResourceHolder
+import model.game.resources.resourcetypes.{Alloys, Energy, Minerals, ResearchPoints}
 
 
 case class PlayerValues(resourceHolder: ResourceHolder = ResourceHolder(
@@ -24,8 +25,10 @@ case class PlayerValues(resourceHolder: ResourceHolder = ResourceHolder(
                         listOfBuildingsUnderConstruction: List[IBuilding] = List[IBuilding]().empty,
                         listOfTechnologiesCurrentlyResearched: List[ITechnology] = List[ITechnology]().empty,
                         listOfUnitsUnderConstruction: List[IUnit] = List[IUnit]().empty,
-                        capacity: Capacity = Capacity(20),
-                        systems: List[System] = List(System(affiliation = PLAYER, systemType = BASE, units = None)),
+                        capacity: Capacity = Capacity(3),
+                        systems: List[System] =
+                        List(System(affiliation = PLAYER,
+                          systemType = BASE, units = None, coordinate = Coordinate())),
                         upkeep: ResourceHolder = ResourceHolder(descriptor = "Running Cost"),
                         income: ResourceHolder = ResourceHolder(descriptor = "Income"))
 

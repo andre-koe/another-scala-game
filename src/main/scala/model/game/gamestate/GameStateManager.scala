@@ -1,16 +1,16 @@
 package model.game.gamestate
 
-import GameState.*
+import model.game.gamestate.gamestates.{EndRoundConfirmationState, WaitForEndRoundConfirmation, ExitedState, RunningState}
 import model.game.map.{Coordinate, GameMap}
-import model.game.{Capacity, GameValues, IValues, PlayerValues, Round}
-import model.purchasable.{IGameObject, IUpkeep}
-import model.purchasable.building.{BuildingFactory, EnergyGrid, Factory, Hangar, IBuilding, Mine, ResearchLab, Shipyard}
-import model.purchasable.technology.{AdvancedMaterials, AdvancedPropulsion, ITechnology, NanoRobotics, Polymer, TechnologyFactory}
-import model.purchasable.types.EntityType
-import model.purchasable.units.{Battleship, Corvette, Cruiser, Destroyer, IUnit, UnitFactory}
-import model.purchasable.utils.Output
-import model.resources.ResourceHolder
-import model.resources.resourcetypes.{Energy, ResearchPoints}
+import model.game.purchasable.building.{BuildingFactory, EnergyGrid, Factory, Hangar, IBuilding, Mine, ResearchLab, Shipyard}
+import model.game.purchasable.{IGameObject, IUpkeep}
+import model.game.purchasable.technology.{AdvancedMaterials, AdvancedPropulsion, ITechnology, NanoRobotics, Polymer, TechnologyFactory}
+import model.game.purchasable.types.EntityType
+import model.game.purchasable.units.{Battleship, Corvette, Cruiser, Destroyer, IUnit, UnitFactory}
+import model.game.purchasable.utils.Output
+import model.game.resources.ResourceHolder
+import model.game.resources.resourcetypes.{Energy, ResearchPoints}
+import model.game.{Capacity, GameValues, PlayerValues, Round}
 
 import scala.+:
 import scala.compiletime.ops.string
@@ -19,134 +19,86 @@ case class GameStateManager(round: Round = Round(),
                             gameMap: GameMap = GameMap(),
                             message: String = "",
                             playerValues: PlayerValues = PlayerValues(),
-                            gameState: GameState = GameState.INIT) extends IGameStateManager {
+                            gameState: IGameState = RunningState()):
+  
+  val gameValues: GameValues = GameValues()
 
-  private def nextRound: GameStateManager =
-    val newRound = round.next
+  def build(building: IBuilding, newBalance: ResourceHolder, msg: String): GameStateManager =
+    gameState match
+      case runningState: RunningState =>
+        runningState.build(gsm = this, building = building, newBalance = newBalance, msg = msg)
+      case endRoundRequestState: WaitForEndRoundConfirmation => endRoundRequestState.ask(this)
+      case _ => this.copy(message = "Invalid")
 
-    val buildings = handleList(playerValues.listOfBuildingsUnderConstruction)
-    val units = handleList(playerValues.listOfUnitsUnderConstruction)
-    val tech = handleList(playerValues.listOfTechnologiesCurrentlyResearched)
+  def research(technology: ITechnology, newBalance: ResourceHolder, msg: String): GameStateManager =
+    gameState match
+      case runningState: RunningState =>
+        runningState.research(gsm = this, technology = technology, newBalance = newBalance, msg = msg)
+      case endRoundRequestState: WaitForEndRoundConfirmation => endRoundRequestState.ask(this)
+      case _ => this.copy(message = "Invalid")
 
-    val newUpkeep = calcUpkeep(
-      (buildings._2 ++ units._2 ++ playerValues.listOfUnits ++ playerValues.listOfBuildings)
-        .asInstanceOf[List[IUpkeep]])
+  def recruit(what: Vector[IUnit], nB: ResourceHolder, nC: Capacity, msg: String): GameStateManager =
+    gameState match
+      case runningState: RunningState =>
+        runningState.recruit(gsm = this, what = what, nBalance = nB, nCap = nC, msg = msg)
+      case endRoundRequestState: WaitForEndRoundConfirmation => endRoundRequestState.ask(this)
+      case _ => this.copy(message = "Invalid")
 
-    val buildingsCompleted = buildings._2.asInstanceOf[List[IBuilding]] ++ playerValues.listOfBuildings
-    val output: Output = calcOutput(buildingsCompleted)
-    val income = output.resourceHolder
+  def sell(newUnits: List[IUnit],
+           newBuildings: List[IBuilding],
+           profit: ResourceHolder,
+           capacity: Capacity,
+           message: String): GameStateManager =
+    gameState match
+      case runningState: RunningState =>
+        runningState.sell(gsm = this, nU = newUnits, nB = newBuildings, profit = profit, cap = capacity, msg = message)
+      case endRoundRequestState: WaitForEndRoundConfirmation => endRoundRequestState.ask(this)
+      case _ => this.copy(message = "Invalid")
 
-    // TODO: Add handler if current balance negative reduce Unit strength
-    val newBalance = playerValues.resourceHolder.increase(income).decrease(newUpkeep).get
-    val buildingsUnderConstruction = buildings._1.asInstanceOf[List[IBuilding]]
-    val unitsCompleted = units._2.asInstanceOf[List[IUnit]] ++ playerValues.listOfUnits
-    val unitsUnderConstruction = units._1.asInstanceOf[List[IUnit]]
-    val techCompleted = tech._2.asInstanceOf[List[ITechnology]] ++ playerValues.listOfTechnologies
-    val techCurrentlyResearched = tech._1.asInstanceOf[List[ITechnology]]
+  def show(): GameStateManager =
+    gameState match
+      case runningState: RunningState => runningState.show(this)
+      case endRoundRequestState: WaitForEndRoundConfirmation => endRoundRequestState.ask(this)
+      case _ => this.copy(message = "Invalid")
 
-    val newPlayerValues = this.playerValues.copy(
-      resourceHolder = newBalance,
-      listOfUnits = unitsCompleted,
-      listOfBuildings = buildingsCompleted,
-      listOfTechnologies = techCompleted,
-      listOfTechnologiesCurrentlyResearched = techCurrentlyResearched,
-      listOfUnitsUnderConstruction = unitsUnderConstruction,
-      listOfBuildingsUnderConstruction = buildingsUnderConstruction,
-      income = income,
-      upkeep = newUpkeep
-    )
+  def move(what: String, where: Coordinate): GameStateManager =
+    gameState match
+      case runningState: RunningState => runningState.move(this, what, where)
+      case endRoundRequestState: WaitForEndRoundConfirmation => endRoundRequestState.ask(this)
+      case _ => this.copy(message = "Invalid")
 
+  def invalid(input: String): GameStateManager =
+    gameState match
+      case runningState: RunningState => runningState.invalid(this, input)
+      case endRoundRequestState: WaitForEndRoundConfirmation => endRoundRequestState.ask(this)
+      case _ => this.copy(message = "Invalid")
+  def endRoundRequest(): GameStateManager = WaitForEndRoundConfirmation().ask(this)
+
+  def accept(): GameStateManager =
+    gameState match
+      case userChoiceRequestedState: WaitForEndRoundConfirmation => userChoiceRequestedState.update(this)
+      case _ => this.empty()
+
+  def decline(): GameStateManager =
+    gameState match
+      case userChoiceRequestedState: WaitForEndRoundConfirmation => userChoiceRequestedState.back(this)
+      case _ => this.empty()
+      
+  def resetGameState(): GameStateManager = this.copy(gameState = RunningState(), message = "")
+
+  def exit(): GameStateManager = ExitedState().update(this)
+
+  def save(as: Option[String]): GameStateManager =
+    this.copy(message = "save not implemented yet")
+
+  def load(as: Option[String]): GameStateManager =
+    this.copy(message = "load not implemented yet")
+  
+  def message(what: String): GameStateManager =
+    gameState match
+      case runningState: RunningState => runningState.showMessage(this, what)
+      case endRoundRequestState: WaitForEndRoundConfirmation => endRoundRequestState.ask(this)
     
-    this.copy(
-      round = newRound,
-      gameState = GameState.RUNNING,
-      playerValues = newPlayerValues,
-      message = GameStateStringFormatter(round = newRound, playerValues = newPlayerValues).overview())
+  def empty(): GameStateManager = this.copy(message = "")
 
-
-  private def calcOutput(list: List[IBuilding]): Output =
-    list match
-      case Nil => Output()
-      case value :: Nil => value.output
-      case _ => list.map(_.output).reduce((x,y) => x.increaseOutput(y))
-  private def calcUpkeep(list: List[IUpkeep]): ResourceHolder =
-    list match
-      case Nil => ResourceHolder()
-      case value :: Nil => value.upkeep
-      case _ => list.map(_.upkeep).reduce((x, y) => x.increase(y))
-  private def handleList(list: List[IGameObject]): (List[IGameObject], List[IGameObject]) =
-    list.map(_.decreaseRoundsToComplete).partition(_.roundsToComplete.value != 0)
-  override def move(what: String, where: Coordinate): IGameStateManager =
-    this.copy(gameState = RUNNING, message = "move not implemented yet")
-  override def save(as: Option[String]): IGameStateManager =
-    this.copy(gameState = RUNNING, message = "save not implemented yet")
-  override def load(as: Option[String]): IGameStateManager =
-    this.copy(gameState = RUNNING, message = "load not implemented yet")
-  override def build(building: IBuilding, newBalance: ResourceHolder, msg: String): IGameStateManager =
-    this.copy(
-      gameState = RUNNING,
-      playerValues = playerValues.copy(
-        listOfBuildingsUnderConstruction = playerValues.listOfBuildingsUnderConstruction.+:(building),
-        resourceHolder = newBalance),
-      message = msg)
-  override def research(technology: ITechnology, newBalance: ResourceHolder, msg: String): IGameStateManager =
-    this.copy(
-      gameState = RUNNING,
-      playerValues = playerValues.copy(
-        listOfTechnologiesCurrentlyResearched = playerValues.listOfTechnologiesCurrentlyResearched.+:(technology),
-        resourceHolder = newBalance),
-      message = msg)
-  override def recruit(what: Vector[IUnit], nBalance: ResourceHolder, nCap: Capacity, msg: String): IGameStateManager =
-    this.copy(
-      gameState = RUNNING,
-      playerValues = playerValues.copy(
-        listOfUnitsUnderConstruction = playerValues.listOfUnitsUnderConstruction.++:(what.toList),
-        resourceHolder = nBalance,
-        capacity = nCap
-      ),
-      message = msg)
-  override def sell(nU: Option[List[IUnit]],
-                    nB: Option[List[IBuilding]],
-                    profit: ResourceHolder,
-                    cap: Capacity,
-                    msg: String): IGameStateManager =
-
-    if nU.isDefined then
-      sellUnits(nU.get, playerValues.resourceHolder.increase(profit), playerValues.capacity.increase(cap), msg)
-    else if nB.isDefined then
-      sellBuilding(nB.get, playerValues.resourceHolder.increase(profit), playerValues.capacity.decrease(cap).get, msg)
-    else this.copy(gameState = GameState.RUNNING, message = msg)
-  private def sellUnits(units: List[IUnit], profit: ResourceHolder, cap: Capacity, msg: String): IGameStateManager =
-    this.copy(
-      gameState = GameState.RUNNING,
-      playerValues = playerValues.copy(
-        listOfUnits = units,
-        resourceHolder = profit,
-        capacity = cap),
-      message = msg)
-  private def sellBuilding(building: List[IBuilding], profit: ResourceHolder, cap: Capacity, msg: String): IGameStateManager =
-    this.copy(
-      gameState = GameState.RUNNING,
-      playerValues = playerValues.copy(
-        listOfBuildings = building,
-        resourceHolder = profit,
-        capacity = cap),
-      message = msg)
-  override def invalid(input: String): IGameStateManager =
-    this.copy(gameState = RUNNING, message = f"$input - invalid\nEnter help to get an " +
-      f"overview of all available commands")
-  override def show(): IGameStateManager =
-    this.copy(gameState = RUNNING,
-      message = GameStateStringFormatter(playerValues = this.playerValues, gameStateManager = this)
-        .overview(round))
-  override def endRoundConfirmation(): IGameStateManager =
-    if (gameState == END_ROUND_REQUEST) nextRound
-    else this.copy(gameState = RUNNING, message = "")
-  override def endRoundRequest(): IGameStateManager =
-    this.copy(gameState = END_ROUND_REQUEST, message = "Are you sure? [yes (y) / no (n)]")
-  override def exit(): IGameStateManager = this.copy(gameState = EXITED, message = "Goodbye!")
-  override def message(what: String): IGameStateManager = this.copy(gameState = RUNNING, message = what)
-  override def resetGameState(): IGameStateManager = empty()
-  override def empty(): IGameStateManager = this.copy(gameState = RUNNING, message = "")
   override def toString: String = message
-}

@@ -2,18 +2,18 @@ package model.game.gamestate
 
 import model.game.{GameValues, PlayerValues, Round}
 import model.game.gamestate.GameStateStringFormatter
-import model.purchasable.building.Mine
-import model.purchasable.technology.AdvancedMaterials
-import model.purchasable.units.Corvette
-import model.resources.ResourceHolder
-import model.resources.resourcetypes.{Energy, ResearchPoints}
+import model.game.purchasable.building.Mine
+import model.game.purchasable.technology.AdvancedMaterials
+import model.game.purchasable.units.Corvette
+import model.game.resources.ResourceHolder
+import model.game.resources.resourcetypes.{Energy, ResearchPoints}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers.*
 
 class GameStateStringFormatterSpec extends AnyWordSpec {
 
   "The StringRepresentation (basically gameStateToString)" when {
-    val gameStateManager: IGameStateManager = GameStateManager()
+    val gameStateManager: GameStateManager = GameStateManager()
     "Asked for a 'separator'" should {
       "return a separator string used in the overview" in {
         GameStateStringFormatter(gameStateManager = gameStateManager).separator() should be(" |----| ")

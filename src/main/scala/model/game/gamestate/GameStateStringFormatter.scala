@@ -1,9 +1,10 @@
 package model.game.gamestate
 
-import model.game.{GameValues, IValues, PlayerValues, Round}
-import model.purchasable.IGameObject
-import model.resources.ResourceHolder
-import model.resources.resourcetypes.{Energy, ResearchPoints}
+import model.game.purchasable.IGameObject
+import model.game.purchasable.units.IUnit
+import model.game.resources.ResourceHolder
+import model.game.resources.resourcetypes.{Energy, ResearchPoints}
+import model.game.{Capacity, GameValues, PlayerValues, Round}
 
 import scala.io.AnsiColor
 
@@ -11,7 +12,7 @@ case class GameStateStringFormatter(round: Round = Round(),
                                     playerValues: PlayerValues = PlayerValues(),
                                     userMsg: String = "",
                                     gameValues: GameValues = GameValues(),
-                                    gameStateManager: IGameStateManager = GameStateManager()):
+                                    gameStateManager: GameStateManager = GameStateManager()):
 
   def separator(len: Int = 4): String = " |" + "-" * len + "| "
   def vertBar(len: Int = 30): String = "=" * len
@@ -22,9 +23,17 @@ case class GameStateStringFormatter(round: Round = Round(),
   def invalidInputResponse(msg: String): String =
     f"$msg - invalid\nEnter help to get an overview of all available commands"
   private def header(round: Round = round, resourceHolder: ResourceHolder = playerValues.resourceHolder): String =
-    val len: Int = (round.toString + separator() + resourceOverview(resourceHolder) + separator()).length + 2
+    val len: Int = (round.toString + separator() + resourceOverview(resourceHolder) + capacityInfo + separator()).length + 2
     vertBar(len) + "\n" + " " + round + separator()
-      + resourceOverview(resourceHolder) + separator() + " " + "\n" + vertBar(len) + "\n"
+      + resourceOverview(resourceHolder) + separator() + capacityInfo + " " + "\n" + vertBar(len) + "\n"
+  private def capacityInfo: String =
+    val usedCapacity: Capacity =
+      getUsedCapacity(playerValues.listOfUnits).increase(getUsedCapacity(playerValues.listOfUnitsUnderConstruction))
+    s"Capacity: ${usedCapacity.value}/${playerValues.capacity.value + usedCapacity.value}"
+  private def getUsedCapacity(list: List[IUnit]): Capacity = list match
+    case Nil => Capacity()
+    case some :: Nil => some.capacity
+    case _ => list.map(_.capacity).reduce((x, y) => x.increase(y))
   private def underConstruction: String = 
     if producing then "Ongoing Production:\n" + recruiting + researching + construction else "\n"
   private def inventory: String =
@@ -47,7 +56,7 @@ case class GameStateStringFormatter(round: Round = Round(),
       || playerValues.listOfTechnologiesCurrentlyResearched.nonEmpty
   private def inventoryNotEmpty: Boolean =
     playerValues.listOfBuildings.nonEmpty
-      || playerValues.listOfBuildings.nonEmpty
+      || playerValues.listOfUnits.nonEmpty
       || playerValues.listOfTechnologies.nonEmpty
   private def resourceOverview(resourceHolder: ResourceHolder): String =
     s"Total Balance: " +
@@ -57,8 +66,8 @@ case class GameStateStringFormatter(round: Round = Round(),
       s"${getTrend(playerValues.income.subtract(playerValues.upkeep).minerals.value)}] " +
       s"[Alloys: ${resourceHolder.alloys.value}" +
       s"${getTrend(playerValues.income.subtract(playerValues.upkeep).alloys.value)}] " +
-      s"[Research Points: ${resourceHolder.alloys.value}" +
-      s"${getTrend(playerValues.income.subtract(playerValues.upkeep).researchPoints.value)}] "
+      s"[Research Points: ${resourceHolder.researchPoints.value}" +
+      s"${getTrend(playerValues.income.subtract(playerValues.upkeep).researchPoints.value)}]"
   private def getTrend(value: Int): String =
     if value > 0 then AnsiColor.GREEN + s" + $value" + AnsiColor.RESET
     else if value < 0 then AnsiColor.RED + s" - ${value * (-1)}" + AnsiColor.RESET

@@ -1,15 +1,15 @@
 package model.game
 
-import model.purchasable.building.{EnergyGrid, Factory, Hangar, Mine, ResearchLab, Shipyard}
-import model.purchasable.technology.{AdvancedMaterials, AdvancedPropulsion, NanoRobotics, Polymer}
-import model.purchasable.units.{Battleship, Corvette, Cruiser, Destroyer}
+import model.game.purchasable.building.{EnergyGrid, Factory, Hangar, Mine, ResearchLab, Shipyard}
+import model.game.purchasable.technology.{AdvancedMaterials, AdvancedPropulsion, NanoRobotics, Polymer}
+import model.game.purchasable.units.{Battleship, Corvette, Cruiser, Destroyer}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers.*
 
 class GameValuesSpec extends AnyWordSpec {
   "The GameValues" should {
     "be initialized correctly by default" in {
-      val gameValues: IValues = GameValues()
+      val gameValues: GameValues = GameValues()
       gameValues.listOfUnits shouldBe a [List[_]]
       gameValues.listOfUnits should not be(empty)
       gameValues.listOfUnits should be(List(Corvette(), Cruiser(), Destroyer(), Battleship()))
@@ -24,7 +24,7 @@ class GameValuesSpec extends AnyWordSpec {
         .listOfTechnologies should be(List(Polymer(), AdvancedMaterials(), NanoRobotics(), AdvancedPropulsion()))
     }
     "be re-initializable" in {
-      val gameValues: IValues = GameValues(listOfBuildings = List(), listOfUnits = List(), listOfTechnologies = List())
+      val gameValues: GameValues = GameValues(listOfBuildings = List(), listOfUnits = List(), listOfTechnologies = List())
 
       gameValues.listOfUnits shouldBe a[List[_]]
       gameValues.listOfUnits should be(empty)

@@ -1,7 +1,10 @@
 package controller.command.commands
 
 import controller.command.ICommand
-import model.game.gamestate.IGameStateManager
+import model.game.gamestate.GameStateManager
 
-case class InvalidCommand(string: String, gameStateManager: IGameStateManager) extends ICommand:
-  override def execute(): IGameStateManager = gameStateManager.invalid(s"Unknown Input: '$string'")
+import scala.io.AnsiColor
+
+case class InvalidCommand(params: String, gsm: GameStateManager) extends ICommand:
+  override def execute(): GameStateManager = 
+    gsm.invalid(AnsiColor.RED + s"Invalid Input: '${params.mkString(" ")}'" + AnsiColor.RESET)

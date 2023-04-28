@@ -1,7 +1,7 @@
 package controller.command.commands
 
 import controller.command.ICommand
-import model.game.gamestate.IGameStateManager
+import model.game.gamestate.GameStateManager
 
-case class EmptyCommand(gameStateManager: IGameStateManager) extends ICommand:
-  override def execute(): IGameStateManager = gameStateManager.empty()
+case class EmptyCommand(gameStateManager: GameStateManager) extends ICommand:
+  override def execute(): GameStateManager = gameStateManager.empty()

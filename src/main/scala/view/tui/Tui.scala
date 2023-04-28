@@ -1,8 +1,8 @@
 package view.tui
 
 import controller.Controller
-import model.game.gamestate.GameState.{EXITED, INIT}
-import model.game.gamestate.GameState
+import model.game.gamestate.IGameState
+import model.game.gamestate.gamestates.{ExitedState, RunningState}
 import utils.Observer
 
 import scala.annotation.tailrec
@@ -17,26 +17,25 @@ case class Tui(controller: Controller) extends Observer {
        | This is an introduction
        |""".stripMargin
 
-  def run(): GameState = {
+  def run(): Boolean = {
     controller.registerObserver(this)
-
     println(gameTitle + "\n" + introductionMessage)
-
+    
     @tailrec
-    def runGameLoop(gameState: GameState): GameState = {
-      gameState match
-        case EXITED => endGame(gameState)
-        case _ =>
-          val input = StdIn.readLine(">>> ")
-          val state = controller.processInput(input)
-          runGameLoop(state)
+    def runGameLoop(running: Boolean): Boolean = {
+      if running then
+        val input = StdIn.readLine(">>> ")
+        val state = controller.processInput(input)
+        runGameLoop(state)
+      else
+        endGame(false)
     }
-    runGameLoop(INIT)
+    runGameLoop(true)
   }
 
-  private def endGame(exitState: GameState): GameState =
+  private def endGame(isRunning: Boolean): Boolean =
     controller.removeObserver(this)
-    exitState
+    isRunning
 
   override def update(): Unit = println(controller.toString)
 

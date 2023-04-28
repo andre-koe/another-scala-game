@@ -12,9 +12,9 @@ case class HelpCommand(string: String, gameStateManager: GameStateManager) exten
       case "technology" => gameStateManager.message(helpTech)
       case "unit" => gameStateManager.message(helpUnit)
       case "" => gameStateManager.message(defaultHelpResponse)
-      case _ => 
-        gameStateManager.message(
-          GameObjectUtils().findInLists(string).getOrElse(s"Could not find any information on $string"))
+      case _ =>
+        val obj = GameObjectUtils().findInLists(string)
+        gameStateManager.message(if obj.isDefined then obj.get.toString else s"Could not find any Information on $obj")
 
   private def helpBuilding: String = "A building can impact the game in various ways, " +
     "such as increasing research output, providing energy, or increasing unit capacity."

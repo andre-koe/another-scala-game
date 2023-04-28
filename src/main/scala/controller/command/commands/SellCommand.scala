@@ -5,29 +5,16 @@ import model.game.Capacity
 import model.game.gamestate.GameStateManager
 import model.game.purchasable.building.{BuildingFactory, IBuilding}
 import model.game.purchasable.units.{IUnit, UnitFactory}
-import model.game.purchasable.{IGameObject, IUpkeep}
 import model.game.purchasable.utils.Output
+import model.game.purchasable.{IGameObject, IUpkeep}
 import model.game.resources.ResourceHolder
 import model.game.resources.resourcetypes.{Energy, ResearchPoints}
 
 import scala.annotation.tailrec
-import scala.language.postfixOps
 
-case class SellCommand(string: List[String], gameStateManager: GameStateManager) extends ICommand, IUndoable:
+case class SellCommand(what: IGameObject, qty: Int, gameStateManager: GameStateManager) extends ICommand, IUndoable:
 
   private def capitalize(str: String): String = s"${str.split(" ").map(_.capitalize).mkString(" ")}"
-
-  private def invalidInputFormat(str: String): String =
-    s"'$str' is invalid expected input of type sell <what> (quantity) " +
-      s"use sell help to get an overview on how to use sell."
-
-  private def doesNotExistAsUnitOrBuilding(str: String): String =
-    s"'${capitalize(str)}' is neither a Unit nor a Building, use 'list buildings|units' " +
-      s"to get an overview of all available units or buildings."
-
-  private def playerDoesNotOwnGameObject(str: String, quantity: Int): String =
-    s"Cannot sell $quantity x ${capitalize(str)}" +
-      s", you can only sell what you own."
 
   private def sellSuccessMsg(str: String, quantity: Int, profit: ResourceHolder): String =
     s"Successfully Sold: $quantity x ${capitalize(str)} for a profit of $profit."
@@ -38,41 +25,11 @@ case class SellCommand(string: List[String], gameStateManager: GameStateManager)
       "quantity to sell more than 1 instance. You get half the cost back."
 
   override def execute(): GameStateManager =
-    if !validInputLength(string) then return gameStateManager.message(invalidInputFormat(string.mkString(" ")))
-    string match
-      case "help" :: Nil => gameStateManager.message(this.toString)
-      case name :: Nil if name.nonEmpty => processInput(name, None)
-      case name :: tail if name.nonEmpty => processInput(name, Option(tail))
-      case _ => gameStateManager.message(this.toString)
+    what match
+      case building: IBuilding => sellBuilding(building, qty)
+      case unit: IUnit => sellUnit(unit, qty)
 
-  private def processInput(str: String, list: Option[List[String]]): GameStateManager =
-    list match
-      case Some(l) => if l.length == 1 then handleListOfSizeOne(str, l) else handleListOfSizeTwo(str, l)
-      case None => handleEmptyList(str)
-
-  private def handleEmptyList(str: String): GameStateManager =
-    if gameObjectCanBeSold(str)
-    then handleSell(str, 1) else gameStateManager.message(doesNotExistAsUnitOrBuilding(str))
-
-  private def handleListOfSizeOne(str: String, value: List[String]): GameStateManager =
-    value.head.toIntOption match
-      case Some(quantity) if gameObjectCanBeSold(str) => handleSell(str, quantity)
-      case None if gameObjectCanBeSold(str + " " + value.head) =>
-        handleSell(str + " " + value.head, 1)
-      case _ => gameStateManager.message(doesNotExistAsUnitOrBuilding(str))
-
-  private def handleListOfSizeTwo(str: String, value: List[String]): GameStateManager =
-    value.last.toIntOption match
-      case Some(quantity) if gameObjectCanBeSold(str + " " + value.head) => handleSell(str + " " + value.head, quantity)
-      case _ =>
-        gameStateManager.message(doesNotExistAsUnitOrBuilding(str + " " + value.head))
-
-  private def handleSell(what: String, quantity: Int): GameStateManager =
-    if playerHasUnit(what, quantity) then sellUnit(what, quantity)
-    else if playerHasBuilding(what, quantity) then sellBuilding(what, quantity)
-    else gameStateManager.message(playerDoesNotOwnGameObject(what, quantity))
-
-  private def sellUnit(str: String, quantity: Int): GameStateManager =
+  private def sellUnit(str: IUnit, quantity: Int): GameStateManager =
     val tupleUnit = removeFromUnitList(gameStateManager.playerValues.listOfUnits, quantity, str)
     val capacitySaved = returnSavedCapacity(tupleUnit._2)
       gameStateManager.sell(
@@ -80,9 +37,9 @@ case class SellCommand(string: List[String], gameStateManager: GameStateManager)
       newBuildings = List(),
       profit = calcProfit(tupleUnit._2),
       capacity = capacitySaved,
-      message = sellSuccessMsg(str, quantity, calcProfit(tupleUnit._2)))
+      message = sellSuccessMsg(str.name, quantity, calcProfit(tupleUnit._2)))
 
-  private def sellBuilding(str: String, quantity: Int): GameStateManager =
+  private def sellBuilding(str: IBuilding, quantity: Int): GameStateManager =
     val tupleBuilding = removeFromBuildingList(gameStateManager.playerValues.listOfBuildings, quantity, str)
     val outputAcc = returnOutput(tupleBuilding._2)
     gameStateManager.sell(
@@ -90,35 +47,20 @@ case class SellCommand(string: List[String], gameStateManager: GameStateManager)
       newBuildings = tupleBuilding._1,
       profit = calcProfit(tupleBuilding._2),
       capacity = outputAcc.capacity,
-      message = sellSuccessMsg(str, quantity, calcProfit(tupleBuilding._2)))
+      message = sellSuccessMsg(str.name, quantity, calcProfit(tupleBuilding._2)))
 
   private def calcProfit(list: List[IUpkeep]): ResourceHolder =
     if list.length > 1
     then list.map(_.cost).reduce((a, b) => a.increase(b)).divideBy(2)
     else list.map(_.cost).head.divideBy(2)
 
-  private def removeFromBuildingList(lst: List[IBuilding], qty: Int, what: String): (List[IBuilding], List[IBuilding]) =
-    val listFound: List[IBuilding] = lst.filter(_.name.toLowerCase == what)
+  private def removeFromBuildingList(lst: List[IBuilding], qty: Int, what: IBuilding): (List[IBuilding], List[IBuilding]) =
+    val listFound: List[IBuilding] = lst.filter(_ == what)
     (lst diff listFound.drop(listFound.length - qty), listFound.drop(listFound.length - qty))
 
-  private def removeFromUnitList(lst: List[IUnit], qty: Int, what: String): (List[IUnit], List[IUnit]) =
-    val listFound: List[IUnit] = lst.filter(_.name.toLowerCase == what)
+  private def removeFromUnitList(lst: List[IUnit], qty: Int, what: IUnit): (List[IUnit], List[IUnit]) =
+    val listFound: List[IUnit] = lst.filter(_ == what)
     (lst diff listFound.drop(listFound.length - qty), listFound.drop(listFound.length - qty))
-
-  private def buildingExist(str: String): Option[IBuilding] = BuildingFactory().create(str)
-
-  private def unitExist(str: String): Option[IUnit] = UnitFactory().create(str)
-
-  private def playerHasUnit(str: String, quantity: Int): Boolean =
-    gameStateManager.playerValues.listOfUnits.count(_.name.toLowerCase == str) >= quantity
-
-  private def playerHasBuilding(str: String, quantity: Int): Boolean =
-    gameStateManager.playerValues.listOfBuildings.count(_.name.toLowerCase == str) >= quantity
-
-  private def gameObjectCanBeSold(str: String): Boolean =
-    buildingExist(str.toLowerCase).isDefined || unitExist(str.toLowerCase).isDefined
-
-  private def validInputLength(list: List[Any]): Boolean = if list.length > 3 | list.length < 1 then false else true
 
   private def returnOutput(list: List[IBuilding]): Output =
     list.map(_.output).reduce((a, b) => a.increaseOutput(b))

@@ -6,4 +6,4 @@ import model.game.gamestate.GameStateManager
 import model.interpreter.IExpression
 
 case class InvalidExpression(params: List[String]) extends IExpression[GameStateManager, ICommand]:
-  override def interpret(gsm: GameStateManager): ICommand = InvalidCommand(params, gsm)
+  override def interpret(gsm: GameStateManager): ICommand = InvalidCommand(params.mkString(" "), gsm)

@@ -76,7 +76,7 @@ case class GameStateManager(round: Round = Round(),
 
   def accept(): GameStateManager =
     gameState match
-      case userChoiceRequestedState: WaitForEndRoundConfirmation => userChoiceRequestedState.update(this)
+      case userChoiceRequestedState: WaitForEndRoundConfirmation => EndRoundConfirmationState().update(this)
       case _ => this.empty()
 
   def decline(): GameStateManager =

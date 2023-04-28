@@ -16,7 +16,12 @@ class Controller extends Observable {
   def processInput(str: String): Boolean =
     gameStateManager = expressionParser.parse(str).interpret(gameStateManager).execute()
     notifyObservers()
-    gameStateManager.gameState.isInstanceOf[ExitedState]
+    handleGameState(gameStateManager)
+
+  private def handleGameState(gsm: GameStateManager): Boolean =
+    gsm.gameState match
+      case _ : ExitedState => false
+      case _ => true
 
   override def toString: String = gameStateManager.toString
 

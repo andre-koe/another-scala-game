@@ -7,4 +7,4 @@ import model.game.gamestate.messages.MessageType.{DEFAULT, HELP}
 
 case class ShowCommand(gsm: GameStateManager) extends ICommand:
   
-  override def execute(): GameStateManager => gsm.show()
+  override def execute(): GameStateManager = gsm.show()

@@ -14,7 +14,7 @@ case class MoveCommand(string: List[String], gameStateManager: GameStateManager)
   override def execute(): GameStateManager =
     string match
       case ("help" | "") :: Nil => gameStateManager.message(this.toString)
-      case _ => handleInput(string)
+      case _ => gameStateManager.move("", Coordinate())
   private def handleInput(list: List[String]): GameStateManager =
     val unit: Option[IUnit] = findUnit(list.head)
     val sector: Option[System] = findSystem(list.tail.head)

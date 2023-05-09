@@ -17,15 +17,22 @@ case class GameMap(sizeX: Int = 20,
     validateString(str) match
       case None => None
       case Some(value) => translateToCoord(value.split("-"))
+      
   private def translateToCoord(str: Array[String]): Option[System] =
     val y: Option[Int] = str(0).toIntOption
     val x: Option[Int] = mapToInt(str(1))
     None
+    
   private def mapToInt(str: String): Option[Int] = ???
+  
   private def validateString(str: String): Option[String] =
     if str.contains("-") && str.length == 3 then Option(str) else None
+    
   private def getSystemAt(x: Int, y: Int): System = content(y)(x)
+  
   override def toString: String = limiter + "\n" + content.map(_.mkString("-" * 3)).mkString(separator) + "\n" + limiter
+  
   private def separator: String = "\n" + ("  | " + " " * 4) * sizeX + "\n"
+  
   private def limiter: String = "=" * ("(1-1)" * sizeX + "===" * (sizeX - 1)).length
 

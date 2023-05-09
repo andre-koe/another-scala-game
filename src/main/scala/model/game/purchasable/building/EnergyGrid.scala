@@ -12,7 +12,7 @@ case class EnergyGrid(name: String = "Energy Grid",
                       description: String = "The Energy Grid " +
                         "provides a steady stream of energy to power buildings and units.",
                       upkeep: ResourceHolder = ResourceHolder(energy = Energy(3)),
-                      output: Output = Output(resourceHolder = ResourceHolder(energy = Energy(10)))
+                      output: Output = Output(rHolder = ResourceHolder(energy = Energy(10)))
                      ) extends IBuilding:
   
   override def toString: String = "Energy Grid"

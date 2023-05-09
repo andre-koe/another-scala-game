@@ -12,7 +12,7 @@ case class Mine(name: String = "Mine",
                   "the construction of units and buildings. " +
                   "Minerals are the base resource for the production of alloys.",
                 upkeep: ResourceHolder = ResourceHolder(energy = Energy(10)),
-                output: Output = Output(resourceHolder = ResourceHolder(minerals = Minerals(10)))
+                output: Output = Output(rHolder = ResourceHolder(minerals = Minerals(10)))
                ) extends IBuilding:
   override def toString: String = "Mine"
 

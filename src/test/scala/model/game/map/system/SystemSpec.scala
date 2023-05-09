@@ -5,6 +5,6 @@ import org.scalatest.matchers.should.Matchers.*
 
 class SystemSpec extends AnyWordSpec:
 
-  "A SystemType" should {
-
+  "A SystemType"  {
+    0
   }

@@ -8,7 +8,7 @@ class EndRoundCommandSpec extends AnyWordSpec {
 
   "The EndRoundCommand" should {
     "Set the GameStateManager's GameState to GameState.END_ROUND_REQUEST and ask for confirmation" in {
-      val gameStateManager: GameStateManager = new GameStateManager()
+      val gameStateManager: GameStateManager = GameStateManager()
       val endRoundCommand: EndRoundCommand = EndRoundCommand(gameStateManager)
       endRoundCommand.execute().toString should be("Are you sure? [yes (y) / no (n)]")
     }

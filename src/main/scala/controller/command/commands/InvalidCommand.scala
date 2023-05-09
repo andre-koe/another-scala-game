@@ -7,4 +7,4 @@ import scala.io.AnsiColor
 
 case class InvalidCommand(params: String, gsm: GameStateManager) extends ICommand:
   override def execute(): GameStateManager = 
-    gsm.invalid(AnsiColor.RED + s"Invalid Input: '${params.mkString(" ")}'" + AnsiColor.RESET)
+    gsm.invalid(AnsiColor.RED + s"Invalid Input: '$params'" + AnsiColor.RESET)

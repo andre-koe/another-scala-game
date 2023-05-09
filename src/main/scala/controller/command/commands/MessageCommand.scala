@@ -2,8 +2,8 @@ package controller.command.commands
 
 import controller.command.ICommand
 import model.game.gamestate.GameStateManager
-import model.game.gamestate.messages.MessageType
-import model.game.gamestate.messages.MessageType.{DEFAULT, INVALID_INPUT, MALFORMED_INPUT, HELP}
+import model.game.gamestate.enums.messages.MessageType
+import model.game.gamestate.enums.messages.MessageType._
 
 import scala.io.AnsiColor
 
@@ -20,7 +20,7 @@ case class MessageCommand(message: String, messageType: MessageType, gsm: GameSt
 
   private def help(str: String) = AnsiColor.GREEN + str + AnsiColor.RESET
 
-  private def invalid(str: String) = s"Invalid Input: ${AnsiColor.RED}$str${AnsiColor.RESET}" +
+  private def invalid(str: String) = s"Invalid Input: ${AnsiColor.RED}'$str'${AnsiColor.RESET}" +
     s"\nEnter 'help' to get an overview of all available commands"
 
   private def malformed(str: String) = s"${AnsiColor.YELLOW}$str${AnsiColor.RESET}"

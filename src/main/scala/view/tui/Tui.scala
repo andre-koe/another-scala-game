@@ -1,8 +1,8 @@
 package view.tui
 
 import controller.Controller
-import model.game.gamestate.IGameState
-import model.game.gamestate.gamestates.{ExitedState, RunningState}
+import controller.newInterpreter.ExpressionParser
+import controller.validator.ValidationHandler
 import utils.Observer
 
 import scala.annotation.tailrec
@@ -25,7 +25,7 @@ case class Tui(controller: Controller) extends Observer {
     def runGameLoop(running: Boolean): Boolean = {
       if running then
         val input = StdIn.readLine(">>> ")
-        val state = controller.processInput(input)
+        val state = controller.processInput(ExpressionParser().parseInput(input))
         runGameLoop(state)
       else
         endGame(false)

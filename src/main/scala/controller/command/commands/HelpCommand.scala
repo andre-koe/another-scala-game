@@ -3,18 +3,19 @@ package controller.command.commands
 import controller.command.ICommand
 import model.game.GameValues
 import model.game.gamestate.GameStateManager
+import model.game.gamestate.enums.help.HelpContext
+import model.game.gamestate.enums.help.HelpContext._
+import model.game.purchasable.IGameObject
 import model.utils.GameObjectUtils
 
-case class HelpCommand(string: String, gameStateManager: GameStateManager) extends ICommand:
+case class HelpCommand(context: HelpContext, gsm: GameStateManager, value: Option[IGameObject] = None) extends ICommand:
   override def execute(): GameStateManager =
-    string match
-      case "building" => gameStateManager.message(helpBuilding)
-      case "technology" => gameStateManager.message(helpTech)
-      case "unit" => gameStateManager.message(helpUnit)
-      case "" => gameStateManager.message(defaultHelpResponse)
-      case _ =>
-        val obj = GameObjectUtils().findInLists(string)
-        gameStateManager.message(if obj.isDefined then obj.get.toString else s"Could not find any Information on $obj")
+    context match
+      case BUILDING => gsm.message(helpBuilding)
+      case TECHNOLOGY => gsm.message(helpTech)
+      case UNIT => gsm.message(helpUnit)
+      case GENERAL => gsm.message(defaultHelpResponse)
+      case SPECIFIC => gsm.message(value.get.toString)
 
   private def helpBuilding: String = "A building can impact the game in various ways, " +
     "such as increasing research output, providing energy, or increasing unit capacity."

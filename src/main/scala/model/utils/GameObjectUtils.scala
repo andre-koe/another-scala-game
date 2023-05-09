@@ -5,7 +5,7 @@ import model.game.purchasable.building.{BuildingFactory, IBuilding}
 import model.game.purchasable.technology.{ITechnology, TechnologyFactory}
 import model.game.purchasable.units.{IUnit, UnitFactory}
 
-case class GameObjectUtils():
+class GameObjectUtils():
 
   def findInLists(str: String): Option[IGameObject] =
     val technology = findInTech(str)
@@ -21,4 +21,4 @@ case class GameObjectUtils():
   def findInUnits(str: String): Option[IUnit] = existsInFactory(str, () => UnitFactory())
 
   private def existsInFactory[T <: IGameObject](name: String, factory: () => IPurchasableFactory[T]): Option[T] =
-    factory().create(name)
+    factory().create(name.toLowerCase)

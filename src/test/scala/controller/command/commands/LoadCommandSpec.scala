@@ -9,7 +9,7 @@ class LoadCommandSpec extends AnyWordSpec {
     "do absolutely nothing at the Moment except for setting GameState to Running and " +
       "returning an information about missing implementation" in {
       val gameStateManager: GameStateManager = GameStateManager()
-      val loadCommand: LoadCommand = LoadCommand("", gameStateManager)
+      val loadCommand: LoadCommand = LoadCommand(Some(""), gameStateManager)
       loadCommand.execute().toString should be("load not implemented yet")
     }
   }

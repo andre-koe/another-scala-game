@@ -1,6 +1,7 @@
 package model.game.gamestate
 
-import model.game.gamestate.gamestates.{EndRoundConfirmationState, WaitForEndRoundConfirmation, ExitedState, RunningState}
+import model.game.gamestate.gamestates.{EndRoundConfirmationState, ExitedState, RunningState, WaitForUserConfirmation}
+import model.game.gamestate.strategies.sell.ISellStrategy
 import model.game.map.{Coordinate, GameMap}
 import model.game.purchasable.building.{BuildingFactory, EnergyGrid, Factory, Hangar, IBuilding, Mine, ResearchLab, Shipyard}
 import model.game.purchasable.{IGameObject, IUpkeep}
@@ -19,86 +20,88 @@ case class GameStateManager(round: Round = Round(),
                             gameMap: GameMap = GameMap(),
                             message: String = "",
                             playerValues: PlayerValues = PlayerValues(),
-                            gameState: IGameState = RunningState()):
-  
-  val gameValues: GameValues = GameValues()
+                            gameState: IGameState = RunningState(),
+                            gameValues: GameValues = GameValues()):
 
-  def build(building: IBuilding, newBalance: ResourceHolder, msg: String): GameStateManager =
+  def build(building: IBuilding, nB: ResourceHolder, msg: String): GameStateManager =
     gameState match
-      case runningState: RunningState =>
-        runningState.build(gsm = this, building = building, newBalance = newBalance, msg = msg)
-      case endRoundRequestState: WaitForEndRoundConfirmation => endRoundRequestState.ask(this)
+      case runningState: RunningState => runningState.build(gsm = this, building = building, nB = nB, msg = msg)
+      case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
       case _ => this.copy(message = "Invalid")
 
-  def research(technology: ITechnology, newBalance: ResourceHolder, msg: String): GameStateManager =
+  def research(tech: ITechnology, nB: ResourceHolder, msg: String): GameStateManager =
     gameState match
-      case runningState: RunningState =>
-        runningState.research(gsm = this, technology = technology, newBalance = newBalance, msg = msg)
-      case endRoundRequestState: WaitForEndRoundConfirmation => endRoundRequestState.ask(this)
+      case runningState: RunningState => runningState.research(gsm = this, tech = tech, newBalance = nB, msg = msg)
+      case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
       case _ => this.copy(message = "Invalid")
 
   def recruit(what: Vector[IUnit], nB: ResourceHolder, nC: Capacity, msg: String): GameStateManager =
     gameState match
-      case runningState: RunningState =>
-        runningState.recruit(gsm = this, what = what, nBalance = nB, nCap = nC, msg = msg)
-      case endRoundRequestState: WaitForEndRoundConfirmation => endRoundRequestState.ask(this)
+      case runningState: RunningState => runningState.recruit(gsm = this, what = what, nB = nB, nCap = nC, msg = msg)
+      case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
       case _ => this.copy(message = "Invalid")
 
-  def sell(newUnits: List[IUnit],
-           newBuildings: List[IBuilding],
-           profit: ResourceHolder,
-           capacity: Capacity,
-           message: String): GameStateManager =
+  def sell(sellStrategy: ISellStrategy, msg: String): GameStateManager =
     gameState match
-      case runningState: RunningState =>
-        runningState.sell(gsm = this, nU = newUnits, nB = newBuildings, profit = profit, cap = capacity, msg = message)
-      case endRoundRequestState: WaitForEndRoundConfirmation => endRoundRequestState.ask(this)
+      case runningState: RunningState => runningState.sell(gsm = this, sellStrategy, msg = msg)
+      case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
       case _ => this.copy(message = "Invalid")
 
   def show(): GameStateManager =
     gameState match
       case runningState: RunningState => runningState.show(this)
-      case endRoundRequestState: WaitForEndRoundConfirmation => endRoundRequestState.ask(this)
+      case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
       case _ => this.copy(message = "Invalid")
 
   def move(what: String, where: Coordinate): GameStateManager =
     gameState match
       case runningState: RunningState => runningState.move(this, what, where)
-      case endRoundRequestState: WaitForEndRoundConfirmation => endRoundRequestState.ask(this)
+      case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
       case _ => this.copy(message = "Invalid")
 
   def invalid(input: String): GameStateManager =
     gameState match
       case runningState: RunningState => runningState.invalid(this, input)
-      case endRoundRequestState: WaitForEndRoundConfirmation => endRoundRequestState.ask(this)
+      case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
       case _ => this.copy(message = "Invalid")
-  def endRoundRequest(): GameStateManager = WaitForEndRoundConfirmation().ask(this)
+  def endRoundRequest(): GameStateManager = WaitForUserConfirmation().ask(this)
 
   def accept(): GameStateManager =
     gameState match
-      case userChoiceRequestedState: WaitForEndRoundConfirmation => EndRoundConfirmationState().update(this)
+      case x: WaitForUserConfirmation => x.update(this)
       case _ => this.empty()
 
   def decline(): GameStateManager =
     gameState match
-      case userChoiceRequestedState: WaitForEndRoundConfirmation => userChoiceRequestedState.back(this)
+      case x: WaitForUserConfirmation => x.back(this)
       case _ => this.empty()
-      
-  def resetGameState(): GameStateManager = this.copy(gameState = RunningState(), message = "")
 
-  def exit(): GameStateManager = ExitedState().update(this)
+  def exit(): GameStateManager =
+    gameState match
+      case _: RunningState => ExitedState().update(this)
+      case _: WaitForUserConfirmation => ExitedState().update(this)
+      case _ => this.copy(message = "Invalid")
 
   def save(as: Option[String]): GameStateManager =
-    this.copy(message = "save not implemented yet")
+    gameState match
+      case _: RunningState => this.copy(message = "save not implemented yet")
+      case _ => this.copy(message = "Invalid")
 
   def load(as: Option[String]): GameStateManager =
-    this.copy(message = "load not implemented yet")
+    gameState match
+      case _: RunningState => this.copy(message = "load not implemented yet")
+      case _ => this.copy(message = "Invalid")
   
   def message(what: String): GameStateManager =
     gameState match
       case runningState: RunningState => runningState.showMessage(this, what)
-      case endRoundRequestState: WaitForEndRoundConfirmation => endRoundRequestState.ask(this)
+      case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
+      case _ => this.copy(message = "Invalid")
     
-  def empty(): GameStateManager = this.copy(message = "")
+  def empty(): GameStateManager =
+    gameState match
+      case runningState: RunningState => this.copy(message = "")
+      case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
+      case _ => this.copy(message = "Invalid")
 
   override def toString: String = message

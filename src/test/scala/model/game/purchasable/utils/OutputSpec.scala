@@ -12,17 +12,17 @@ class OutputSpec extends AnyWordSpec {
   "Output" when {
     "initialized" should {
       "be initialized with Capacity and or ResourceHolder objects" in {
-        Output(capacity = Capacity(), resourceHolder = ResourceHolder()).resourceHolder should not be (Nil)
-        Output(capacity = Capacity(), resourceHolder = ResourceHolder()).capacity should not be (Nil)
+        Output(cap = Capacity(), rHolder = ResourceHolder()).rHolder should not be (Nil)
+        Output(cap = Capacity(), rHolder = ResourceHolder()).cap should not be (Nil)
       }
     }
     "increased" should {
-      val output: Output = Output(capacity = Capacity(30), resourceHolder = ResourceHolder(energy = Energy(10)))
+      val output: Output = Output(cap = Capacity(30), rHolder = ResourceHolder(energy = Energy(10)))
       "give us a new Output object with new ResourceHolder and Capacity values" in {
-        output.increaseOutput(Output(capacity = Capacity(10),
-          resourceHolder = ResourceHolder(energy = Energy(10)))).resourceHolder.energy.value should be(20)
-        output.increaseOutput(Output(capacity = Capacity(10),
-          resourceHolder = ResourceHolder(energy = Energy(10)))).capacity.value should be(40)
+        output.increase(Output(cap = Capacity(10),
+          rHolder = ResourceHolder(energy = Energy(10)))).rHolder.energy.value should be(20)
+        output.increase(Output(cap = Capacity(10),
+          rHolder = ResourceHolder(energy = Energy(10)))).cap.value should be(40)
       }
     }
   }

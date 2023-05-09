@@ -9,9 +9,8 @@ class InvalidCommandSpec extends AnyWordSpec {
     "Set the GameStateManager's GameState to GameState.RUNNING and return the invalid input response" in {
       val gameStateManager: GameStateManager = GameStateManager()
       val invalidCommand: InvalidCommand = InvalidCommand("this should be invalid", gameStateManager)
-      invalidCommand.execute()
-        .toString should be(GameStateStringFormatter(gameStateManager = gameStateManager)
-        .invalidInputResponse("Unknown Input: 'this should be invalid'"))
+      invalidCommand.execute().toString.contains(s"Invalid Input: 'this should be invalid'") should be(true)
     }
+
   }
 }

@@ -1,20 +1,26 @@
 package controller
 
+import controller.command.ICommand
+import controller.validator.{IValidator, InputValidator, ValidationHandler}
+import controller.newInterpreter.CombinedExpression
 import model.game.gamestate.{GameStateManager, IGameState}
 import model.game.gamestate.gamestates.ExitedState
-import model.interpreter.IExpressionParser
-import model.interpreter.parser.ExpressionParser
 import utils.{Observable, Observer}
 
 import scala.annotation.tailrec
 
-class Controller extends Observable {
+class Controller() extends Observable {
 
   private var gameStateManager: GameStateManager = GameStateManager()
-  private val expressionParser: IExpressionParser = ExpressionParser()
 
-  def processInput(str: String): Boolean =
-    gameStateManager = expressionParser.parse(str).interpret(gameStateManager).execute()
+  def processInput(toDo : CombinedExpression | ICommand): Boolean =
+
+    val executable = toDo match
+      case x: CombinedExpression => CombinedExpressionAdapter(x, gameStateManager)
+      case x : ICommand => x
+
+    gameStateManager = executable.execute()
+
     notifyObservers()
     handleGameState(gameStateManager)
 

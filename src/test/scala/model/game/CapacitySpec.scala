@@ -42,6 +42,17 @@ class CapacitySpec extends AnyWordSpec {
         cap.toString should be(f"[Capacity: ${cap.value}]")
       }
     }
+    "asked for holds" should {
+      val cap1: Capacity = Capacity(10)
+      "2 if capacity contains 2 times other capacity" in {
+        val cap2: Capacity = Capacity(5);
+        cap1.holds(cap2) should be(Some(2))
+      }
+      "None if capacity contains 0 times other capacity" in {
+        val cap2: Capacity = Capacity(11);
+        cap1.holds(cap2) should be(None)
+      }
+    }
   }
 }
 

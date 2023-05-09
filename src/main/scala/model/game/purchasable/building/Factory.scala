@@ -11,7 +11,7 @@ case class Factory(name: String = "Factory",
                    description: String = "The Factory processes minerals into alloys " +
                      "which are needed for construction of buildings and ships.",
                    upkeep: ResourceHolder = ResourceHolder(energy = Energy(5), minerals = Minerals(10)),
-                   output: Output = Output(resourceHolder = ResourceHolder(alloys = Alloys(5)))) extends IBuilding:
+                   output: Output = Output(rHolder = ResourceHolder(alloys = Alloys(5)))) extends IBuilding:
   
   override def toString: String = "Factory"
 

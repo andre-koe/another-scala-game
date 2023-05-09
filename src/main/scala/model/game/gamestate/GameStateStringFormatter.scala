@@ -21,7 +21,7 @@ case class GameStateStringFormatter(round: Round = Round(),
   def empty: String = ""
   
   def overview(round: Round = round, resourceHolder: ResourceHolder = playerValues.resourceHolder): String =
-    header(round, resourceHolder) + underConstruction + inventory + gameStateManager.gameMap.toString
+    header(round, resourceHolder) + production + inventory + gameStateManager.gameMap.toString
     
   def goodbyeResponse: String = f"Goodbye!"
   
@@ -29,7 +29,8 @@ case class GameStateStringFormatter(round: Round = Round(),
     f"$msg - invalid\nEnter help to get an overview of all available commands"
     
   private def header(round: Round = round, resourceHolder: ResourceHolder = playerValues.resourceHolder): String =
-    val len: Int = (round.toString + separator() + resourceOverview(resourceHolder) + capacityInfo + separator()).length + 2
+    val len: Int =
+      (round.toString + separator() + resourceOverview(resourceHolder) + capacityInfo + separator()).length + 2
     vertBar(len) + "\n" + " " + round + separator()
       + resourceOverview(resourceHolder) + separator() + capacityInfo + " " + "\n" + vertBar(len) + "\n"
     
@@ -43,29 +44,23 @@ case class GameStateStringFormatter(round: Round = Round(),
     case some :: Nil => some.capacity
     case _ => list.map(_.capacity).reduce((x, y) => x.increase(y))
     
-  private def underConstruction: String = 
+  private def production: String =
     if producing then "Ongoing Production:\n" + recruiting + researching + construction else "\n"
     
   private def inventory: String =
-    if inventoryNotEmpty then "Inventory:\n" + units + tech + buildings else "\n"
-    
-  private def units: String =
-    groupAndMapToStringWithCount(playerValues.listOfUnits, "Units")
-    
-  private def tech: String =
-    groupAndMapToStringWithCount(playerValues.listOfTechnologies, "Technologies")
-    
-  private def buildings: String =
-    groupAndMapToStringWithCount(playerValues.listOfBuildings, "Buildings")
+    if inventoryNotEmpty then "Inventory:\n" +
+      groupAndMapWithCount(playerValues.listOfUnits, "Units") +
+      groupAndMapWithCount(playerValues.listOfTechnologies, "Technologies") +
+      groupAndMapWithCount(playerValues.listOfBuildings, "Buildings") else "\n"
     
   private def recruiting: String =
-    mapToStringWithRemainingRounds(playerValues.listOfUnitsUnderConstruction, "Ongoing recruitment")
+    groupAndMapWithRemainingRounds(playerValues.listOfUnitsUnderConstruction, "Ongoing recruitment")
     
   private def researching: String =
-    mapToStringWithRemainingRounds(playerValues.listOfTechnologiesCurrentlyResearched, "Ongoing research")
+    groupAndMapWithRemainingRounds(playerValues.listOfTechnologiesCurrentlyResearched, "Ongoing research")
     
   private def construction: String =
-    mapToStringWithRemainingRounds(playerValues.listOfBuildingsUnderConstruction, "Ongoing construction")
+    groupAndMapWithRemainingRounds(playerValues.listOfBuildingsUnderConstruction, "Ongoing construction")
     
   private def producing: Boolean =
     playerValues.listOfUnitsUnderConstruction.nonEmpty 
@@ -93,13 +88,13 @@ case class GameStateStringFormatter(round: Round = Round(),
     else if value < 0 then AnsiColor.RED + s" - ${value * (-1)}" + AnsiColor.RESET
     else ""
     
-  private def groupAndMapToStringWithCount(list: List[IGameObject], identifier: String): String =
+  private def groupAndMapWithCount[T<:IGameObject](list: List[T], identifier: String): String =
     if list.nonEmpty then
       s" $identifier: " + list.groupBy(_.name).map(x => s"${x._1} x ${x._2.length}").mkString(" | ") + "\n"
     else ""
     
-  private def mapToStringWithRemainingRounds(list: List[IGameObject], identifier: String): String =
+  private def groupAndMapWithRemainingRounds[T<:IGameObject](list: List[T], identifier: String): String =
     if list.nonEmpty then
-      s" $identifier: " + list.sortBy(_.roundsToComplete.value)
-        .map(x => s"[${x.name} | Rounds to complete: ${x.roundsToComplete.value}]").mkString(" ") + "\n"
+      s" $identifier: " + list.sortBy(_.roundsToComplete.value).groupBy(_.roundsToComplete)
+        .map(x => s"[${x._2.mkString(", ")} | Rounds to complete: ${x._1.value}]").take(5).mkString(" ") + "\n"
     else ""

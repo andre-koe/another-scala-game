@@ -10,7 +10,7 @@ class MoveCommandSpec extends AnyWordSpec {
     "do absolutely nothing at the Moment except for setting GameState to Running and " +
       "returning an information about missing implementation" in {
       val gameStateManager: GameStateManager = GameStateManager()
-      val moveCommand: MoveCommand = MoveCommand("something", gameStateManager)
+      val moveCommand: MoveCommand = MoveCommand(List("something"), gameStateManager)
       moveCommand.execute().toString should be("move not implemented yet")
     }
   }

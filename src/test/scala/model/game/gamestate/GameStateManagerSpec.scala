@@ -2,8 +2,10 @@ package model.game.gamestate
 
 import model.game.*
 import model.game.gamestate.GameStateStringFormatter
+import model.game.gamestate.gamestates.{EndRoundConfirmationState, ExitedState, RunningState, WaitForUserConfirmation}
+import model.game.gamestate.strategies.sell.SellBuildingStrategy
 import model.game.map.Coordinate
-import model.game.purchasable.building.{Hangar, IBuilding, ResearchLab}
+import model.game.purchasable.building.{Hangar, IBuilding, Mine, ResearchLab}
 import model.game.purchasable.technology.{AdvancedMaterials, ITechnology, Polymer}
 import model.game.purchasable.types.EntityType
 import model.game.purchasable.units.{Corvette, IUnit}
@@ -16,7 +18,7 @@ import org.scalatest.matchers.should.Matchers.*
 class GameStateManagerSpec extends AnyWordSpec {
 
   "The GameStateManager" when {
-    "initialized" should {
+    "in state Running (Initialized)" should {
       val playerVal: PlayerValues =
         PlayerValues(resourceHolder = ResourceHolder(energy = Energy(100),
           minerals = Minerals(100),
@@ -104,9 +106,143 @@ class GameStateManagerSpec extends AnyWordSpec {
       }
       "end the round if the user accepts after the prompt" in {
         var endRoundGameState: GameStateManager = tmpGameState
-        endRoundGameState = endRoundGameState.endRoundConfirmation()
+        endRoundGameState = endRoundGameState.accept()
         endRoundGameState.round.value should be(2)
       }
+    }
+  }
+  "When in GameState WaitForUserConfirmation" should {
+    val playerVal: PlayerValues =
+      PlayerValues(resourceHolder = ResourceHolder(energy = Energy(100),
+        minerals = Minerals(100),
+        alloys = Alloys(10),
+        researchPoints = ResearchPoints(100)
+      ), capacity = Capacity(20))
+
+    val state: GameStateManager = GameStateManager(gameState = WaitForUserConfirmation(), playerValues = playerVal)
+
+    "not update the game state and the string representation if move is invoked" in {
+      state.move("", Coordinate()).toString should be("Are you sure? [yes (y) / no (n)]")
+    }
+    "not update the game state and the string representation if save is invoked" in {
+      state.save(Option("test")).toString should be("Invalid")
+    }
+    "not update the game state and the string representation if load is invoked" in {
+      state.load(Option("test")).toString should be("Invalid")
+    }
+    "not update the game state and the string representation if empty is invoked" in {
+      state.empty().toString should be("Are you sure? [yes (y) / no (n)]")
+    }
+    "not update the game state and the string representation if exit is invoked" in {
+      state.exit().toString should be(GameStateStringFormatter().goodbyeResponse)
+    }
+    "not update the game state and the string representation if research is invoked" in {
+      state.research(AdvancedMaterials(), AdvancedMaterials().cost, "Researching: Advanced Materials")
+        .toString should be("Are you sure? [yes (y) / no (n)]")
+    }
+    "not update the game state and the string representation if build is invoked" in {
+      state.build(Hangar(), Hangar().cost, "Constructing: Hangar")
+        .toString should be("Are you sure? [yes (y) / no (n)]")
+    }
+    "not update the game state and the string representation if recruit is invoked" in {
+      state.recruit(Vector(Corvette()), Corvette().cost, Corvette().capacity, "Recruiting: 1 x Corvette")
+        .toString should be("Are you sure? [yes (y) / no (n)]")
+    }
+    "not update the game state and the string representation if show is invoked" in {
+      state.show().toString should be("Are you sure? [yes (y) / no (n)]")
+    }
+    "not update the game state and the string if an invalid command is invoked" in {
+      state.invalid("testst").toString should be("Are you sure? [yes (y) / no (n)]")
+    }
+    "not update the game state if a message command is invoked" in {
+      state.message("something").toString should be("Are you sure? [yes (y) / no (n)]")
+    }
+    "not update the game state if a sell command is invoked" in {
+      state.sell(SellBuildingStrategy(List(Mine()), ResourceHolder(), Capacity()), "sell")
+        .toString should be("Are you sure? [yes (y) / no (n)]")
+    }
+    "update the game state if a accept is invoked" in {
+      state.accept().round.value should be(2)
+      state.accept().toString() should be(GameStateStringFormatter(playerValues = playerVal)
+        .overview(state.round.next, state.playerValues.resourceHolder))
+    }
+    "update the game state if a decline is invoked" in {
+      state.decline().round.value should be(1)
+      state.decline().toString() should be("End round aborted")
+    }
+  }
+  "When in GameState Exited or EndRoundConfirmation" should {
+    val playerVal: PlayerValues =
+      PlayerValues(resourceHolder = ResourceHolder(energy = Energy(100),
+        minerals = Minerals(100),
+        alloys = Alloys(10),
+        researchPoints = ResearchPoints(100)
+      ), capacity = Capacity(20))
+
+    val stateExit: GameStateManager = GameStateManager(gameState = ExitedState(), playerValues = playerVal)
+    val stateEndRound: GameStateManager = GameStateManager(gameState = EndRoundConfirmationState(), playerValues = playerVal)
+
+    "not update the game state and the string representation if move is invoked" in {
+      stateExit.move("", Coordinate()).toString should be("Invalid")
+      stateEndRound.move("", Coordinate()).toString should be("Invalid")
+    }
+    "not update the game state and the string representation if save is invoked" in {
+      stateExit.save(Option("test")).toString should be("Invalid")
+      stateEndRound.save(Option("test")).toString should be("Invalid")
+    }
+    "not update the game state and the string representation if load is invoked" in {
+      stateExit.load(Option("test")).toString should be("Invalid")
+      stateEndRound.load(Option("test")).toString should be("Invalid")
+    }
+    "not update the game state and the string representation if empty is invoked" in {
+      stateExit.empty().toString should be("Invalid")
+      stateEndRound.empty().toString should be("Invalid")
+    }
+    "not update the game state and the string representation if exit is invoked" in {
+      stateExit.exit().toString should be("Invalid")
+      stateEndRound.exit().toString should be("Invalid")
+    }
+    "not update the game state and the string representation if research is invoked" in {
+      stateExit.research(AdvancedMaterials(), AdvancedMaterials().cost, "Researching: Advanced Materials")
+        .toString should be("Invalid")
+      stateEndRound.research(AdvancedMaterials(), AdvancedMaterials().cost, "Researching: Advanced Materials")
+        .toString should be("Invalid")
+    }
+    "not update the game state and the string representation if build is invoked" in {
+      stateExit.build(Hangar(), Hangar().cost, "Constructing: Hangar").toString should be("Invalid")
+      stateEndRound.build(Hangar(), Hangar().cost, "Constructing: Hangar").toString should be("Invalid")
+    }
+    "not update the game state and the string representation if recruit is invoked" in {
+      stateExit.recruit(Vector(Corvette()), Corvette().cost, Corvette().capacity, "Recruiting: 1 x Corvette")
+        .toString should be("Invalid")
+      stateEndRound.recruit(Vector(Corvette()), Corvette().cost, Corvette().capacity, "Recruiting: 1 x Corvette")
+        .toString should be("Invalid")
+    }
+    "not update the game state and the string representation if show is invoked" in {
+      stateExit.show().toString should be("Invalid")
+      stateEndRound.show().toString should be("Invalid")
+    }
+    "not update the game state and the string if an invalid command is invoked" in {
+      stateExit.invalid("testst").toString should be("Invalid")
+      stateEndRound.invalid("testst").toString should be("Invalid")
+    }
+    "not update the game state if a message command is invoked" in {
+      stateExit.message("something").toString should be("Invalid")
+      stateEndRound.message("something").toString should be("Invalid")
+    }
+    "not update the game state if a sell command is invoked" in {
+      stateExit.sell(SellBuildingStrategy(List(Mine()), ResourceHolder(), Capacity()), "sell")
+        .toString should be("Invalid")
+      stateEndRound.sell(SellBuildingStrategy(List(Mine()), ResourceHolder(), Capacity()), "sell")
+        .toString should be("Invalid")
+    }
+    "update the game state if a accept is invoked" in {
+      stateExit.accept().round.value should be(1)
+      stateEndRound.accept().toString() should be("Invalid")
+    }
+    "update the game state if a decline is invoked" in {
+      stateExit.decline().round.value should be(1)
+      stateEndRound.decline().toString() should be("Invalid")
     }
   }
  }

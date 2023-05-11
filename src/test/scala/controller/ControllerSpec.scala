@@ -1,6 +1,5 @@
 package controller
 
-import controller.command.ICommand
 import controller.command.commands.*
 import controller.newInterpreter.{CombinedExpression, CommandExpression, ExpressionParser, InterpretedCommand, InterpretedGameObject}
 import controller.validator.ValidationHandler

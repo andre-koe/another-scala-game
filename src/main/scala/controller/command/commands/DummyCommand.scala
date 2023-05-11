@@ -1,7 +1,7 @@
 package controller.command.commands
 
 import controller.command.{ICommand, IUndoable}
-import model.game.gamestate.IGameStateManager
+import model.game.gamestate.GameStateManager
 
-case class DummyCommand(gameStateManager: IGameStateManager) extends ICommand, IUndoable:
-  override def execute(): IGameStateManager = gameStateManager
+case class DummyCommand(gameStateManager: GameStateManager) extends ICommand, IUndoable:
+  override def execute(): GameStateManager = gameStateManager

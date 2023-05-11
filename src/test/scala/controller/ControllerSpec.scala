@@ -1,106 +1,58 @@
 package controller
 
-import controller.command.commands._
-import model.game.gamestate.GameState._
+import controller.command.ICommand
+import controller.command.commands.*
+import controller.newInterpreter.{CombinedExpression, CommandExpression, ExpressionParser, InterpretedCommand, InterpretedGameObject}
+import controller.validator.ValidationHandler
+import model.game.gamestate.GameStateManager
+import model.game.gamestate.gamestates.{ExitedState, RunningState, WaitForUserConfirmation}
+import model.game.purchasable.units.Cruiser
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.matchers.should.Matchers._
+import org.scalatest.matchers.should.Matchers.*
 
 class ControllerSpec extends AnyWordSpec {
 
-  "The Controller" should {
+  val gsm: GameStateManager = GameStateManager()
+
+  "The Controller's" should {
     val controller: Controller = Controller()
-    "turn user input to List of Strings" in {
-      val testInput: String = "Some String to Test"
-      assert(controller.inputSanitation(testInput).isInstanceOf[List[String]])
-      controller.inputSanitation(testInput) should be(List("some", "string", "to", "test"))
-    }
-  }
 
-  "The mapToCommand method" should {
-    val controller: Controller = Controller()
-    "map empty input to EmptyCommand" in {
-      val testInput: String = ""
-      controller.mapToCommand(controller.inputSanitation(testInput), testInput) shouldBe a [EmptyCommand]
-    }
-    "map build input to BuildCommand" in {
-      val testInput: String = "build"
-      controller.mapToCommand(controller.inputSanitation(testInput), testInput) shouldBe a [BuildCommand]
-    }
-    "map research input to ResearchCommand" in {
-      val testInput: String = "research"
-      controller.mapToCommand(controller.inputSanitation(testInput), testInput) shouldBe a [ResearchCommand]
-    }
-    "map recruit input to RecruitCommand" in {
-      val testInput: String = "recruit"
-      controller.mapToCommand(controller.inputSanitation(testInput), testInput) shouldBe a [RecruitCommand]
-    }
-    "map show input to ShowCommand" in {
-      val testInput: String = "show"
-      controller.mapToCommand(controller.inputSanitation(testInput), testInput) shouldBe a [ShowCommand]
-    }
-    "map list input to ListCommand" in {
-      val testInput: String = "list"
-      controller.mapToCommand(controller.inputSanitation(testInput), testInput) shouldBe a [ListCommand]
-    }
-    "map move input to MoveCommand" in {
-      val testInput: String = "move x y"
-      controller.mapToCommand(controller.inputSanitation(testInput), testInput) shouldBe a [MoveCommand]
-    }
-    "map save input to SaveCommand" in {
-      val testInput: String = "save"
-      controller.mapToCommand(controller.inputSanitation(testInput), testInput) shouldBe a [SaveCommand]
-    }
-    "map load input to LoadCommand" in {
-      val testInput: String = "load"
-      controller.mapToCommand(controller.inputSanitation(testInput), testInput) shouldBe a [LoadCommand]
-    }
-    "map sell input to SellCommand" in {
-      val testInput: String = "sell"
-      controller.mapToCommand(controller.inputSanitation(testInput), testInput) shouldBe a [SellCommand]
-    }
-    "map help (help / h) input to HelpCommand" in {
-      val testInput: String = "help"
-      val testInput2: String = "H"
-      controller.mapToCommand(controller.inputSanitation(testInput), testInput) shouldBe a [HelpCommand]
-      controller.mapToCommand(controller.inputSanitation(testInput2), testInput2) shouldBe a [HelpCommand]
-    }
-    "map exit (exit / quit) input to ExitCommand" in {
-      val testInput: String = "exit"
-      val testInput2: String = "quit"
-      controller.mapToCommand(controller.inputSanitation(testInput), testInput) shouldBe a [EndGameCommand]
-      controller.mapToCommand(controller.inputSanitation(testInput2), testInput2) shouldBe a [EndGameCommand]
-
-    }
-    "map invalid or undefined input to InvalidCommand" in {
-      val testInput: String = "test"
-      controller.mapToCommand(controller.inputSanitation(testInput), testInput) shouldBe a [InvalidCommand]
-    }
-    "map (yes / y / n / no) to UserResponseCommand" in {
-      controller.mapToCommand(controller.inputSanitation("yes"), "yes") shouldBe a [UserResponseCommand]
-      controller.mapToCommand(controller.inputSanitation("y"), "y") shouldBe a [UserResponseCommand]
-      controller.mapToCommand(controller.inputSanitation("n"), "n") shouldBe a [UserResponseCommand]
-      controller.mapToCommand(controller.inputSanitation("no"), "no") shouldBe a [UserResponseCommand]
-
-    }
-    "map done to EndRoundCommand" in {
-      controller.mapToCommand(controller.inputSanitation("done"), "done") shouldBe a [EndRoundCommand]
+    "process input method should return true if game is running" in {
+      val expr: CombinedExpression = ExpressionParser().parseInput("this is a simple test (should be invalid)")
+      val testInput: ICommand = ValidationHandler(gsm).handle(expr).get
+      controller.processInput(testInput) should be(true)
     }
   }
 
   "The processInput method" should {
     "return the game state according to the input" in {
       val controller: Controller = Controller()
-      controller.processInput("exit") should be (EXITED)
-      controller.processInput("done") should be (END_ROUND_REQUEST)
-      controller.processInput("test") should be (RUNNING)
+      val expr1: CombinedExpression = ExpressionParser().parseInput("done")
+      val expr2: CombinedExpression = ExpressionParser().parseInput("test")
+      val expr3: CombinedExpression = ExpressionParser().parseInput("exit")
+      val endRoundExp: ICommand = ValidationHandler(gsm).handle(expr1).get
+      val invalidExp: ICommand = ValidationHandler(gsm).handle(expr2).get
+      val endGameExp: ICommand = ValidationHandler(gsm).handle(expr3).get
+
+      controller.processInput(endRoundExp) should be (true)
+      controller.processInput(invalidExp) should be (true)
+      controller.processInput(endGameExp) should be (false)
+    }
+
+    "should work with CombinedExpression as well as commands" in {
+      val controller: Controller = Controller()
+      val expr: CombinedExpression = ExpressionParser().parseInput("done")
+      controller.processInput(expr) should be (true)
     }
   }
 
   "The toString method" should {
     "return the toString representation of the GameStateManager depending on the input" in {
       val controller: Controller = Controller()
-      controller.processInput("test")
-      controller.toString() should be ("Unknown Input: 'test' - invalid\nEnter help to get an overview of all available commands")
+      val expr: CombinedExpression = ExpressionParser().parseInput("test")
+      val command: ICommand = ValidationHandler(gsm).handle(expr).get
+      controller.processInput(command)
+      controller.toString().contains("Invalid Input: 'test'") should be(true)
     }
   }
 }

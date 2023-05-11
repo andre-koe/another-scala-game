@@ -4,8 +4,7 @@ import controller.Controller
 import org.scalatest.matchers.should.Matchers.*
 import org.scalatest.wordspec.AnyWordSpec
 import utils.Observer
-import model.game.gamestate.GameState.*
-import model.game.gamestate.GameState
+import model.game.gamestate.gamestates.*
 
 import java.io.{ByteArrayOutputStream, StringReader}
 import java.lang.ModuleLayer
@@ -25,24 +24,26 @@ class TuiSpec extends AnyWordSpec {
     }
   }
   "The run method" should {
-    val controller: Controller = Controller()
-    val tui = Tui(controller)
-    "return the game state EXITED eventually after a series of inputs finalized by 'exit'" in {
+    "return false eventually after a series of inputs finalized by 'exit'" in {
+      val controller: Controller = Controller()
+      val tui = Tui(controller)
       val listOfInputs: Array[String] = Array("invalid", "invalid", "build", "exit")
       val currentInput = StringReader(listOfInputs.mkString("\n"))
 
       Console.withIn(currentInput) {
-        val result: GameState = tui.run()
-        result should be(EXITED)
+        val result: Boolean = tui.run()
+        result should be(false)
       }
     }
     "return the game state EXITED eventually after a series of inputs finalized by 'quit'" in {
+      val controller: Controller = Controller()
+      val tui = Tui(controller)
       val listOfInputs: Array[String] = Array("invalid", "invalid", "help", "build", "quit")
       val currentInput = StringReader(listOfInputs.mkString("\n"))
 
       Console.withIn(currentInput) {
-        val result: GameState = tui.run()
-        result should be(EXITED)
+        val result: Boolean = tui.run()
+        result should be(false)
       }
     }
   }

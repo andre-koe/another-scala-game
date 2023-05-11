@@ -17,9 +17,9 @@ class CoordinateSpec extends AnyWordSpec {
       val coordinate01: Coordinate = Coordinate(1,3)
       val coordinate02: Coordinate = Coordinate(2,6)
 
-      coordinate00.toString should be("[0 - 0]")
-      coordinate01.toString should be("[1 - 3]")
-      coordinate02.toString should be("[2 - 6]")
+      coordinate00.toString should be("0-A")
+      coordinate01.toString should be("3-B")
+      coordinate02.toString should be("6-C")
     }
   }
 

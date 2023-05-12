@@ -1,8 +1,8 @@
 package model.game
 
 import model.game.map.Coordinate
-import model.game.map.system.System
-import model.game.map.system.SystemType.BASE
+import model.game.map.system.Sector
+import model.game.map.system.SectorType.BASE
 import model.game.map.system.Affiliation.PLAYER
 import model.game.purchasable.IGameObject
 import model.game.purchasable.building.IBuilding
@@ -26,9 +26,9 @@ case class PlayerValues(resourceHolder: ResourceHolder = ResourceHolder(
                         listOfTechnologiesCurrentlyResearched: List[ITechnology] = List[ITechnology]().empty,
                         listOfUnitsUnderConstruction: List[IUnit] = List[IUnit]().empty,
                         capacity: Capacity = Capacity(3),
-                        systems: List[System] =
-                        List(System(affiliation = PLAYER,
-                          systemType = BASE, units = None, coordinate = Coordinate())),
+                        systems: List[Sector] =
+                        List(Sector(affiliation = PLAYER,
+                          sectorType = BASE, units = None, coordinate = Coordinate())),
                         upkeep: ResourceHolder = ResourceHolder(descriptor = "Running Cost"),
                         income: ResourceHolder = ResourceHolder(descriptor = "Income"))
 

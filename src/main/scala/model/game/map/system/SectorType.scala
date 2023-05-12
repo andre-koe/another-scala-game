@@ -1,7 +1,6 @@
 package model.game.map.system
 
-enum SystemType:
+enum SectorType:
   case BASE
   case REGULAR
-end SystemType
 

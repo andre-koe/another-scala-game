@@ -1,6 +1,6 @@
 package model.game.map.system
 
-import SystemType.*
+import SectorType.*
 import Affiliation.*
 import model.game.BuildSlots
 import model.game.map.Coordinate
@@ -9,20 +9,21 @@ import model.game.purchasable.units.IUnit
 import scala.io
 import scala.io.AnsiColor
 
-case class System(coordinate: Coordinate,
+case class Sector(coordinate: Coordinate,
                   affiliation: Affiliation = Affiliation.INDEPENDENT,
-                  systemType: SystemType = REGULAR,
+                  sectorType: SectorType = REGULAR,
                   units: Option[Vector[IUnit]] = None):
+
   def buildSlots: BuildSlots =
-    systemType match
+    sectorType match
       case REGULAR => BuildSlots(3)
       case BASE => BuildSlots(7)
       
-  def description: String = systemType match
+  def description: String = sectorType match
     case BASE => descriptionBuilder("Home System")
     case REGULAR => descriptionBuilder("Regular System")
     
-  def changeAffiliation(newAffiliation: Affiliation): System =
+  def changeAffiliation(newAffiliation: Affiliation): Sector =
     this.copy(affiliation = newAffiliation)
     
   override def toString: String =
@@ -38,6 +39,6 @@ case class System(coordinate: Coordinate,
       case ENEMY => s"$str, provides up to $buildSlots | Belongs to the Enemy"
       
   private def systemTypeToString: String =
-    this.systemType match
+    this.sectorType match
       case BASE => s"[$coordinate]"
       case REGULAR => s"($coordinate)"

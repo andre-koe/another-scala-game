@@ -3,7 +3,7 @@ package controller.command.commands
 import controller.command.{ICommand, IUndoable}
 import model.game.gamestate.GameStateManager
 import model.game.map.Coordinate
-import model.game.map.system.System
+import model.game.map.system.Sector
 import model.game.purchasable.units.IUnit
 
 case class MoveCommand(string: List[String], gameStateManager: GameStateManager) extends ICommand, IUndoable:
@@ -15,11 +15,13 @@ case class MoveCommand(string: List[String], gameStateManager: GameStateManager)
     string match
       case ("help" | "") :: Nil => gameStateManager.message(this.toString)
       case _ => gameStateManager.move("", Coordinate())
-  private def handleInput(list: List[String]): GameStateManager =
-    val unit: Option[IUnit] = findUnit(list.head)
-    val sector: Option[System] = findSystem(list.tail.head)
-    gameStateManager.message("Not implemented")
-  private def findUnit(name: String): Option[IUnit] =
-    gameStateManager.playerValues.listOfUnits.find(_.name == name)
-  private def findSystem(name: String): Option[System] =
-    gameStateManager.gameMap.findSystem(name)
+/*
+private def handleInput(list: List[String]): GameStateManager =
+  val unit: Option[IUnit] = findUnit(list.head)
+  val sector: Option[Sector] = findSector(list.tail.head)
+  gameStateManager.message("Not implemented")
+private def findUnit(name: String): Option[IUnit] =
+  gameStateManager.playerValues.listOfUnits.find(_.name == name)
+private def findSector(name: String): Option[Sector] =
+  gameStateManager.gameMap.findSector(name)
+*/

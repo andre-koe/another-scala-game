@@ -8,7 +8,7 @@ import scala.io.AnsiColor
 
 class SectorSpec extends AnyWordSpec:
 
-  "A Sector"  should {
+  "A Sector" should {
 
     "have be initialized by default with expected values" in {
       val sector: Sector = Sector(Coordinate())
@@ -48,6 +48,10 @@ class SectorSpec extends AnyWordSpec:
       }
     }
 
+    "be able to change affiliation" in {
+      Sector(Coordinate()).changeAffiliation(Affiliation.ENEMY).affiliation should be(Affiliation.ENEMY)
+    }
+
     "have a fitting description depending on affiliation and type" when {
       "sector is player owned and regular" in {
         val secReg: Sector = Sector(Coordinate(), affiliation = Affiliation.PLAYER, sectorType = SectorType.REGULAR)
@@ -67,6 +71,13 @@ class SectorSpec extends AnyWordSpec:
         val secReg: Sector = Sector(Coordinate(), affiliation = Affiliation.ENEMY,  sectorType = SectorType.BASE)
         secReg.description.contains("Home System") should be(true)
         secReg.description.contains("Enemy") should be(true)
+        secReg.description.contains("7") should be(true)
+      }
+
+      "sector is base and independent" in {
+        val secReg: Sector = Sector(Coordinate(), affiliation = Affiliation.INDEPENDENT, sectorType = SectorType.BASE)
+        secReg.description.contains("Home System") should be(true)
+        secReg.description.contains("Independent") should be(true)
         secReg.description.contains("7") should be(true)
       }
 

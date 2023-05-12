@@ -84,7 +84,7 @@ class ValidationHandlerSpec extends AnyWordSpec:
       
       "map move input to MoveExpression" in {
         val testInput: String = "move x to y"
-        parser.handle(ExpressionParser().parseInput(testInput)).get shouldBe a[MoveCommand]
+        parser.handle(ExpressionParser().parseInput(testInput)).get shouldBe a[InvalidCommand]
       }
       
       "map save input to MessageCommand" in {

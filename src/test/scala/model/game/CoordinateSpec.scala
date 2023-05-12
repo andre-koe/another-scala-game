@@ -1,3 +1,4 @@
+
 package model.game
 
 import model.game.map.Coordinate
@@ -20,6 +21,9 @@ class CoordinateSpec extends AnyWordSpec {
       coordinate00.toString should be("0-A")
       coordinate01.toString should be("3-B")
       coordinate02.toString should be("6-C")
+    }
+    "return the distance between 2 coordinates correctly" in {
+      Coordinate().getDistance(Coordinate(10, 13)) should be (10 + 13)
     }
   }
 

@@ -2,13 +2,13 @@ package controller.validator
 
 import controller.command.ICommand
 import controller.command.commands.{MessageCommand, ShowCommand}
-import controller.newInterpreter.{InterpretedExpression, InterpretedSubcommand}
+import controller.newInterpreter.{InterpretedInputToken, InterpretedSubcommand}
 import controller.validator.utils.ValidatorUtils
 import model.game.gamestate.GameStateManager
 import model.game.gamestate.enums.messages.MessageType.{HELP, INVALID_INPUT}
 
 case class ShowValidator(orig: String, gsm: GameStateManager) extends IValidator:
-  override def validate(input: Vector[InterpretedExpression]): Either[IValidator, Option[ICommand]] =
+  override def validate(input: Vector[InterpretedInputToken]): Either[IValidator, Option[ICommand]] =
     val sc = ValidatorUtils().findSubcommands(input)
     val returns = sc match
       case Some(x) => validateSubcommands(x)

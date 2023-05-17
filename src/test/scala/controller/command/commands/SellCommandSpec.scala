@@ -1,7 +1,8 @@
 package controller.command.commands
 
-import model.game.{Capacity, PlayerValues}
+import model.game.Capacity
 import model.game.gamestate.GameStateManager
+import model.game.playervalues.PlayerValues
 import model.game.purchasable.building.{EnergyGrid, Mine}
 import model.game.purchasable.units.Cruiser
 import model.game.resources.ResourceHolder

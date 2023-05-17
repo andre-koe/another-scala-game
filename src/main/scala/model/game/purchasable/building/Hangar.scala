@@ -1,6 +1,7 @@
 package model.game.purchasable.building
 
 import model.game.purchasable.utils.Output
+import model.game.map.Coordinate
 import model.game.resources.ResourceHolder
 import model.game.resources.resourcetypes.{Energy, Minerals}
 import model.game.{Capacity, Round}
@@ -10,7 +11,8 @@ case class Hangar(name: String = "Hangar",
                   cost: ResourceHolder = ResourceHolder(energy = Energy(50), minerals = Minerals(75)),
                   description: String = "The Hangar provides additional unit capacity.",
                   upkeep: ResourceHolder = ResourceHolder(energy = Energy(3), minerals = Minerals(5)),
-                  output: Output = Output(cap = Capacity(10))) extends IBuilding:
+                  output: Output = Output(cap = Capacity(10)),
+                  location: Coordinate = Coordinate()) extends IBuilding:
   override def toString: String = "Hangar"
   
   override def decreaseRoundsToComplete: Hangar =

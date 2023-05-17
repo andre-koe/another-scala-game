@@ -3,7 +3,7 @@ import controller.command.ICommand
 import controller.newInterpreter.CommandType._
 import model.game.gamestate.GameStateManager
 
-case class CommandExpression(token: String) extends AbstractExpression[CommandType]:
+case class CommandTokenizedInput(token: String) extends AbstractTokenizedInput[CommandType]:
 
   override def interpret(): CommandType =
     token match

@@ -8,6 +8,7 @@ import model.game.purchasable.technology.ITechnology
 import model.game.purchasable.units.IUnit
 import model.game.purchasable.utils.Output
 import model.game.resources.ResourceHolder
+import model.core.utilities.ListOperations
 import model.utils.Increaseable
 
 case class EndRoundConfirmationState() extends IGameState:
@@ -61,5 +62,4 @@ case class EndRoundConfirmationState() extends IGameState:
     if list.length > 1 then Option(list.map(f).reduce(combiner)) else list.map(f).headOption
 
   private def handleList[A <: IGameObject](list: List[A]): (List[A], List[A]) =
-    val (completed, inProgress) = list.map(_.decreaseRoundsToComplete).partition(_.roundsToComplete.value != 0)
-    (completed.asInstanceOf[List[A]], inProgress.asInstanceOf[List[A]])
+    ListOperations().handleList[A](list)

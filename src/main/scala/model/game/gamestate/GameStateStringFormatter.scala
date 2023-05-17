@@ -1,10 +1,11 @@
 package model.game.gamestate
 
+import model.game.playervalues.PlayerValues
 import model.game.purchasable.IGameObject
 import model.game.purchasable.units.IUnit
 import model.game.resources.ResourceHolder
 import model.game.resources.resourcetypes.{Energy, ResearchPoints}
-import model.game.{Capacity, GameValues, PlayerValues, Round}
+import model.game.{Capacity, GameValues, Round}
 
 import scala.io.AnsiColor
 

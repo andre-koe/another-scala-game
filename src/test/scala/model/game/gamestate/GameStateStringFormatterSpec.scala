@@ -1,8 +1,9 @@
 package model.game.gamestate
 
-import model.game.{GameValues, PlayerValues, Round}
+import model.game.{GameValues, Round}
 import model.game.gamestate.GameStateStringFormatter
 import model.game.map.GameMap
+import model.game.playervalues.PlayerValues
 import model.game.purchasable.building.{EnergyGrid, Mine}
 import model.game.purchasable.technology.{AdvancedMaterials, Polymer}
 import model.game.purchasable.units.{Corvette, Cruiser}

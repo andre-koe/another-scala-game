@@ -3,8 +3,8 @@ package controller.validator
 import controller.command.ICommand
 import controller.command.commands.{MessageCommand, SellCommand}
 import controller.newInterpreter.ExpressionParser
-import model.game.PlayerValues
 import model.game.gamestate.GameStateManager
+import model.game.playervalues.PlayerValues
 import model.game.purchasable.building.Mine
 import model.game.purchasable.technology.Polymer
 import model.game.purchasable.units.Cruiser

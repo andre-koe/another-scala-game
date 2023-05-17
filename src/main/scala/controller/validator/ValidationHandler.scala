@@ -1,7 +1,7 @@
 package controller.validator
 
 import controller.command.ICommand
-import controller.newInterpreter.{CombinedExpression, CommandType, InterpretedExpression, KeywordType}
+import controller.newInterpreter.{CombinedExpression, CommandType, InterpretedInputToken, KeywordType}
 import controller.validator.{CommandValidator, IValidator, InputValidator}
 import model.game.gamestate.GameStateManager
 import model.game.purchasable.IGameObject
@@ -14,7 +14,7 @@ case class ValidationHandler(gsm: GameStateManager):
     validate(CommandValidator(combinedExpression.orig, gsm), combinedExpression.input)
 
   @tailrec
-  private def validate(validator: IValidator, combinedExpression: Vector[InterpretedExpression]): Option[ICommand] =
+  private def validate(validator: IValidator, combinedExpression: Vector[InterpretedInputToken]): Option[ICommand] =
     validator.validate(combinedExpression) match
       case Left(nextValidator) => validate(nextValidator, combinedExpression)
       case Right(result) => result

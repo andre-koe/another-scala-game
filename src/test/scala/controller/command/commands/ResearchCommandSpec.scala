@@ -1,7 +1,7 @@
 package controller.command.commands
 
-import model.game.PlayerValues
 import model.game.gamestate.GameStateManager
+import model.game.playervalues.PlayerValues
 import model.game.purchasable.technology.AdvancedMaterials
 import model.game.resources.ResourceHolder
 import model.game.resources.resourcetypes.{Alloys, Energy, Minerals, ResearchPoints}

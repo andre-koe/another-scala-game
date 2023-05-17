@@ -1,10 +1,11 @@
 package model.game.gamestate
 
-import model.game.*
+import model.game.{playervalues, *}
 import model.game.gamestate.GameStateStringFormatter
 import model.game.gamestate.gamestates.{EndRoundConfirmationState, ExitedState, RunningState, WaitForUserConfirmation}
 import model.game.gamestate.strategies.sell.SellBuildingStrategy
 import model.game.map.Coordinate
+import model.game.playervalues.PlayerValues
 import model.game.purchasable.building.{Hangar, IBuilding, Mine, ResearchLab}
 import model.game.purchasable.technology.{AdvancedMaterials, ITechnology, Polymer}
 import model.game.purchasable.types.EntityType
@@ -20,7 +21,7 @@ class GameStateManagerSpec extends AnyWordSpec {
   "The GameStateManager" when {
     "in state Running (Initialized)" should {
       val playerVal: PlayerValues =
-        PlayerValues(resourceHolder = ResourceHolder(energy = Energy(100),
+        playervalues.PlayerValues(resourceHolder = ResourceHolder(energy = Energy(100),
           minerals = Minerals(100),
           alloys = Alloys(10),
           researchPoints = ResearchPoints(100)
@@ -112,7 +113,7 @@ class GameStateManagerSpec extends AnyWordSpec {
   }
   "When in GameState WaitForUserConfirmation" should {
     val playerVal: PlayerValues =
-      PlayerValues(resourceHolder = ResourceHolder(energy = Energy(100),
+      playervalues.PlayerValues(resourceHolder = ResourceHolder(energy = Energy(100),
         minerals = Minerals(100),
         alloys = Alloys(10),
         researchPoints = ResearchPoints(100)
@@ -172,7 +173,7 @@ class GameStateManagerSpec extends AnyWordSpec {
   }
   "When in GameState Exited or EndRoundConfirmation" should {
     val playerVal: PlayerValues =
-      PlayerValues(resourceHolder = ResourceHolder(energy = Energy(100),
+      playervalues.PlayerValues(resourceHolder = ResourceHolder(energy = Energy(100),
         minerals = Minerals(100),
         alloys = Alloys(10),
         researchPoints = ResearchPoints(100)

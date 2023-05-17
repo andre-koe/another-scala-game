@@ -3,6 +3,7 @@ package model.game.gamestate
 import model.game.gamestate.gamestates.{EndRoundConfirmationState, ExitedState, RunningState, WaitForUserConfirmation}
 import model.game.gamestate.strategies.sell.ISellStrategy
 import model.game.map.{Coordinate, GameMap}
+import model.game.playervalues.PlayerValues
 import model.game.purchasable.building.{BuildingFactory, EnergyGrid, Factory, Hangar, IBuilding, Mine, ResearchLab, Shipyard}
 import model.game.purchasable.{IGameObject, IUpkeep}
 import model.game.purchasable.technology.{AdvancedMaterials, AdvancedPropulsion, ITechnology, NanoRobotics, Polymer, TechnologyFactory}
@@ -11,7 +12,7 @@ import model.game.purchasable.units.{Battleship, Corvette, Cruiser, Destroyer, I
 import model.game.purchasable.utils.Output
 import model.game.resources.ResourceHolder
 import model.game.resources.resourcetypes.{Energy, ResearchPoints}
-import model.game.{Capacity, GameValues, PlayerValues, Round}
+import model.game.{Capacity, GameValues, Round}
 
 import scala.+:
 import scala.compiletime.ops.string

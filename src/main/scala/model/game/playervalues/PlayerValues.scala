@@ -1,9 +1,10 @@
-package model.game
+package model.game.playervalues
 
+import model.game.Capacity
 import model.game.map.Coordinate
+import model.game.map.system.Affiliation.PLAYER
 import model.game.map.system.Sector
 import model.game.map.system.SectorType.BASE
-import model.game.map.system.Affiliation.PLAYER
 import model.game.purchasable.IGameObject
 import model.game.purchasable.building.IBuilding
 import model.game.purchasable.technology.ITechnology
@@ -31,7 +32,3 @@ case class PlayerValues(resourceHolder: ResourceHolder = ResourceHolder(
                           sectorType = BASE, units = None, coordinate = Coordinate())),
                         upkeep: ResourceHolder = ResourceHolder(descriptor = "Running Cost"),
                         income: ResourceHolder = ResourceHolder(descriptor = "Income"))
-
- // def decreaseRemainingRoundsForTechnologies: List[ITechnology] = listOfTechnologiesCurrentlyResearched.foreach(_.decreaseRoundsToComplete)
- // def decreaseRemainingRoundsForUnits: List[IUnit] = listOfUnitsUnderConstruction.foreach(_.decreaseRoundsToComplete)
- // def decreaseRemainingRoundsForBuildings: List[IBuilding] = listOfBuildingsUnderConstruction.foreach(_.decreaseRoundsToComplete)

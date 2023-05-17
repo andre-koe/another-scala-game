@@ -14,7 +14,7 @@ import model.game.purchasable.units.IUnit
 import model.utils.GameObjectUtils
 
 case class InstantiationValidator(orig: String, gsm: GameStateManager) extends IValidator:
-  override def validate(input: Vector[InterpretedExpression]): Either[IValidator, Option[ICommand]] =
+  override def validate(input: Vector[InterpretedInputToken]): Either[IValidator, Option[ICommand]] =
     val command = ValidatorUtils().findCommandFirst(input).get
     val gameObj = ValidatorUtils().findGameObjects(input)
     val subcommand = ValidatorUtils().findSubcommands(input)

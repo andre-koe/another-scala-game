@@ -1,7 +1,8 @@
 package controller.command.commands
 
-import model.game.{Capacity, PlayerValues}
+import model.game.{Capacity, playervalues}
 import model.game.gamestate.GameStateManager
+import model.game.playervalues.PlayerValues
 import model.game.purchasable.units.Corvette
 import model.game.resources.ResourceHolder
 import model.game.resources.resourcetypes.{Alloys, Energy, Minerals}
@@ -14,7 +15,7 @@ class RecruitCommandSpec extends AnyWordSpec {
     "invoke the correct behaviour corresponding to the request" when {
 
       "initialized with with valid unit and sufficient capacity and resources" in {
-        val pV: PlayerValues = PlayerValues(
+        val pV: PlayerValues = playervalues.PlayerValues(
           capacity = Capacity(100),
           resourceHolder = ResourceHolder(energy = Energy(1000), minerals = Minerals(1000)))
         val gsm: GameStateManager = GameStateManager(playerValues = pV)
@@ -26,7 +27,7 @@ class RecruitCommandSpec extends AnyWordSpec {
       }
 
       "initialized with with valid unit and sufficient resources but insuffficient capacity" in {
-        val pV: PlayerValues = PlayerValues(
+        val pV: PlayerValues = playervalues.PlayerValues(
           capacity = Capacity(0),
           resourceHolder = ResourceHolder(energy = Energy(1000), minerals = Minerals(1000)))
         val gsm: GameStateManager = GameStateManager(playerValues = pV)
@@ -37,7 +38,7 @@ class RecruitCommandSpec extends AnyWordSpec {
       }
 
       "initialized with with valid unit and sufficient capacity but insuffficient resources" in {
-        val pV: PlayerValues = PlayerValues(
+        val pV: PlayerValues = playervalues.PlayerValues(
           capacity = Capacity(2),
           resourceHolder = ResourceHolder(energy = Energy(0), minerals = Minerals(0)))
         val gsm: GameStateManager = GameStateManager(playerValues = pV)

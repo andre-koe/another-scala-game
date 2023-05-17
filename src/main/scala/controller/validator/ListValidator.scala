@@ -2,14 +2,14 @@ package controller.validator
 
 import controller.command.ICommand
 import controller.command.commands.{InvalidCommand, ListCommand, MessageCommand}
-import controller.newInterpreter.InterpretedExpression
+import controller.newInterpreter.InterpretedInputToken
 import controller.validator.utils.ValidatorUtils
 import model.game.gamestate.GameStateManager
 import model.game.gamestate.enums.ListParams.*
 import model.game.gamestate.enums.messages.MessageType.*
 
 case class ListValidator(orig: String, gsm: GameStateManager) extends IValidator:
-  override def validate(input: Vector[InterpretedExpression]): Either[IValidator, Option[ICommand]] =
+  override def validate(input: Vector[InterpretedInputToken]): Either[IValidator, Option[ICommand]] =
     Right(Option(subCommandInterpreter(ValidatorUtils().findSubcommands(input))))
 
   private def subCommandInterpreter(commands: Option[Vector[String]]): ICommand =

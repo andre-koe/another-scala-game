@@ -2,7 +2,7 @@ package controller
 
 import controller.command.ICommand
 import controller.command.commands.*
-import controller.newInterpreter.{CombinedExpression, CommandExpression, ExpressionParser, InterpretedCommand, InterpretedGameObject}
+import controller.newInterpreter.{CombinedExpression, CommandTokenizedInput, ExpressionParser, InterpretedCommand, InterpretedGameObject}
 import controller.validator.ValidationHandler
 import model.game.gamestate.GameStateManager
 import model.game.gamestate.gamestates.{ExitedState, RunningState, WaitForUserConfirmation}

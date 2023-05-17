@@ -4,9 +4,9 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
 class UnidentifiedExpressionSpec extends AnyWordSpec {
 
-  "The UnidentifiedExpression" should {
+  "The UnidentifiedTokenizedInput" should {
     "Take a String input and store it" in {
-      UnidentifiedExpression("some string").interpret() should be("some string")
+      UnidentifiedTokenizedInput("some string").interpret() should be("some string")
     }
   }
 

@@ -2,7 +2,7 @@ package controller.validator
 
 import controller.command.ICommand
 import controller.command.commands.{MessageCommand, SellCommand}
-import controller.newInterpreter.{InterpretedExpression, InterpretedSubcommand}
+import controller.newInterpreter.{InterpretedInputToken, InterpretedSubcommand}
 import controller.validator.utils.ValidatorUtils
 import model.game.gamestate.GameStateManager
 import model.game.gamestate.enums.messages.MessageType.*
@@ -10,7 +10,7 @@ import model.game.purchasable.technology.ITechnology
 import model.game.purchasable.{IGameObject, IUpkeep}
 
 case class SellValidator(orig: String, gsm: GameStateManager) extends IValidator:
-  override def validate(input: Vector[InterpretedExpression]): Either[IValidator, Option[ICommand]] =
+  override def validate(input: Vector[InterpretedInputToken]): Either[IValidator, Option[ICommand]] =
     val sc = ValidatorUtils().findSubcommands(input)
     val qt = ValidatorUtils().findQuantity(input)
     val go = ValidatorUtils().findGameObjects(input)

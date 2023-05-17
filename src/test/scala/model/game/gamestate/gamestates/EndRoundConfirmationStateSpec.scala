@@ -1,8 +1,8 @@
 package model.game.gamestate.gamestates
 
-import model.game.PlayerValues
 import model.game.Round
 import model.game.gamestate.GameStateManager
+import model.game.playervalues.PlayerValues
 import model.game.purchasable.building.Mine
 import model.game.purchasable.technology.Polymer
 import model.game.purchasable.units.Corvette

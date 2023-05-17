@@ -1,13 +1,14 @@
 package controller.command.commands
 
-import model.game.{Capacity, GameValues, PlayerValues}
+import model.game.{Capacity, GameValues, playervalues}
 import model.game.gamestate.{GameStateManager, GameStateStringFormatter}
 import model.game.purchasable.building.ResearchLab
 import model.game.purchasable.technology.AdvancedMaterials
 import model.game.purchasable.units.Corvette
 import model.game.resources.ResourceHolder
 import model.game.gamestate.enums.ListParams
-import model.game.gamestate.enums.ListParams._
+import model.game.gamestate.enums.ListParams.*
+import model.game.playervalues.PlayerValues
 import model.game.resources.resourcetypes.{Alloys, Energy, Minerals, ResearchPoints}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers.*
@@ -181,7 +182,7 @@ class ListCommandSpec extends AnyWordSpec {
 
     "return a unit list with red colored items if the player has sufficient funds but insufficient capacity" +
       " for any of them appended by the amount of resources lacking" in {
-      val plV: PlayerValues = PlayerValues(
+      val plV: PlayerValues = playervalues.PlayerValues(
         resourceHolder = ResourceHolder(energy = Energy(100), minerals = Minerals(100)), capacity = Capacity(0))
       val gV: GameValues = GameValues(
         listOfUnits = List(Corvette()))

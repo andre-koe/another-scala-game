@@ -3,7 +3,7 @@ package controller.validator
 import controller.command.ICommand
 import controller.command.commands.{InvalidCommand, MessageCommand, MoveCommand}
 import controller.newInterpreter.KeywordType.*
-import controller.newInterpreter.{InterpretedCommand, InterpretedExpression, KeywordType}
+import controller.newInterpreter.{InterpretedCommand, InterpretedInputToken, KeywordType}
 import controller.validator.utils.ValidatorUtils
 import model.game.gamestate.GameStateManager
 import model.game.gamestate.enums.messages.MessageType.{INVALID_INPUT, MALFORMED_INPUT}
@@ -12,7 +12,7 @@ import model.utils.GameObjectUtils
 case class MoveValidator(orig: String, gsm: GameStateManager) extends IValidator:
 
 
-  override def validate(input: Vector[InterpretedExpression]): Either[IValidator, Option[ICommand]] =
+  override def validate(input: Vector[InterpretedInputToken]): Either[IValidator, Option[ICommand]] =
     //val keywords = ValidatorUtils().findKeyWords(input)
     // need from and to (Coordinate/Fleet/Unit)
     val returns = input match

@@ -1,7 +1,7 @@
 package controller.validator
 
 import controller.command.commands.{InvalidCommand, MessageCommand}
-import controller.newInterpreter.{CombinedExpression, CommandExpression, CommandType, ExpressionParser, InterpretedCommand, InterpretedGameObject, InterpretedSubcommand, InterpretedUnidentified}
+import controller.newInterpreter.{CombinedExpression, CommandTokenizedInput, CommandType, ExpressionParser, InterpretedCommand, InterpretedGameObject, InterpretedSubcommand, InterpretedUnidentified}
 import controller.newInterpreter.CommandType.*
 import model.game.gamestate.GameStateManager
 import model.game.purchasable.building.ResearchLab

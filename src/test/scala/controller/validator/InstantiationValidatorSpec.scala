@@ -3,8 +3,8 @@ package controller.validator
 import controller.command.ICommand
 import controller.command.commands.{BuildCommand, InvalidCommand, MessageCommand, RecruitCommand, ResearchCommand}
 import controller.newInterpreter.ExpressionParser
-import model.game.PlayerValues
 import model.game.gamestate.GameStateManager
+import model.game.playervalues.PlayerValues
 import model.game.resources.ResourceHolder
 import model.game.resources.resourcetypes.{Alloys, Energy, Minerals}
 import org.scalatest.matchers.should.Matchers.*

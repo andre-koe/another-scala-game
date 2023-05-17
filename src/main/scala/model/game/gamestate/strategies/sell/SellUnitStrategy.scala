@@ -1,7 +1,8 @@
 package model.game.gamestate.strategies.sell
 
-import model.game.{Capacity, PlayerValues}
+import model.game.Capacity
 import model.game.gamestate.GameStateManager
+import model.game.playervalues.PlayerValues
 import model.game.purchasable.units.IUnit
 import model.game.resources.ResourceHolder
 

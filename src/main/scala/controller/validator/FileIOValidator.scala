@@ -2,7 +2,7 @@ package controller.validator
 import controller.command.ICommand
 import controller.validator.IValidator
 import controller.command.commands.{InvalidCommand, LoadCommand, MessageCommand, SaveCommand}
-import controller.newInterpreter.{CommandType, InterpretedCommand, InterpretedExpression, InterpretedSubcommand}
+import controller.newInterpreter.{CommandType, InterpretedCommand, InterpretedInputToken, InterpretedSubcommand}
 import controller.newInterpreter.CommandType.{LOAD, SAVE}
 import controller.validator.utils.ValidatorUtils
 import model.game.gamestate.enums.messages.MessageType
@@ -11,7 +11,7 @@ import model.game.gamestate.GameStateManager
 
 case class FileIOValidator(orig: String, gsm: GameStateManager) extends IValidator:
 
-  override def validate(input: Vector[InterpretedExpression]): Either[IValidator, Option[ICommand]] =
+  override def validate(input: Vector[InterpretedInputToken]): Either[IValidator, Option[ICommand]] =
     val command = ValidatorUtils().findCommandFirst(input)
 
     val subcommand = ValidatorUtils().findSubcommands(input) match

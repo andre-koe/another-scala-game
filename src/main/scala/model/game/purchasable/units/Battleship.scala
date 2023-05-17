@@ -1,5 +1,6 @@
 package model.game.purchasable.units
 
+import model.game.map.Coordinate
 import model.game.purchasable.IGameObject
 import model.game.resources.ResourceHolder
 import model.game.resources.resourcetypes.{Alloys, Energy, Minerals}
@@ -14,10 +15,15 @@ case class Battleship(name: String = "Battleship",
                       description: String = "Some description for Unit Battleship",
                       upkeep: ResourceHolder = ResourceHolder(energy = Energy(20)),
                       capacity: Capacity = Capacity(10),
-                      attack: Int = 300,
-                      defense: Int = 200) extends IUnit:
+                      firepower: Int = 500,
+                      speed: Int = 1,
+                      location: Coordinate
+                     ) extends IUnit:
   override def toString: String =
     "Battleship"
+
+  override def move(target: Coordinate): IUnit = ???
+
 
   override def decreaseRoundsToComplete: Battleship = 
     this.copy(roundsToComplete = roundsToComplete.decrease.get)

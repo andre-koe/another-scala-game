@@ -4,8 +4,8 @@ import controller.command.commands.*
 import controller.newInterpreter.ExpressionParser
 import controller.validator.ValidationHandler
 import controller.validator.utils.*
-import model.game.PlayerValues
 import model.game.gamestate.GameStateManager
+import model.game.playervalues.PlayerValues
 import model.game.purchasable.building.Mine
 import model.game.purchasable.units.Cruiser
 import org.scalatest.matchers.should.Matchers.*

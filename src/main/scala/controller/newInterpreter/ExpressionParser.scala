@@ -1,6 +1,6 @@
 package controller.newInterpreter
 
-import controller.newInterpreter.InterpretedExpression
+import controller.newInterpreter.InterpretedInputToken
 import controller.newInterpreter.InterpretedUnidentified
 import model.game.gamestate.GameStateManager
 import model.game.purchasable.IGameObject
@@ -32,9 +32,9 @@ case class ExpressionParser():
   private def tokenizer(str: String):
   Vector[String] = str.toLowerCase.trim.split(" ").toVector.filterNot(_.isBlank)
 
-  private def findGameObject(input: Vector[InterpretedUnidentified]): InterpretedExpression =
+  private def findGameObject(input: Vector[InterpretedUnidentified]): InterpretedInputToken =
     @tailrec
-    def findGameObjectHelper(accumulator: String, remaining: Vector[InterpretedUnidentified]): InterpretedExpression =
+    def findGameObjectHelper(accumulator: String, remaining: Vector[InterpretedUnidentified]): InterpretedInputToken =
       GameObjectUtils().findInLists(accumulator) match
         case Some(gameObject) => InterpretedGameObject(gameObject)
         case None if remaining.isEmpty => InterpretedUnidentified(accumulator)
@@ -42,12 +42,12 @@ case class ExpressionParser():
 
     findGameObjectHelper(input.head.unidentified, input.tail)
 
-  private def stringToFirstExpression(str: String): InterpretedExpression =
-    InterpretedCommand(CommandExpression(str).interpret())
+  private def stringToFirstExpression(str: String): InterpretedInputToken =
+    InterpretedCommand(CommandTokenizedInput(str).interpret())
 
-  private def stringToExpression(str: String): InterpretedExpression =
-    if keywords.contains(str) then InterpretedKeyword(KeywordExpression(str).interpret())
-    else if str.startsWith("-") then InterpretedSubcommand(SubcommandExpression(str).interpret())
+  private def stringToExpression(str: String): InterpretedInputToken =
+    if keywords.contains(str) then InterpretedKeyword(KeywordTokenizedInput(str).interpret())
+    else if str.startsWith("-") then InterpretedSubcommand(SubcommandTokenizedInput(str).interpret())
     else if str.toIntOption.isDefined then InterpretedQuantity(str.toInt)
     else InterpretedUnidentified(str)
 

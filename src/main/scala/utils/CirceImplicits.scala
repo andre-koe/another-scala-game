@@ -380,7 +380,7 @@ object CirceImplicits {
       name <- c.downField("name").as[String]
       moveVector <- c.downField("movement").as[MoveVector]
       location <- c.downField("location").as[ISector]
-      components <- c.downField("components").as[Vector[Component]]
+      components <- c.downField("components").as[Vector[IUnit]]
     } yield {
       Fleet(name = name, fleetComponents = components, location = location, moveVector = moveVector)
     }

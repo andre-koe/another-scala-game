@@ -1,12 +1,13 @@
 package controller.command.memento
 
 import controller.command.commands.{BuildCommand, EndRoundCommand}
-import model.core.board.sector.impl.{PlayerSector, Sector}
 import model.core.board.boardutils.Coordinate
+import model.core.board.sector.impl.{PlayerSector, Sector}
 import model.core.gameobjects.purchasable.building.BuildingFactory
 import model.game.gamestate.GameStateManager
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import utils.DefaultValueProvider.given_IGameValues
 
 class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
 

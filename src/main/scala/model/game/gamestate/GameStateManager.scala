@@ -98,7 +98,7 @@ case class GameStateManager(round: IRound = Round(),
       case runningState: RunningState => runningState.save(this, fileIOStrategy, as)
       case _ => this.extCopy(message = "Invalid")
 
-  override def load(as: Option[String], fileIOStrategy: IFileIOStrategy): IGameStateManager =
+  override def load(fileIOStrategy: IFileIOStrategy, as: Option[String]): IGameStateManager =
     gameState match
       case runningState: RunningState => runningState.load(this, fileIOStrategy, as)
       case _ => this.extCopy(message = "Invalid")

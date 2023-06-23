@@ -45,9 +45,7 @@ case class RunningState() extends IGameState:
            fileIOStrategy: IFileIOStrategy, as: Option[String]): IGameStateManager =
     fileIOStrategy.load(as) match
       case Success(value) => value
-      case e: Failure[IGameStateManager] =>
-        println(s"An error occurred: $e")
-        gsm.extCopy(message = s"Failed to load ${as.getOrElse("last savegame")}")
+      case _: Failure[IGameStateManager] => gsm.extCopy(message = s"Failed to load ${as.getOrElse("last savegame")}")
   def show(gsm: IGameStateManager): IGameStateManager = gsm.extCopy(message =
     GameStateStringFormatter(gsm = gsm).overview(gsm.round))
     

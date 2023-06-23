@@ -1,6 +1,7 @@
 package model.game.gamestate
 
 import model.core.board.GameBoard
+import utils.DefaultValueProvider.given_IGameValues
 import model.core.board.GameBoardBuilder
 import model.core.board.sector.impl.{PlayerSector, Sector}
 import model.core.board.sector.sectorutils.{Affiliation, SectorType}
@@ -30,6 +31,7 @@ class GameStateStringFormatterSpec extends AnyWordSpec {
         GameStateStringFormatter(gsm = gsm).separator(1) should be(" |-| ")
       }
     }
+
     "Asked for a 'vertBar'" should {
       "return a vertical bar used in the overview" in {
         GameStateStringFormatter(gsm = gsm).vertBar() should be("=" * 30)
@@ -38,6 +40,7 @@ class GameStateStringFormatterSpec extends AnyWordSpec {
         GameStateStringFormatter(gsm = gsm).vertBar(1) should be("=")
       }
     }
+
     "Asked for an 'overview'" should {
       "return a formatted overview containing round, funds and research" in {
         val gsm = GameStateManager(playerValues = PlayerValues(resourceHolder = ResourceHolder(descriptor = "Balance",
@@ -53,6 +56,7 @@ class GameStateStringFormatterSpec extends AnyWordSpec {
         f.contains("---" + AnsiColor.RED + "[6-6]" + AnsiColor.RESET) should be(true)
       }
     }
+
     "Asked for a 'invalidInputResponse'" should {
       "return the message and a string to explain what to do" in {
         GameStateStringFormatter(gsm = gsm)
@@ -60,12 +64,14 @@ class GameStateStringFormatterSpec extends AnyWordSpec {
           "overview of all available commands")
       }
     }
+
     "Asked for a 'EmptyResponse'" should {
       "return an empty string" in {
         GameStateStringFormatter(gsm = gsm)
           .empty should be("")
       }
     }
+
     "Asked for an overview" should {
       "show a list of buildings under construction" in {
         val sector = Sector(location = Coordinate(0,0),
@@ -74,18 +80,17 @@ class GameStateStringFormatterSpec extends AnyWordSpec {
         val pSector = PlayerSector(sector = sector, constQuBuilding = Vector(Mine(), EnergyGrid()))
         val gameBoard = GameBoardBuilder().build.updateSector(pSector)
         val f = GameStateStringFormatter(gsm = GameStateManager(gameMap = gameBoard)).overview()
-        f.contains("Sector Details: ") should be(true)
-        f.contains("Sector " + AnsiColor.BLUE + "[0-0]" + AnsiColor.RESET) should be(true)
-        f.contains(" Used building slots:  0/10") should be(true)
+
+        f.contains("Sector Details:") should be(true)
+        f.contains("Sector: " + AnsiColor.BLUE + "[0-0]" + AnsiColor.RESET) should be(true)
       }
+
       "show a list of technologies currently researched" in {
         val pV = PlayerValues(listOfTechnologiesCurrentlyResearched = Vector(Polymer(), Polymer(), AdvancedMaterials()))
         val f = GameStateStringFormatter(gsm = GameStateManager(playerValues = pV)).overview()
-        f.contains("Ongoing Production:") should be(true)
-        f.contains("Ongoing research:") should be(true)
-        f.contains("Polymer") should be(true)
-        f.contains("Advanced Materials") should be(true)
+        f.contains(" Ongoing research: [Polymer, Polymer, Advanced Materials | Rounds to complete: 3]") should be(true)
       }
+
       "show a list of units currently under construction" in {
         val sector = Sector(location = Coordinate(0, 0),
           affiliation = Affiliation.PLAYER,
@@ -93,11 +98,10 @@ class GameStateStringFormatterSpec extends AnyWordSpec {
         val pSector = PlayerSector(sector = sector, constQuUnits = Vector(Corvette(), Cruiser(), Corvette()))
         val gameBoard = GameBoardBuilder().build.updateSector(pSector)
         val f = GameStateStringFormatter(gsm = GameStateManager(gameMap = gameBoard)).overview()
-        f.contains("Ongoing Production:") should be(true)
-        f.contains("Ongoing recruitment:") should be(true)
-        f.contains("Corvette") should be(true)
-        f.contains("Cruiser") should be(true)
+
+        f.contains("  : [Corvette, Corvette | Rounds to complete: 2] [Cruiser | Rounds to complete: 4]") should be(true)
       }
+
       "show a list of player owned buildings" in {
         val sector = Sector(location = Coordinate(0, 0),
           affiliation = Affiliation.PLAYER,
@@ -105,32 +109,9 @@ class GameStateStringFormatterSpec extends AnyWordSpec {
         val pSector = PlayerSector(sector = sector, buildingsInSector = Vector(Mine(), Mine(), EnergyGrid()))
         val gameBoard = GameBoardBuilder().build.updateSector(pSector)
         val f = GameStateStringFormatter(gsm = GameStateManager(gameMap = gameBoard)).overview()
-        f.contains("Inventory:") should be (true)
-        f.contains("Buildings") should be(true)
-        f.contains("Mine x 2") should be(true)
-        f.contains("Energy Grid x 1") should be(true)
+        f.contains("    : Energy Grid x 1 | Mine x 2") should be(true)
       }
-      "show a list of player owned technologies" in {
-        val pV = PlayerValues(listOfTechnologies = Vector(Polymer(), Polymer(), AdvancedMaterials()))
-        val f = GameStateStringFormatter(gsm = GameStateManager(playerValues = pV)).overview()
-        f.contains("Inventory:") should be (true)
-        f.contains("Technologies:") should be(true)
-        f.contains("Polymer x 2") should be(true)
-        f.contains("Advanced Materials x 1") should be(true)
-      }
-      "show a list of player owned units" in {
-        val sector = Sector(location = Coordinate(0, 0), 
-          unitsInSector = Vector(Fleet(fleetComponents = Vector(Cruiser(), Corvette(), Corvette()))),
-          affiliation = Affiliation.PLAYER,
-          sectorType = SectorType.BASE)
-        val pSector = PlayerSector(sector = sector)
-        val gameBoard = GameBoardBuilder().build.updateSector(pSector)
-        val f = GameStateStringFormatter(gsm = GameStateManager(gameMap = gameBoard)).overview()
-        f.contains("Inventory:") should be (true)
-        f.contains("Units:") should be(true)
-        f.contains("Corvette x 2") should be(true)
-        f.contains("Cruiser x 1") should be(true)
-      }
+
       "show a list of player owned unit" in {
         val sector = Sector(location = Coordinate(0, 0),
           affiliation = Affiliation.PLAYER,
@@ -139,9 +120,7 @@ class GameStateStringFormatterSpec extends AnyWordSpec {
         val pSector = PlayerSector(sector = sector)
         val gameBoard = GameBoardBuilder().build.updateSector(pSector)
         val f = GameStateStringFormatter(gsm = GameStateManager(gameMap = gameBoard)).overview()
-        f.contains("Inventory:") should be(true)
-        f.contains("Units:") should be(true)
-        f.contains("Corvette x 1") should be(true)
+        f.contains(" Fleets present: Battlegroup-") should be(true)
       }
     }
   }

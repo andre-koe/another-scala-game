@@ -3,6 +3,7 @@ package controller.command.commands
 import model.core.gameobjects.purchasable.technology.AdvancedMaterials
 import model.core.gameobjects.resources.resourcetypes.{Alloys, Energy, Minerals, ResearchPoints}
 import model.core.utilities.ResourceHolder
+import utils.DefaultValueProvider.given_IGameValues
 import model.game.gamestate.GameStateManager
 import model.game.playervalues.PlayerValues
 import org.scalatest.matchers.should.Matchers.*

@@ -3,6 +3,7 @@ package controller
 import controller.adapters.TokenizedInputToCommandAdapter
 import controller.newInterpreter.{CommandTokenizer, TokenizedInput}
 import model.game.gamestate.GameStateManager
+import utils.DefaultValueProvider.given_IGameValues
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers.*
 

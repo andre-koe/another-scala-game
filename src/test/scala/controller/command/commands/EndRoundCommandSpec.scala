@@ -1,6 +1,7 @@
 package controller.command.commands
 
 import model.game.gamestate.{GameStateManager, GameStateStringFormatter}
+import utils.DefaultValueProvider.given_IGameValues
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers.*
 

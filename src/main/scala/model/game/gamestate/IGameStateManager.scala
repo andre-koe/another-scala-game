@@ -52,7 +52,7 @@ trait IGameStateManager extends IXMLSerializable:
 
   def save(fileIOStrategy: IFileIOStrategy, as: Option[String]): IGameStateManager
 
-  def load(as: Option[String], fileIOStrategy: IFileIOStrategy): IGameStateManager
+  def load(fileIOStrategy: IFileIOStrategy, as: Option[String]): IGameStateManager
 
   def message(what: String): IGameStateManager
 

@@ -1,7 +1,9 @@
 package model.game.gamestate
 
 import model.core.board.boardutils.GameBoardInfoWrapper
+import utils.DefaultValueProvider.given_IGameValues
 import model.core.gameobjects.purchasable.technology.Polymer
+import model.core.utilities.GameValues
 import model.game.playervalues.PlayerValues
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -10,6 +12,7 @@ class GameStateManagerWrapperSpec extends AnyWordSpec with Matchers {
 
   "A GameStateManagerWrapper" should {
 
+    val gameValues: GameValues = GameValues()
     val gsm = GameStateManager()
     val gsmWrapper = GameStateManagerWrapper(gsm)
 
@@ -60,15 +63,15 @@ class GameStateManagerWrapperSpec extends AnyWordSpec with Matchers {
     }
 
     "correctly get researchable technologies" in {
-      gsmWrapper.getResearchableTech shouldBe(gsm.gameValues.tech)
+      gsmWrapper.getResearchableTech should be(gameValues.tech)
     }
 
     "correctly get constructable buildings" in {
-      gsmWrapper.getConstructableBuildings shouldBe(gsm.gameValues.buildings)
+      gsmWrapper.getConstructableBuildings should be(gameValues.buildings)
     }
 
     "correctly get recruitable units" in {
-      gsmWrapper.getRecruitableUnits shouldBe(gsm.gameValues.units)
+      gsmWrapper.getRecruitableUnits should be(gameValues.units)
     }
 
     "correctly get game map size in x direction" in {

@@ -31,7 +31,7 @@ object XMLConverter {
     val fleetComponentsXML = elem \ "FleetComponents"
     val location = xmlToSector((elem \ "Location").head)
     val moveVector = xmlToMoveVector((elem \ "MoveVector").head)
-    val fleetComponents = fleetComponentsXML.map(x => xmlToComponent(x)).toVector
+    val fleetComponents = fleetComponentsXML.map(x => xmlToUnit(x)).toVector
     Fleet(name = name, fleetComponents = fleetComponents, location = location, moveVector = moveVector)
 
 

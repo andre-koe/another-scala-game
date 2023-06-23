@@ -13,7 +13,7 @@ trait IFleet extends Component, IMovable:
 
   def name: String
 
-  def fleetComponents: Vector[Component]
+  def fleetComponents: Vector[IUnit]
 
   def location: ISector
 
@@ -25,18 +25,18 @@ trait IFleet extends Component, IMovable:
 
   def upkeep: IResourceHolder
 
-  def remove(tbr: Vector[Component]): Option[IFleet]
+  def remove(tbr: Vector[IUnit]): Option[IFleet]
 
   def units: Vector[IUnit]
 
-  def merge(f: Fleet): IFleet
+  def merge(f: IFleet): IFleet
 
   def capacity: ICapacity
 
   def split(): (IFleet, IFleet)
 
   def extCopy(name: String = name,
-              fleetComponents: Vector[Component] = fleetComponents,
+              fleetComponents: Vector[IUnit] = fleetComponents,
               location: ISector = location,
               moveVector: IMoveVector = moveVector): IFleet
 

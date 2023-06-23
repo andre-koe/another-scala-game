@@ -4,7 +4,7 @@ import com.google.inject.Guice
 import controller.IController
 import controller.adapters.TokenizedInputToCommandAdapter
 import controller.command.commands.*
-import controller.command.memento.{GameStateManagerMemento, UndoRedoManager}
+import controller.command.memento.UndoRedoManager
 import controller.command.{ICommand, IUndoable}
 import controller.newInterpreter.TokenizedInput
 import controller.validator.{IValidator, InputValidator, ValidationHandler}

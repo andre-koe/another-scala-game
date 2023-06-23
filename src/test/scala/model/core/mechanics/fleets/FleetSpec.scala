@@ -5,14 +5,15 @@ import model.core.board.boardutils.Coordinate
 import model.core.gameobjects.purchasable.units.{Battleship, Corvette}
 import model.core.mechanics.fleets.components.Component
 import model.core.mechanics.MoveVector
+import model.core.mechanics.fleets.components.units.IUnit
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 class FleetSpec extends AnyFlatSpec with Matchers {
   "A Fleet" should "be able to be initialized" in {
-    val fleet = Fleet("TestFleet", Vector[Component](Corvette()), Sector(Coordinate(0,0)), MoveVector())
+    val fleet = Fleet("TestFleet", Vector[IUnit](Corvette()), Sector(Coordinate(0,0)), MoveVector())
     fleet.name should be ("TestFleet")
-    fleet.fleetComponents should be (Vector[Component](Corvette()))
+    fleet.fleetComponents should be (Vector[IUnit](Corvette()))
     fleet.location should be (Sector(Coordinate(0,0)))
     fleet.moveVector should be (MoveVector())
   }

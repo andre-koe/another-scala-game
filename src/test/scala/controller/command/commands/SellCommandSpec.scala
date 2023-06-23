@@ -2,7 +2,9 @@ package controller.command.commands
 
 import model.core.board
 import model.core.board.sector.impl.{PlayerSector, Sector}
+import utils.DefaultValueProvider.given_IGameValues
 import model.core.board.boardutils.Coordinate
+import model.core.board.sector.ISector
 import model.core.board.{GameBoard, GameBoardBuilder}
 import model.core.gameobjects.purchasable.IGameObject
 import model.core.gameobjects.purchasable.building.{EnergyGrid, IBuilding, Mine}
@@ -22,7 +24,8 @@ class SellCommandSpec extends AnyWordSpec {
     "sell a unit if player owns it" in {
       val gsm: GameStateManager = getGSMWithThingsToSell(unitsToSell =
         Vector(Fleet(fleetComponents = Vector(Cruiser(), Cruiser()))))
-      val sellCommand: SellCommand = SellCommand(Cruiser(), 1, where = Sector(Coordinate(0,0)), gsm)
+      val sector: ISector = gsm.gameMap.getSectorAtCoordinate(Coordinate(0,0)).get
+      val sellCommand: SellCommand = SellCommand(Cruiser(), 1, where = sector, gsm)
       sellCommand.execute().gameMap.getPlayerSectors.flatMap(_.unitsInSector).size  should be(1)
       sellCommand.execute().toString should be(s"Successfully Sold: 1 x Cruiser for a " +
         s"profit of ${Cruiser().cost.divideBy(2)}.")
@@ -31,23 +34,36 @@ class SellCommandSpec extends AnyWordSpec {
     "sell multiple units if player owns them" in {
       val gsm: GameStateManager = getGSMWithThingsToSell(unitsToSell =
         Vector(Fleet(fleetComponents = Vector(Cruiser(), Cruiser()))))
-      val sellCommand: SellCommand = SellCommand(Cruiser(), 2, where = Sector(Coordinate(0,0)), gsm)
+      val sector: ISector = gsm.gameMap.getSectorAtCoordinate(Coordinate(0,0)).get
+      val sellCommand: SellCommand = SellCommand(Cruiser(), 2, where = sector, gsm)
       sellCommand.execute().gameMap.getPlayerSectors.flatMap(_.unitsInSector).size  should be(0)
       sellCommand.execute().toString should be(s"Successfully Sold: 2 x Cruiser for a " +
         s"profit of ${Cruiser().cost}.")
     }
 
+    "sell multiple units of multiple fleets if player owns them" in {
+      val gsm: GameStateManager = getGSMWithThingsToSell(unitsToSell =
+        Vector(Fleet(fleetComponents = Vector(Cruiser(), Cruiser())), Fleet(fleetComponents = Vector(Cruiser(), Cruiser()))))
+      val sector: ISector = gsm.gameMap.getSectorAtCoordinate(Coordinate(0, 0)).get
+      val sellCommand: SellCommand = SellCommand(Cruiser(), 3, where = sector, gsm)
+      sellCommand.execute().gameMap.getPlayerSectors.flatMap(_.unitsInSector).size should be(1)
+      sellCommand.execute().toString should be(s"Successfully Sold: 3 x Cruiser for a " +
+        s"profit of ${Cruiser().cost.multiplyBy(3).divideBy(2)}.")
+    }
+
     "sell a building if player owns it" in {
       val gsm: GameStateManager = getGSMWithThingsToSell(Vector(Mine()))
-      val sellCommand: SellCommand = SellCommand(Mine(), 1, where = Sector(Coordinate(0,0)), gsm)
-      sellCommand.execute().gameMap.getPlayerSectors.flatMap(_.buildingsInSector).size should be(1)
+      val sector: ISector = gsm.gameMap.getSectorAtCoordinate(Coordinate(0,0)).get
+      val sellCommand: SellCommand = SellCommand(Mine(), 1, where = sector, gsm)
+      sellCommand.execute().gameMap.getPlayerSectors.flatMap(_.buildingsInSector).size should be(0)
       sellCommand.execute().toString should be(s"Successfully Sold: 1 x Mine for a " +
         s"profit of ${Mine().cost.divideBy(2)}.")
     }
 
-    "sell a multiple buildings if player owns them" in {
+    "sell multiple buildings if player owns them" in {
       val gsm: GameStateManager = getGSMWithThingsToSell(Vector(Mine(), Mine()))
-      val sellCommand: SellCommand = SellCommand(Mine(), 2, where = Sector(Coordinate(0,0)), gsm)
+      val sector: ISector = gsm.gameMap.getSectorAtCoordinate(Coordinate(0,0)).get
+      val sellCommand: SellCommand = SellCommand(Mine(), 2, where = sector, gsm)
       sellCommand.execute().gameMap.getPlayerSectors.flatMap(_.buildingsInSector).size should be(0)
       sellCommand.execute().toString should be(s"Successfully Sold: 2 x Mine for a " +
         s"profit of ${Mine().cost}.")

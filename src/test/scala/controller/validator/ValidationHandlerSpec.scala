@@ -2,12 +2,11 @@ package controller.validator
 
 import controller.command.commands.*
 import controller.newInterpreter.CommandTokenizer
-import model.core.board.GameBoardBuilder
-import model.core.board.GameBoard
 import controller.validator.ValidationHandler
 import controller.validator.validatorutils.*
-import model.core.board.sector.impl.{PlayerSector, Sector}
+import model.core.board.{IGameBoard, GameBoardBuilder}
 import model.core.board.boardutils.Coordinate
+import model.core.board.sector.impl.{PlayerSector, Sector}
 import model.core.gameobjects.purchasable.building.Mine
 import model.core.gameobjects.purchasable.units.Cruiser
 import model.core.mechanics.fleets.Fleet
@@ -15,6 +14,7 @@ import model.game.gamestate.GameStateManager
 import model.game.playervalues.PlayerValues
 import org.scalatest.matchers.should.Matchers.*
 import org.scalatest.wordspec.AnyWordSpec
+import utils.DefaultValueProvider.given_IGameValues
 
 class ValidationHandlerSpec extends AnyWordSpec:
   
@@ -117,7 +117,7 @@ class ValidationHandlerSpec extends AnyWordSpec:
       }
 
       "map sell input with param to SellCommand" in {
-        val testInput: String = "sell cruiser"
+        val testInput: String = "sell cruiser 0-0"
         parser.handle(CommandTokenizer().parseInput(testInput)).get shouldBe a[SellCommand]
       }
       
@@ -153,7 +153,7 @@ class ValidationHandlerSpec extends AnyWordSpec:
       }
   }
 
-  private def setUpUnits(): GameBoard =
+  private def setUpUnits(): IGameBoard =
     val lSector = Sector(location = Coordinate(0, 0), 
       unitsInSector = Vector(Fleet(fleetComponents = Vector(Cruiser(), Cruiser(), Cruiser()))))
     val pSector = PlayerSector(sector = lSector)

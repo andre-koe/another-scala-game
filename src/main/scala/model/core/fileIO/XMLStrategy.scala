@@ -8,7 +8,7 @@ import java.time.Instant
 import scala.util.{Failure, Try}
 import scala.xml.XML
 
-class XMLStrategy extends IFileIOStrategy:
+case class XMLStrategy(override val dir: File = new File("./savegames")) extends IFileIOStrategy:
 
   override def load(string: Option[String]): Try[IGameStateManager] =
     val file: Option[File] = string match

@@ -2,6 +2,7 @@ package controller.validator
 
 import controller.command.commands.{LoadCommand, MessageCommand, SaveCommand}
 import controller.newInterpreter.CommandTokenizer
+import utils.DefaultValueProvider.given_IGameValues
 import model.game.gamestate.GameStateManager
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers.*

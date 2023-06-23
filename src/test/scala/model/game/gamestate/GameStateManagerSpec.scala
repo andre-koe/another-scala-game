@@ -1,9 +1,12 @@
 package model.game.gamestate
 
 import model.core.board.sector.ISector
-import model.core.board.sector.impl.{PlayerSector, IPlayerSector, Sector}
+import utils.DefaultValueProvider.given_IGameValues
+import utils.DefaultValueProvider.given_IFileIOStrategy
+import model.core.board.sector.impl.{IPlayerSector, PlayerSector, Sector}
 import model.core.board.sector.sectorutils.{Affiliation, SectorType}
 import model.core.board.boardutils.Coordinate
+import model.core.fileIO.JSONStrategy
 import model.core.gameobjects.purchasable.building.{Hangar, IBuilding, Mine, ResearchLab}
 import model.core.gameobjects.purchasable.technology.{AdvancedMaterials, ITechnology, Polymer}
 import model.core.gameobjects.purchasable.units.Corvette
@@ -14,12 +17,20 @@ import model.game.*
 import model.game.gamestate.GameStateStringFormatter
 import model.game.gamestate.gamestates.{EndRoundConfirmationState, ExitedState, RunningState, WaitForUserConfirmation}
 import model.game.gamestate.strategies.sell.SellBuildingStrategy
-import model.game.playervalues.{PlayerValues, IPlayerValues}
+import model.game.playervalues.{IPlayerValues, PlayerValues}
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers.*
 import org.scalatest.wordspec.AnyWordSpec
 
+import java.io
+import java.io.File
+import better.files._
 
-class GameStateManagerSpec extends AnyWordSpec {
+
+class GameStateManagerSpec extends AnyWordSpec with BeforeAndAfterAll {
+
+  val dir: io.File = io.File("./savegamesGSMTest")
+  override def afterAll(): Unit = dir.delete()
 
   val aSector: ISector = Sector(Coordinate(0,0), Affiliation.PLAYER, SectorType.REGULAR)
 
@@ -61,10 +72,12 @@ class GameStateManagerSpec extends AnyWordSpec {
         state.move("",Coordinate(0,0)).toString should be("move not implemented yet")
       }
       "update the game state and the string representation if save is invoked" in {
-        state.save(Option("test")).toString should be("save not implemented yet")
+        state.save(JSONStrategy(dir), Option("Test")).toString should be("")
+        checkFile("Test", "json") shouldBe true
       }
       "update the game state and the string representation if load is invoked" in {
-        state.load(Option("test")).toString should be("load not implemented yet")
+        state.save(JSONStrategy(dir), Option("Test"))
+        state.load(JSONStrategy(dir), Option("Test.json")).toString should be("")
       }
       "update the game state and the string representation if empty is invoked" in {
         state.empty().toString should be("")
@@ -119,10 +132,10 @@ class GameStateManagerSpec extends AnyWordSpec {
       state.move("", Coordinate(0,0)).toString should be("Are you sure? [yes (y) / no (n)]")
     }
     "not update the game state and the string representation if save is invoked" in {
-      state.save(Option("test")).toString should be("Invalid")
+      state.save(JSONStrategy(), Option("test")).toString should be("Invalid")
     }
     "not update the game state and the string representation if load is invoked" in {
-      state.load(Option("test")).toString should be("Invalid")
+      state.load(JSONStrategy(), Option("test")).toString should be("Invalid")
     }
     "not update the game state and the string representation if empty is invoked" in {
       state.empty().toString should be("Are you sure? [yes (y) / no (n)]")
@@ -184,12 +197,12 @@ class GameStateManagerSpec extends AnyWordSpec {
       stateEndRound.move("", Coordinate(0,0)).toString should be("Invalid")
     }
     "not update the game state and the string representation if save is invoked" in {
-      stateExit.save(Option("test")).toString should be("Invalid")
-      stateEndRound.save(Option("test")).toString should be("Invalid")
+      stateExit.save(JSONStrategy(), Option("test")).toString should be("Invalid")
+      stateEndRound.save(JSONStrategy(), Option("test")).toString should be("Invalid")
     }
     "not update the game state and the string representation if load is invoked" in {
-      stateExit.load(Option("test")).toString should be("Invalid")
-      stateEndRound.load(Option("test")).toString should be("Invalid")
+      stateExit.load(JSONStrategy(), Option("test")).toString should be("Invalid")
+      stateEndRound.load(JSONStrategy(), Option("test")).toString should be("Invalid")
     }
     "not update the game state and the string representation if empty is invoked" in {
       stateExit.empty().toString should be("Invalid")
@@ -231,11 +244,16 @@ class GameStateManagerSpec extends AnyWordSpec {
     }
     "update the game state if a accept is invoked" in {
       stateExit.accept().round.value should be(1)
-      stateEndRound.accept().toString() should be("Invalid")
+      stateEndRound.accept().toString should be("Invalid")
     }
     "update the game state if a decline is invoked" in {
       stateExit.decline().round.value should be(1)
-      stateEndRound.decline().toString() should be("Invalid")
+      stateEndRound.decline().toString should be("Invalid")
     }
   }
- }
+
+  def checkFile(f: String, ext: String): Boolean =
+    val dir = io.File("./savegamesGSMTest")
+    if dir.exists && dir.isDirectory then dir.listFiles().exists(_.getName == f + "." + ext) else false
+
+}

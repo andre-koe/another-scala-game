@@ -2,6 +2,7 @@ package controller.command.commands
 
 import model.core.board.sector.ISector
 import model.core.board.sector.impl.Sector
+import utils.DefaultValueProvider.given_IGameValues
 import model.core.board.sector.sectorutils.{Affiliation, SectorType}
 import model.core.board.boardutils.Coordinate
 import model.core.gameobjects.purchasable.building.ResearchLab
@@ -87,8 +88,7 @@ class ListCommandSpec extends AnyWordSpec {
     "return a technology list with red colored items if the player has insufficient funds for any of them" +
       "appended by the amount of resources lacking" in {
       val plV: PlayerValues = PlayerValues(resourceHolder = ResourceHolder())
-      val gsM: GameStateManager = GameStateManager(playerValues = plV,
-        gameValues = GameValues(tech = Vector(AdvancedMaterials())))
+      val gsM: GameStateManager = GameStateManager(playerValues = plV)(using gameValues = GameValues(tech = Vector(AdvancedMaterials())))
       val listTech: ListCommand =
         ListCommand(TECHNOLOGY, gsM, gameValues = GameValues(tech = Vector(AdvancedMaterials())))
 

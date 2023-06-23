@@ -47,7 +47,7 @@ case class InstantiationValidator(orig: String, gsm: IGameStateManager) extends 
   private def commandHandler(obj: IUpkeep, qty: Int = 1, coord: Option[ICoordinate], gsm: IGameStateManager) : ICommand =
     val location = mapCoordToSector(coord)
     location match
-      case Some(x) if obj.isInstanceOf[IUnit] =>
+      case Some(x) =>
         obj match
           case o: IUnit => RecruitCommand(o, qty, x, gsm)
           case o: IBuilding => BuildCommand(o, x, gsm)

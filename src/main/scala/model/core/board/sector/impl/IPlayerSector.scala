@@ -27,7 +27,7 @@ trait IPlayerSector extends ISector:
 
   def constructUnit(rec: IUnit, qty: Int): IPlayerSector
 
-  def removeUnits(rec: Vector[Component]): Option[IPlayerSector]
+  def removeUnits(rec: Vector[IUnit]): Option[IPlayerSector]
 
   override def buildSlots: IBuildSlots
 

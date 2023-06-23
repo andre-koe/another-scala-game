@@ -2,7 +2,8 @@ package model.game.gamestate.gamestates
 
 import model.core.board.sector.impl.{PlayerSector, Sector}
 import model.core.board.boardutils.Coordinate
-import model.core.board.{GameBoard, GameBoardBuilder}
+import utils.DefaultValueProvider.given_IGameValues
+import model.core.board.{IGameBoard, GameBoardBuilder}
 import model.core.gameobjects.purchasable.building.Mine
 import model.core.gameobjects.purchasable.technology.Polymer
 import model.core.gameobjects.purchasable.units.Corvette
@@ -29,12 +30,12 @@ class EndRoundConfirmationStateSpec extends AnyWordSpec {
       EndRoundConfirmationState().update(gsm).round.value should be(2)
       EndRoundConfirmationState().update(gsm)
         .playerValues.listOfTechnologiesCurrentlyResearched.map(_.roundsToComplete.value).max should be(2)
-      EndRoundConfirmationState().update(gsm).playerValues.resourceHolder.minerals.value should be(120)
+      EndRoundConfirmationState().update(gsm).playerValues.resourceHolder.minerals.value should be(130)
       EndRoundConfirmationState().update(gsm).playerValues.resourceHolder.energy.value < 100 should be(true)
     }
   }
 
-  private def setUpBuildingsAndUnits(): GameBoard =
+  private def setUpBuildingsAndUnits(): IGameBoard =
     val lSector = Sector(
       location = Coordinate(0, 0),
       unitsInSector = Vector(Fleet(fleetComponents = Vector(Corvette(), Corvette()))))

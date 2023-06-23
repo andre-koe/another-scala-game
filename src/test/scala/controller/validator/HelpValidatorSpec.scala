@@ -3,6 +3,7 @@ package controller.validator
 import controller.command.commands.{InvalidCommand, MessageCommand}
 import controller.newInterpreter.{TokenizedInput, CommandType, CommandTokenizer, InterpretedCommand, InterpretedGameObject, InterpretedSubcommand, InterpretedUnidentified}
 import controller.newInterpreter.CommandType.*
+import utils.DefaultValueProvider.given_IGameValues
 import controller.newInterpreter.tokens.CommandToken
 import model.core.gameobjects.purchasable.building.ResearchLab
 import model.core.gameobjects.purchasable.technology.AdvancedMaterials

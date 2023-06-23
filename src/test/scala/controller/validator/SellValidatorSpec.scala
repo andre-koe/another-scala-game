@@ -3,10 +3,9 @@ package controller.validator
 import controller.command.ICommand
 import controller.command.commands.{MessageCommand, SellCommand}
 import controller.newInterpreter.CommandTokenizer
-import model.core.board.GameBoard
-import model.core.board.GameBoardBuilder
-import model.core.board.sector.impl.{PlayerSector, Sector}
+import model.core.board.{IGameBoard, GameBoardBuilder}
 import model.core.board.boardutils.Coordinate
+import model.core.board.sector.impl.{PlayerSector, Sector}
 import model.core.gameobjects.purchasable.building.{IBuilding, Mine}
 import model.core.gameobjects.purchasable.technology.Polymer
 import model.core.gameobjects.purchasable.units.Cruiser
@@ -14,8 +13,9 @@ import model.core.mechanics.fleets.Fleet
 import model.core.mechanics.fleets.components.units.IUnit
 import model.game.gamestate.GameStateManager
 import model.game.playervalues.PlayerValues
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers.*
+import org.scalatest.wordspec.AnyWordSpec
+import utils.DefaultValueProvider.given_IGameValues
 
 class SellValidatorSpec extends AnyWordSpec {
 
@@ -114,7 +114,7 @@ class SellValidatorSpec extends AnyWordSpec {
     }
   }
 
-  private def getGSMWithThingsToSell: GameBoard =
+  private def getGSMWithThingsToSell: IGameBoard =
     val sector = Sector(location = Coordinate(0, 0), 
       unitsInSector = Vector(Fleet(fleetComponents = Vector(Cruiser(), Cruiser(), Cruiser()))))
     val pSector = PlayerSector(sector = sector, buildingsInSector = Vector(Mine(), Mine(), Mine()))

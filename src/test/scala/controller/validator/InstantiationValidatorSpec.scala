@@ -2,6 +2,7 @@ package controller.validator
 
 import controller.command.ICommand
 import controller.command.commands.*
+import utils.DefaultValueProvider.given_IGameValues
 import controller.newInterpreter.CommandTokenizer
 import model.core.gameobjects.resources.resourcetypes.{Alloys, Energy, Minerals}
 import model.core.utilities.ResourceHolder

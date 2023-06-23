@@ -15,6 +15,7 @@ import model.core.mechanics.fleets.{Fleet, IFleet}
 import model.core.utilities.{BuildSlots, IBuildSlots, SeqOperations}
 import utils.CirceImplicits.*
 
+import scala.annotation.tailrec
 import scala.xml.Elem
 
 
@@ -61,12 +62,23 @@ case class PlayerSector(sector: ISector,
     val unitsInConstruction = this.constQuUnits ++ Vector.tabulate(qty){_ => UnitFactory(rec.name.toLowerCase, this).get}
     this.copy(constQuUnits = unitsInConstruction)
 
-  def removeUnits(rec: Vector[Component]): Option[IPlayerSector] =
-    val nFleets = sector.unitsInSector.map(existingFleet => existingFleet.remove(rec))
-    val indexToUpdate = nFleets.indexWhere(_.isDefined)
-    if indexToUpdate == -1 then None
-    else Some(this.copy(sector =
-      sector.cloneWith(unitsInSector = unitsInSector.updated(indexToUpdate, nFleets(indexToUpdate).get))))
+  def removeUnits(rec: Vector[IUnit]): Option[IPlayerSector] =
+    @tailrec
+    def removeRecursively(units: Vector[IFleet], rec: Vector[IUnit]): Vector[IFleet] =
+      if (rec.isEmpty || units.isEmpty) units
+      else {
+        val updatedFleet = units.head.remove(rec)
+        val updatedFleets = updatedFleet match
+          case Some(x) => units.tail.+:(x)
+          case _ => units.tail
+        val updatedRec = rec.diff(units.head.units)
+        removeRecursively(updatedFleets, updatedRec)
+      }
+
+    val nFleets = removeRecursively(sector.unitsInSector, rec)
+    if (nFleets == sector.unitsInSector) then None
+    else Some(this.copy(sector = sector.cloneWith(unitsInSector = nFleets)))
+
 
   private def assignUnits(newUnits: Vector[IUnit]): IPlayerSector = {
     val updatedFleets = if (newUnits.nonEmpty) {

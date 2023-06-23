@@ -10,8 +10,8 @@ import java.time.format.DateTimeFormatter
 import scala.util.Try
 
 trait IFileIOStrategy:
-
-  val dir : File = new File("./savegames")
+  
+  val dir: File
 
   val formatter: DateTimeFormatter =
     DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss").withZone(ZoneId.systemDefault())

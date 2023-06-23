@@ -17,3 +17,5 @@ lazy val root = (project in file("."))
       libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "3.0.0",
       libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.9.2"
   )
+
+coverageExcludedPackages := "<leer>|io\\.circe.*"

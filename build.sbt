@@ -1,7 +1,7 @@
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
-ThisBuild / sbtVersion := "1.8.2"
-ThisBuild / scalaVersion := "3.2.0"
+ThisBuild / sbtVersion := "1.9.0"
+ThisBuild / scalaVersion := "3.3.0"
 
 lazy val root = (project in file("."))
   .settings(
@@ -18,4 +18,6 @@ lazy val root = (project in file("."))
       libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.9.2"
   )
 
-coverageExcludedPackages := "<leer>|io\\.circe.*"
+coverageExcludedPackages := "<empty>|io\\.circe.*|src\\.main\\.resources|src\\.main\\.scala\\.view\\.swingGui.*"
+coverageExcludedFiles := ".*ConfiguredDecoder.scala"
+

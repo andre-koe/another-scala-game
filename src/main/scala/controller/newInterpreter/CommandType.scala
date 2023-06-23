@@ -16,3 +16,5 @@ enum CommandType:
   case END_GAME
   case END_ROUND
   case INVALID
+  case UNDO
+  case REDO

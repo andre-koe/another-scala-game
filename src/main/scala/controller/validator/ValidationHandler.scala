@@ -1,20 +1,20 @@
 package controller.validator
 
 import controller.command.ICommand
-import controller.newInterpreter.{CombinedExpression, CommandType, InterpretedInputToken, KeywordType}
+import controller.newInterpreter.{TokenizedInput, CommandType, InterpretedInput, KeywordType}
 import controller.validator.{CommandValidator, IValidator, InputValidator}
-import model.game.gamestate.GameStateManager
-import model.game.purchasable.IGameObject
+import model.core.gameobjects.purchasable.IGameObject
+import model.game.gamestate.IGameStateManager
 
 import scala.annotation.tailrec
 
-case class ValidationHandler(gsm: GameStateManager):
+case class ValidationHandler(gsm: IGameStateManager):
 
-  def handle(combinedExpression: CombinedExpression): Option[ICommand] =
+  def handle(combinedExpression: TokenizedInput): Option[ICommand] =
     validate(CommandValidator(combinedExpression.orig, gsm), combinedExpression.input)
 
   @tailrec
-  private def validate(validator: IValidator, combinedExpression: Vector[InterpretedInputToken]): Option[ICommand] =
+  private def validate(validator: IValidator, combinedExpression: Vector[InterpretedInput]): Option[ICommand] =
     validator.validate(combinedExpression) match
       case Left(nextValidator) => validate(nextValidator, combinedExpression)
       case Right(result) => result

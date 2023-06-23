@@ -1,17 +1,18 @@
 package controller.validator
 import controller.command.ICommand
-import controller.validator.IValidator
 import controller.command.commands.{InvalidCommand, LoadCommand, MessageCommand, SaveCommand}
-import controller.newInterpreter.{CommandType, InterpretedCommand, InterpretedInputToken, InterpretedSubcommand}
 import controller.newInterpreter.CommandType.{LOAD, SAVE}
-import controller.validator.utils.ValidatorUtils
+import controller.newInterpreter.{CommandType, InterpretedCommand, InterpretedInput, InterpretedSubcommand}
+import controller.validator.IValidator
+import controller.validator.validatorutils.ValidatorUtils
+import model.game.gamestate.IGameStateManager
 import model.game.gamestate.enums.messages.MessageType
-import model.game.gamestate.enums.messages.MessageType._
-import model.game.gamestate.GameStateManager
+import model.game.gamestate.enums.messages.MessageType.*
+import utils.DefaultValueProvider.given_IFileIOStrategy
 
-case class FileIOValidator(orig: String, gsm: GameStateManager) extends IValidator:
+case class FileIOValidator(orig: String, gsm: IGameStateManager) extends IValidator:
 
-  override def validate(input: Vector[InterpretedInputToken]): Either[IValidator, Option[ICommand]] =
+  override def validate(input: Vector[InterpretedInput]): Either[IValidator, Option[ICommand]] =
     val command = ValidatorUtils().findCommandFirst(input)
 
     val subcommand = ValidatorUtils().findSubcommands(input) match

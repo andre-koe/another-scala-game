@@ -1,10 +1,10 @@
 package controller.command.commands
 
+import model.core.gameobjects.purchasable.technology.AdvancedMaterials
+import model.core.gameobjects.resources.resourcetypes.{Alloys, Energy, Minerals, ResearchPoints}
+import model.core.utilities.ResourceHolder
 import model.game.gamestate.GameStateManager
 import model.game.playervalues.PlayerValues
-import model.game.purchasable.technology.AdvancedMaterials
-import model.game.resources.ResourceHolder
-import model.game.resources.resourcetypes.{Alloys, Energy, Minerals, ResearchPoints}
 import org.scalatest.matchers.should.Matchers.*
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -13,7 +13,7 @@ class ResearchCommandSpec extends AnyWordSpec {
 
     "initiated the research of a unresearched technology if playerfunds are sufficient" in {
       val gsm: GameStateManager = GameStateManager(playerValues = PlayerValues(resourceHolder =
-          ResourceHolder(researchPoints = ResearchPoints(1000))))
+        ResourceHolder(researchPoints = ResearchPoints(1000))))
 
       val researchCommand = ResearchCommand(AdvancedMaterials(), gsm)
       researchCommand.execute().playerValues.listOfTechnologiesCurrentlyResearched.isEmpty should be(false)
@@ -24,7 +24,7 @@ class ResearchCommandSpec extends AnyWordSpec {
     "return correct failure message if technology has already been researched" in {
       val gsm: GameStateManager = GameStateManager(playerValues = PlayerValues(
         resourceHolder = ResourceHolder(researchPoints = ResearchPoints(1000)),
-        listOfTechnologies = List(AdvancedMaterials())
+        listOfTechnologies = Vector(AdvancedMaterials())
       ))
 
       val researchCommand = ResearchCommand(AdvancedMaterials(), gsm)
@@ -36,7 +36,7 @@ class ResearchCommandSpec extends AnyWordSpec {
     "return correct failure message if technology is already currently being researched" in {
       val gsm: GameStateManager = GameStateManager(playerValues = PlayerValues(
         resourceHolder = ResourceHolder(researchPoints = ResearchPoints(1000)),
-        listOfTechnologiesCurrentlyResearched = List(AdvancedMaterials())
+        listOfTechnologiesCurrentlyResearched = Vector(AdvancedMaterials())
       ))
 
       val researchCommand = ResearchCommand(AdvancedMaterials(), gsm)

@@ -1,7 +1,10 @@
 package controller.command.commands
 
 import controller.command.ICommand
-import model.game.gamestate.GameStateManager
+import model.core.fileIO.IFileIOStrategy
+import model.game.gamestate.IGameStateManager
+import utils.DefaultValueProvider.given_IFileIOStrategy
 
-case class SaveCommand(string: Option[String], gameStateManager: GameStateManager) extends ICommand:
-  override def execute(): GameStateManager = gameStateManager.save(Option(string.head))
+case class SaveCommand(string: Option[String],
+                       gameStateManager: IGameStateManager)(using fileIOStrategy: IFileIOStrategy) extends ICommand:
+  override def execute(): IGameStateManager = gameStateManager.save(fileIOStrategy, string)

@@ -1,8 +1,8 @@
 package controller.command.commands
 
 import controller.command.ICommand
-import model.game.gamestate.GameStateManager
+import model.game.gamestate.IGameStateManager
 
-case class EndGameCommand(gameStateManager: GameStateManager) extends ICommand:
-  override def execute(): GameStateManager = gameStateManager.exit()
+case class EndGameCommand(gameStateManager: IGameStateManager) extends ICommand:
+  override def execute(): IGameStateManager = gameStateManager.exit()
 

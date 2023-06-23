@@ -1,8 +1,8 @@
 package model.utils
 
-import model.game.purchasable.building.IBuilding
-import model.game.purchasable.technology.ITechnology
-import model.game.purchasable.units.IUnit
+import model.core.gameobjects.purchasable.building.IBuilding
+import model.core.gameobjects.purchasable.technology.ITechnology
+import model.core.mechanics.fleets.components.units.IUnit
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers.*
 

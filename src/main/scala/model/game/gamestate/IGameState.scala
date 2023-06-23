@@ -1,7 +1,6 @@
 package model.game.gamestate
 
-import model.game.gamestate.GameStateManager
+import model.game.gamestate.IGameStateManager
 
 trait IGameState:
-  def update(gsm: GameStateManager): GameStateManager
-
+  def update(gsm: IGameStateManager): IGameStateManager

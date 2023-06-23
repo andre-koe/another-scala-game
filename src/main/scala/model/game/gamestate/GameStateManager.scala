@@ -1,108 +1,126 @@
 package model.game.gamestate
 
-import model.game.gamestate.gamestates.{EndRoundConfirmationState, ExitedState, RunningState, WaitForUserConfirmation}
+
+import io.circe.*
+import io.circe.generic.semiauto.*
+import io.circe.syntax.EncoderOps
+import model.core.board.*
+import model.core.board.boardutils.{ICoordinate, IGameBoardInfoWrapper}
+import model.core.board.sector.*
+import model.core.board.sector.impl.{IPlayerSector, PlayerSector}
+import model.core.fileIO.IFileIOStrategy
+import model.core.gameobjects.purchasable.IGameObject
+import model.core.gameobjects.purchasable.building.*
+import model.core.gameobjects.purchasable.technology.*
+import model.core.gameobjects.purchasable.units.*
+import model.core.mechanics.fleets.components.units.IUnit
+import model.core.utilities.*
+import model.core.utilities.interfaces.IUpkeep
+import model.game.gamestate.gamestates.*
 import model.game.gamestate.strategies.sell.ISellStrategy
-import model.game.map.{Coordinate, GameMap}
-import model.game.playervalues.PlayerValues
-import model.game.purchasable.building.{BuildingFactory, EnergyGrid, Factory, Hangar, IBuilding, Mine, ResearchLab, Shipyard}
-import model.game.purchasable.{IGameObject, IUpkeep}
-import model.game.purchasable.technology.{AdvancedMaterials, AdvancedPropulsion, ITechnology, NanoRobotics, Polymer, TechnologyFactory}
-import model.game.purchasable.types.EntityType
-import model.game.purchasable.units.{Battleship, Corvette, Cruiser, Destroyer, IUnit, UnitFactory}
-import model.game.purchasable.utils.Output
-import model.game.resources.ResourceHolder
-import model.game.resources.resourcetypes.{Energy, ResearchPoints}
-import model.game.{Capacity, GameValues, Round}
+import model.game.playervalues.{IPlayerValues, PlayerValues}
+import utils.CirceImplicits.*
 
 import scala.+:
 import scala.compiletime.ops.string
 
-case class GameStateManager(round: Round = Round(),
-                            gameMap: GameMap = GameMap(),
+
+case class GameStateManager(round: IRound = Round(),
+                            gameMap: IGameBoard = GameBoardBuilder().build,
+                            playerValues: IPlayerValues = PlayerValues(),
                             message: String = "",
-                            playerValues: PlayerValues = PlayerValues(),
-                            gameState: IGameState = RunningState(),
-                            gameValues: GameValues = GameValues()):
+                            gameState: IGameState = RunningState())
+                           (using gameValues: IGameValues) extends IGameStateManager:
 
-  def build(building: IBuilding, nB: ResourceHolder, msg: String): GameStateManager =
+  override def getGameValues: IGameValues = this.gameValues
+
+  override def build(sector: IPlayerSector, nB: IResourceHolder, msg: String): IGameStateManager =
     gameState match
-      case runningState: RunningState => runningState.build(gsm = this, building = building, nB = nB, msg = msg)
+      case runningState: RunningState => runningState.build(gsm = this, sector = sector, nB = nB, msg = msg)
       case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
-      case _ => this.copy(message = "Invalid")
+      case _ => this.extCopy(message = "Invalid")
 
-  def research(tech: ITechnology, nB: ResourceHolder, msg: String): GameStateManager =
+  override def research(tech: ITechnology, nB: IResourceHolder, msg: String): IGameStateManager =
     gameState match
       case runningState: RunningState => runningState.research(gsm = this, tech = tech, newBalance = nB, msg = msg)
       case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
-      case _ => this.copy(message = "Invalid")
+      case _ => this.extCopy(message = "Invalid")
 
-  def recruit(what: Vector[IUnit], nB: ResourceHolder, nC: Capacity, msg: String): GameStateManager =
+  override def recruit(sector: IPlayerSector, nB: IResourceHolder, nC: ICapacity, msg: String): IGameStateManager =
     gameState match
-      case runningState: RunningState => runningState.recruit(gsm = this, what = what, nB = nB, nCap = nC, msg = msg)
+      case runningState: RunningState => runningState.recruit(gsm = this, sector = sector, nB = nB, nCap = nC, msg = msg)
       case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
-      case _ => this.copy(message = "Invalid")
+      case _ => this.extCopy(message = "Invalid")
 
-  def sell(sellStrategy: ISellStrategy, msg: String): GameStateManager =
+  override def sell(sellStrategy: ISellStrategy): IGameStateManager =
     gameState match
-      case runningState: RunningState => runningState.sell(gsm = this, sellStrategy, msg = msg)
+      case runningState: RunningState => runningState.sell(gsm = this, sellStrategy)
       case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
-      case _ => this.copy(message = "Invalid")
+      case _ => this.extCopy(message = "Invalid")
 
-  def show(): GameStateManager =
+  override def show(): IGameStateManager =
     gameState match
       case runningState: RunningState => runningState.show(this)
       case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
-      case _ => this.copy(message = "Invalid")
+      case _ => this.extCopy(message = "Invalid")
 
-  def move(what: String, where: Coordinate): GameStateManager =
+  override def move(what: String, where: ICoordinate): IGameStateManager =
     gameState match
       case runningState: RunningState => runningState.move(this, what, where)
       case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
-      case _ => this.copy(message = "Invalid")
+      case _ => this.extCopy(message = "Invalid")
 
-  def invalid(input: String): GameStateManager =
+  override def invalid(input: String): IGameStateManager =
     gameState match
       case runningState: RunningState => runningState.invalid(this, input)
       case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
-      case _ => this.copy(message = "Invalid")
-  def endRoundRequest(): GameStateManager = WaitForUserConfirmation().ask(this)
+      case _ => this.extCopy(message = "Invalid")
+  override def endRoundRequest(): IGameStateManager = WaitForUserConfirmation().ask(this)
 
-  def accept(): GameStateManager =
+  override def accept(): IGameStateManager =
     gameState match
       case x: WaitForUserConfirmation => x.update(this)
       case _ => this.empty()
 
-  def decline(): GameStateManager =
+  override def decline(): IGameStateManager =
     gameState match
       case x: WaitForUserConfirmation => x.back(this)
       case _ => this.empty()
 
-  def exit(): GameStateManager =
+  override def exit(): IGameStateManager =
     gameState match
       case _: RunningState => ExitedState().update(this)
       case _: WaitForUserConfirmation => ExitedState().update(this)
-      case _ => this.copy(message = "Invalid")
+      case _ => this.extCopy(message = "Invalid")
 
-  def save(as: Option[String]): GameStateManager =
+  override def save(fileIOStrategy: IFileIOStrategy, as: Option[String]): IGameStateManager =
     gameState match
-      case _: RunningState => this.copy(message = "save not implemented yet")
-      case _ => this.copy(message = "Invalid")
+      case runningState: RunningState => runningState.save(this, fileIOStrategy, as)
+      case _ => this.extCopy(message = "Invalid")
 
-  def load(as: Option[String]): GameStateManager =
+  override def load(as: Option[String], fileIOStrategy: IFileIOStrategy): IGameStateManager =
     gameState match
-      case _: RunningState => this.copy(message = "load not implemented yet")
-      case _ => this.copy(message = "Invalid")
+      case runningState: RunningState => runningState.load(this, fileIOStrategy, as)
+      case _ => this.extCopy(message = "Invalid")
   
-  def message(what: String): GameStateManager =
+  override def message(what: String): IGameStateManager =
     gameState match
       case runningState: RunningState => runningState.showMessage(this, what)
       case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
-      case _ => this.copy(message = "Invalid")
+      case _ => this.extCopy(message = "Invalid")
     
-  def empty(): GameStateManager =
+  override def empty(): IGameStateManager =
     gameState match
       case runningState: RunningState => runningState.update(this)
       case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
-      case _ => this.copy(message = "Invalid")
+      case _ => this.extCopy(message = "Invalid")
+
+  override def extCopy(round: IRound = round, gameMap: IGameBoard = gameMap,
+                       playerValues: IPlayerValues = playerValues, gameState: IGameState = gameState,
+                       message: String = message): IGameStateManager =
+    this.copy(round = round, gameMap = gameMap, playerValues = playerValues, gameState = gameState, message = message)
+
 
   override def toString: String = message
+
+

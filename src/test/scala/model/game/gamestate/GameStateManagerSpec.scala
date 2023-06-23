@@ -1,22 +1,27 @@
 package model.game.gamestate
 
-import model.game.{playervalues, *}
+import model.core.board.sector.ISector
+import model.core.board.sector.impl.{PlayerSector, IPlayerSector, Sector}
+import model.core.board.sector.sectorutils.{Affiliation, SectorType}
+import model.core.board.boardutils.Coordinate
+import model.core.gameobjects.purchasable.building.{Hangar, IBuilding, Mine, ResearchLab}
+import model.core.gameobjects.purchasable.technology.{AdvancedMaterials, ITechnology, Polymer}
+import model.core.gameobjects.purchasable.units.Corvette
+import model.core.gameobjects.resources.resourcetypes.{Alloys, Energy, Minerals, ResearchPoints}
+import model.core.mechanics.fleets.components.units.IUnit
+import model.core.utilities.{Capacity, ResourceHolder, Round}
+import model.game.*
 import model.game.gamestate.GameStateStringFormatter
 import model.game.gamestate.gamestates.{EndRoundConfirmationState, ExitedState, RunningState, WaitForUserConfirmation}
 import model.game.gamestate.strategies.sell.SellBuildingStrategy
-import model.game.map.Coordinate
-import model.game.playervalues.PlayerValues
-import model.game.purchasable.building.{Hangar, IBuilding, Mine, ResearchLab}
-import model.game.purchasable.technology.{AdvancedMaterials, ITechnology, Polymer}
-import model.game.purchasable.types.EntityType
-import model.game.purchasable.units.{Corvette, IUnit}
-import model.game.resources.ResourceHolder
-import model.game.resources.resourcetypes.{Alloys, Energy, Minerals, ResearchPoints}
-import org.scalatest.wordspec.AnyWordSpec
+import model.game.playervalues.{PlayerValues, IPlayerValues}
 import org.scalatest.matchers.should.Matchers.*
+import org.scalatest.wordspec.AnyWordSpec
 
 
 class GameStateManagerSpec extends AnyWordSpec {
+
+  val aSector: ISector = Sector(Coordinate(0,0), Affiliation.PLAYER, SectorType.REGULAR)
 
   "The GameStateManager" when {
     "in state Running (Initialized)" should {
@@ -26,7 +31,7 @@ class GameStateManagerSpec extends AnyWordSpec {
           alloys = Alloys(10),
           researchPoints = ResearchPoints(100)
         ), capacity = Capacity(20))
-      val state: GameStateManager = GameStateManager(playerValues = playerVal)
+      val state: IGameStateManager = GameStateManager(playerValues = playerVal)
       "have a Round value of 1" in {
         state.round.value should be(1)
       }
@@ -42,30 +47,18 @@ class GameStateManagerSpec extends AnyWordSpec {
       "have a Research value of 100" in {
         state.playerValues.resourceHolder.researchPoints.value should be(100)
       }
-      "have a list of buildings" in {
-        val gameStateManager = GameStateManager(playerValues = PlayerValues(listOfBuildings = List[IBuilding](ResearchLab())))
-        gameStateManager.playerValues.listOfBuildings shouldBe a[List[_]]
-        gameStateManager.playerValues.listOfBuildings should not be empty
-        gameStateManager.playerValues.listOfBuildings.head shouldBe a[IBuilding]
-      }
       "have a list of technologies" in {
-        val gameStateManager = GameStateManager(playerValues = PlayerValues(listOfTechnologies = List[ITechnology](Polymer())))
-        gameStateManager.playerValues.listOfTechnologies shouldBe a[List[_]]
+        val gameStateManager = GameStateManager(playerValues = PlayerValues(listOfTechnologies = Vector[ITechnology](Polymer())))
+        gameStateManager.playerValues.listOfTechnologies shouldBe a[Vector[_]]
         gameStateManager.playerValues.listOfTechnologies should not be empty
         gameStateManager.playerValues.listOfTechnologies.head shouldBe a[ITechnology]
       }
-      "have a list of units" in {
-        val gameStateManager = GameStateManager(playerValues = PlayerValues(listOfUnits = List[IUnit](Corvette())))
-        gameStateManager.playerValues.listOfUnits shouldBe a[List[_]]
-        gameStateManager.playerValues.listOfUnits should not be empty
-        gameStateManager.playerValues.listOfUnits.head shouldBe a[IUnit]
-      }
     }
     "handling a player command" should {
-      val state: GameStateManager = GameStateManager()
+      val state: IGameStateManager = GameStateManager()
 
       "update the game state and the string representation if move is invoked" in {
-        state.move("",Coordinate()).toString should be("move not implemented yet")
+        state.move("",Coordinate(0,0)).toString should be("move not implemented yet")
       }
       "update the game state and the string representation if save is invoked" in {
         state.save(Option("test")).toString should be("save not implemented yet")
@@ -83,11 +76,12 @@ class GameStateManagerSpec extends AnyWordSpec {
         state.research(AdvancedMaterials(), AdvancedMaterials().cost, "Researching: Advanced Materials").toString should be("Researching: Advanced Materials")
       }
       "update the game state and the string representation if build is invoked" in {
-        state.build(Hangar(), Hangar().cost, "Constructing: Hangar").toString should be("Constructing: Hangar")
+        val sector: IPlayerSector = PlayerSector(aSector, constQuBuilding = Vector(Hangar()))
+        state.build(sector, Hangar().cost, "Constructing: Hangar").toString should be("Constructing: Hangar")
       }
       "update the game state and the string representation if recruit is invoked" in {
-        state.recruit(Vector(Corvette()), Corvette().cost, Corvette().capacity, "Recruiting: 1 x Corvette")
-        state.recruit(Vector(Corvette()), Corvette().cost, Corvette().capacity, "Recruiting: 1 x Corvette")
+        val sector: IPlayerSector = PlayerSector(aSector, constQuUnits = Vector(Corvette()))
+        state.recruit(sector, Corvette().cost, Corvette().capacity, "Recruiting: 1 x Corvette")
           .toString should be("Recruiting: 1 x Corvette")
       }
       "update the game state and the string representation if show is invoked" in {
@@ -100,29 +94,29 @@ class GameStateManagerSpec extends AnyWordSpec {
       }
     }
     "handling the [end round] mechanic" should {
-      val tmpGameState: GameStateManager = GameStateManager().endRoundRequest()
+      val tmpGameState: IGameStateManager = GameStateManager().endRoundRequest()
       "prompt the user for input and wait if end round action was triggered" in {
         tmpGameState.toString should be ("Are you sure? [yes (y) / no (n)]")
       }
       "end the round if the user accepts after the prompt" in {
-        var endRoundGameState: GameStateManager = tmpGameState
+        var endRoundGameState: IGameStateManager = tmpGameState
         endRoundGameState = endRoundGameState.accept()
         endRoundGameState.round.value should be(2)
       }
     }
   }
   "When in GameState WaitForUserConfirmation" should {
-    val playerVal: PlayerValues =
+    val playerVal: IPlayerValues =
       playervalues.PlayerValues(resourceHolder = ResourceHolder(energy = Energy(100),
         minerals = Minerals(100),
         alloys = Alloys(10),
         researchPoints = ResearchPoints(100)
       ), capacity = Capacity(20))
 
-    val state: GameStateManager = GameStateManager(gameState = WaitForUserConfirmation(), playerValues = playerVal)
+    val state: IGameStateManager = GameStateManager(playerValues = playerVal, gameState = WaitForUserConfirmation())
 
     "not update the game state and the string representation if move is invoked" in {
-      state.move("", Coordinate()).toString should be("Are you sure? [yes (y) / no (n)]")
+      state.move("", Coordinate(0,0)).toString should be("Are you sure? [yes (y) / no (n)]")
     }
     "not update the game state and the string representation if save is invoked" in {
       state.save(Option("test")).toString should be("Invalid")
@@ -141,11 +135,13 @@ class GameStateManagerSpec extends AnyWordSpec {
         .toString should be("Are you sure? [yes (y) / no (n)]")
     }
     "not update the game state and the string representation if build is invoked" in {
-      state.build(Hangar(), Hangar().cost, "Constructing: Hangar")
+      val sector: IPlayerSector = PlayerSector(aSector, constQuBuilding = Vector(Hangar()))
+      state.build(sector, Hangar().cost, "Constructing: Hangar")
         .toString should be("Are you sure? [yes (y) / no (n)]")
     }
     "not update the game state and the string representation if recruit is invoked" in {
-      state.recruit(Vector(Corvette()), Corvette().cost, Corvette().capacity, "Recruiting: 1 x Corvette")
+      val sector: IPlayerSector = PlayerSector(aSector, constQuBuilding = Vector(Hangar()))
+      state.recruit(sector, Corvette().cost, Corvette().capacity, "Recruiting: 1 x Corvette")
         .toString should be("Are you sure? [yes (y) / no (n)]")
     }
     "not update the game state and the string representation if show is invoked" in {
@@ -158,33 +154,34 @@ class GameStateManagerSpec extends AnyWordSpec {
       state.message("something").toString should be("Are you sure? [yes (y) / no (n)]")
     }
     "not update the game state if a sell command is invoked" in {
-      state.sell(SellBuildingStrategy(List(Mine()), ResourceHolder(), Capacity()), "sell")
+      state.sell(SellBuildingStrategy(
+        PlayerSector(Sector(location = Coordinate(0,0)), buildingsInSector = Vector(Mine())), Mine(), 1))
         .toString should be("Are you sure? [yes (y) / no (n)]")
     }
     "update the game state if a accept is invoked" in {
       state.accept().round.value should be(2)
-      state.accept().toString() should be(GameStateStringFormatter(round = Round(), gsm = state.accept())
+      state.accept().toString should be(GameStateStringFormatter(round = Round(), gsm = state.accept())
         .overview(state.round.next, state.playerValues.resourceHolder))
     }
     "update the game state if a decline is invoked" in {
       state.decline().round.value should be(1)
-      state.decline().toString() should be("End round aborted")
+      state.decline().toString should be("End round aborted")
     }
   }
   "When in GameState Exited or EndRoundConfirmation" should {
-    val playerVal: PlayerValues =
+    val playerVal: IPlayerValues =
       playervalues.PlayerValues(resourceHolder = ResourceHolder(energy = Energy(100),
         minerals = Minerals(100),
         alloys = Alloys(10),
         researchPoints = ResearchPoints(100)
       ), capacity = Capacity(20))
 
-    val stateExit: GameStateManager = GameStateManager(gameState = ExitedState(), playerValues = playerVal)
-    val stateEndRound: GameStateManager = GameStateManager(gameState = EndRoundConfirmationState(), playerValues = playerVal)
+    val stateExit: IGameStateManager = GameStateManager(playerValues = playerVal, gameState = ExitedState())
+    val stateEndRound: IGameStateManager = GameStateManager(playerValues = playerVal, gameState = EndRoundConfirmationState())
 
     "not update the game state and the string representation if move is invoked" in {
-      stateExit.move("", Coordinate()).toString should be("Invalid")
-      stateEndRound.move("", Coordinate()).toString should be("Invalid")
+      stateExit.move("", Coordinate(0,0)).toString should be("Invalid")
+      stateEndRound.move("", Coordinate(0,0)).toString should be("Invalid")
     }
     "not update the game state and the string representation if save is invoked" in {
       stateExit.save(Option("test")).toString should be("Invalid")
@@ -209,13 +206,15 @@ class GameStateManagerSpec extends AnyWordSpec {
         .toString should be("Invalid")
     }
     "not update the game state and the string representation if build is invoked" in {
-      stateExit.build(Hangar(), Hangar().cost, "Constructing: Hangar").toString should be("Invalid")
-      stateEndRound.build(Hangar(), Hangar().cost, "Constructing: Hangar").toString should be("Invalid")
+      val sector: IPlayerSector = PlayerSector(aSector, constQuBuilding = Vector(Hangar()))
+      stateExit.build(sector, Hangar().cost, "Constructing: Hangar").toString should be("Invalid")
+      stateEndRound.build(sector, Hangar().cost, "Constructing: Hangar").toString should be("Invalid")
     }
     "not update the game state and the string representation if recruit is invoked" in {
-      stateExit.recruit(Vector(Corvette()), Corvette().cost, Corvette().capacity, "Recruiting: 1 x Corvette")
+      val sector: IPlayerSector = PlayerSector(aSector, constQuUnits = Vector(Corvette()))
+      stateExit.recruit(sector, Corvette().cost, Corvette().capacity, "Recruiting: 1 x Corvette")
         .toString should be("Invalid")
-      stateEndRound.recruit(Vector(Corvette()), Corvette().cost, Corvette().capacity, "Recruiting: 1 x Corvette")
+      stateEndRound.recruit(sector, Corvette().cost, Corvette().capacity, "Recruiting: 1 x Corvette")
         .toString should be("Invalid")
     }
     "not update the game state and the string representation if show is invoked" in {
@@ -229,12 +228,6 @@ class GameStateManagerSpec extends AnyWordSpec {
     "not update the game state if a message command is invoked" in {
       stateExit.message("something").toString should be("Invalid")
       stateEndRound.message("something").toString should be("Invalid")
-    }
-    "not update the game state if a sell command is invoked" in {
-      stateExit.sell(SellBuildingStrategy(List(Mine()), ResourceHolder(), Capacity()), "sell")
-        .toString should be("Invalid")
-      stateEndRound.sell(SellBuildingStrategy(List(Mine()), ResourceHolder(), Capacity()), "sell")
-        .toString should be("Invalid")
     }
     "update the game state if a accept is invoked" in {
       stateExit.accept().round.value should be(1)

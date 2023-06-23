@@ -1,8 +1,7 @@
 package controller.validator
 
 import controller.command.ICommand
-import controller.newInterpreter.InterpretedInputToken
-import model.game.gamestate.GameStateManager
+import controller.newInterpreter.InterpretedInput
 
 trait IValidator:
-  def validate(input: Vector[InterpretedInputToken]): Either[IValidator, Option[ICommand]]
+  def validate(input: Vector[InterpretedInput]): Either[IValidator, Option[ICommand]]

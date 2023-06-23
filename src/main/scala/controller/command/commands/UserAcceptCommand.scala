@@ -1,8 +1,8 @@
 package controller.command.commands
 
 import controller.command.ICommand
-import model.game.gamestate.GameStateManager
+import model.game.gamestate.IGameStateManager
 
-case class UserAcceptCommand(gsm: GameStateManager) extends ICommand:
+case class UserAcceptCommand(gameStateManager: IGameStateManager) extends ICommand:
 
-  override def execute(): GameStateManager = gsm.accept()
+  override def execute(): IGameStateManager = gameStateManager.accept()

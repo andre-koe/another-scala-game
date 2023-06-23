@@ -1,11 +1,15 @@
 package controller.command.commands
 
-import model.game.{Capacity, playervalues}
+import model.core.board.sector.ISector
+import model.core.board.sector.impl.Sector
+import model.core.board.sector.sectorutils.{Affiliation, SectorType}
+import model.core.board.boardutils.Coordinate
+import model.core.gameobjects.purchasable.units.Corvette
+import model.core.gameobjects.resources.resourcetypes.{Alloys, Energy, Minerals}
+import model.core.utilities.{Capacity, ResourceHolder}
 import model.game.gamestate.GameStateManager
+import model.game.playervalues
 import model.game.playervalues.PlayerValues
-import model.game.purchasable.units.Corvette
-import model.game.resources.ResourceHolder
-import model.game.resources.resourcetypes.{Alloys, Energy, Minerals}
 import org.scalatest.matchers.should.Matchers.*
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -14,14 +18,17 @@ class RecruitCommandSpec extends AnyWordSpec {
   "The RecruitCommand" should {
     "invoke the correct behaviour corresponding to the request" when {
 
+      val sector: ISector = Sector(Coordinate(-1,-1), Affiliation.INDEPENDENT, SectorType.REGULAR)
+
+
       "initialized with with valid unit and sufficient capacity and resources" in {
         val pV: PlayerValues = playervalues.PlayerValues(
           capacity = Capacity(100),
           resourceHolder = ResourceHolder(energy = Energy(1000), minerals = Minerals(1000)))
         val gsm: GameStateManager = GameStateManager(playerValues = pV)
 
-        val recruitCommand = RecruitCommand(Corvette(), 2, gsm)
-        recruitCommand.execute().playerValues.listOfUnitsUnderConstruction.isEmpty should be(false)
+        val recruitCommand = RecruitCommand(Corvette(), 2, sector, gsm)
+        recruitCommand.execute().gameMap.getPlayerSectors.map(_.constQuUnits).isEmpty should be(false)
         recruitCommand.execute().toString should be("Beginning construction of 2 x Corvette " +
           s"for ${Corvette().cost.multiplyBy(2)}, completion in ${Corvette().roundsToComplete.value} rounds.")
       }
@@ -32,8 +39,8 @@ class RecruitCommandSpec extends AnyWordSpec {
           resourceHolder = ResourceHolder(energy = Energy(1000), minerals = Minerals(1000)))
         val gsm: GameStateManager = GameStateManager(playerValues = pV)
 
-        val recruitCommand = RecruitCommand(Corvette(), 2, gsm)
-        recruitCommand.execute().playerValues.listOfUnitsUnderConstruction.isEmpty should be(true)
+        val recruitCommand = RecruitCommand(Corvette(), 2, sector, gsm)
+        recruitCommand.execute().gameMap.getPlayerSectors.map(_.constQuUnits).isEmpty should be(true)
         recruitCommand.execute().toString should be(s"Insufficient Capacity --- [Capacity: 2].")
       }
 
@@ -43,8 +50,8 @@ class RecruitCommandSpec extends AnyWordSpec {
           resourceHolder = ResourceHolder(energy = Energy(0), minerals = Minerals(0)))
         val gsm: GameStateManager = GameStateManager(playerValues = pV)
 
-        val recruitCommand = RecruitCommand(Corvette(), 2, gsm)
-        recruitCommand.execute().playerValues.listOfUnitsUnderConstruction.isEmpty should be(true)
+        val recruitCommand = RecruitCommand(Corvette(), 2, sector, gsm)
+        recruitCommand.execute().gameMap.getPlayerSectors.map(_.constQuUnits).isEmpty should be(true)
         recruitCommand.execute().toString should be(s"Insufficient Funds --- Total Lacking: [Energy: 140] [Minerals: 60].")
       }
 

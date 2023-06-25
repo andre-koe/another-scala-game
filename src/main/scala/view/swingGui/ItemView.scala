@@ -20,7 +20,7 @@ import scala.swing.event.ButtonClicked
 
 abstract class ItemView(name: String, controller: IController) extends BoxPanel(Orientation.Vertical):
 
-  val titleLabel = new Label(name)
+  val titleLabel =  GuiUtils().colorLabel(name)
   foreground = Color.white
   background = Color.darkGray
 
@@ -35,7 +35,6 @@ class BuyableItemView(name: String, sector: IPlayerSector, controller: IControll
     case _ => sector.unitsInSector.flatMap(_.units).map(_.name).count(_ == name)
 
   private val countLabel: Label = GuiUtils().colorLabel(s"In Possession: $count")
-  private val infoLabel: Label = GuiUtils().colorLabel("")
 
   private val buy = new Button("+")
   buy.background = Color.green
@@ -46,7 +45,6 @@ class BuyableItemView(name: String, sector: IPlayerSector, controller: IControll
   sell.foreground = Color.white
 
   contents += countLabel
-  contents += infoLabel
 
 
 class TechnologyItemView(name: String, controller: IController) extends ItemView(name, controller):

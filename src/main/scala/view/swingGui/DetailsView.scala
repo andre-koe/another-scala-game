@@ -17,6 +17,7 @@ import model.core.utilities.interfaces.IRoundBasedConstructable
 import view.swingGui.BuyableItemView
 
 import java.awt.{Color, Dimension}
+import javax.swing.border.EmptyBorder
 import scala.swing.event.{ButtonClicked, SelectionChanged}
 import scala.swing.{BoxPanel, Button, ComboBox, Component, Dialog, Dimension, GridPanel, Label, Orientation, ScrollPane, Swing, TabbedPane, TextField}
 
@@ -28,6 +29,7 @@ class DetailsView(controller: IController) extends ScrollPane with GUIObserver[I
   private val defaultForeground = Color.white
   private val innerPanel = new BoxPanel(Orientation.Vertical)
 
+  innerPanel.border = EmptyBorder(10,10,10,10)
   innerPanel.background = Color.darkGray
   innerPanel.contents += GuiUtils().colorLabel("Details: Select a sector to get it's Details")
 
@@ -64,7 +66,7 @@ class DetailsView(controller: IController) extends ScrollPane with GUIObserver[I
           Swing.VGlue,
           scrollPaneCreator(objectsInSector(s.buildingsInSector), "Buildings"),
           Swing.VGlue,
-          scrollPaneCreator(fleetsInSector(s.unitsInSector), "B"),
+          scrollPaneCreator(fleetsInSector(s.unitsInSector), "Units in Sector"),
           Swing.VGlue,
           scrollPaneCreator(objectsInSector(s.constQuBuilding, true), "Construction Queue"),
           Swing.VGlue,
@@ -247,7 +249,7 @@ class DetailsView(controller: IController) extends ScrollPane with GUIObserver[I
     seq.map {
       panel.contents += _
     }
-    background = defaultBackground
+    panel.background = defaultBackground
     panel
 
 }

@@ -22,6 +22,9 @@ class Controller(val undoAllowed: Boolean = false) extends IController :
   private var gameStateManager: IGameStateManager = GameStateManager()
   private val undoRedoManager: UndoRedoManager = UndoRedoManager()
 
+  override def toString: String = gameStateManager.toString
+
+
   def processInput(toDo : TokenizedInput | ICommand): Boolean =
 
     val executable = toDo match
@@ -38,17 +41,15 @@ class Controller(val undoAllowed: Boolean = false) extends IController :
         case _: UndoCommand => gameStateManager.extCopy(message="undo disabled")
         case _: RedoCommand => gameStateManager.extCopy(message="redo disabled")
         case _ => executable.execute()
-
     notifyObservers()
     handleGameState(gameStateManager)
 
+
   def getState: IGameStateManagerWrapper = GameStateManagerWrapper(gameStateManager)
 
-  override def toString: String = gameStateManager.toString
 
   private def handleGameState(gsm: IGameStateManager): Boolean =
     gsm.gameState match
       case _: ExitedState => false
       case _ => true
-
 

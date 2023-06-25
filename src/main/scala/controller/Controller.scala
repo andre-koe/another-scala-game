@@ -22,32 +22,34 @@ class Controller(val undoAllowed: Boolean = false) extends IController :
   private var gameStateManager: IGameStateManager = GameStateManager()
   private val undoRedoManager: UndoRedoManager = UndoRedoManager()
 
+  override def toString: String = gameStateManager.toString
+
+
   def processInput(toDo : TokenizedInput | ICommand): Boolean =
 
     val executable = toDo match
       case x: TokenizedInput => TokenizedInputToCommandAdapter(x, gameStateManager).getCommand
       case x : ICommand => x
-    
-    gameStateManager = executable match
-      case _: IUndoable => undoRedoManager.addMemento(executable)
-      case _: UndoCommand =>
-        if undoAllowed then undoRedoManager.undo.getOrElse(gameStateManager.extCopy(message="undo failed"))
-        else gameStateManager.extCopy(message="undo disabled")
-      case _: RedoCommand =>
-        if undoAllowed then undoRedoManager.redo.getOrElse(gameStateManager.extCopy(message="redo failed"))
-        else gameStateManager.extCopy(message="redo disabled")
-      case _ => executable.execute()
 
+    gameStateManager = (undoAllowed, executable) match
+      case (true, _: ICommand) => executable match
+        case _: IUndoable => undoRedoManager.addMemento(executable)
+        case _: UndoCommand => undoRedoManager.undo.getOrElse(gameStateManager.extCopy(message="undo failed"))
+        case _: RedoCommand => undoRedoManager.redo.getOrElse(gameStateManager.extCopy(message="redo failed"))
+        case _ => executable.execute()
+      case (false, _: ICommand) => executable match
+        case _: UndoCommand => gameStateManager.extCopy(message="undo disabled")
+        case _: RedoCommand => gameStateManager.extCopy(message="redo disabled")
+        case _ => executable.execute()
     notifyObservers()
     handleGameState(gameStateManager)
 
+
   def getState: IGameStateManagerWrapper = GameStateManagerWrapper(gameStateManager)
+
 
   private def handleGameState(gsm: IGameStateManager): Boolean =
     gsm.gameState match
-      case _ : ExitedState => false
+      case _: ExitedState => false
       case _ => true
-
-  override def toString: String = gameStateManager.toString
-
 

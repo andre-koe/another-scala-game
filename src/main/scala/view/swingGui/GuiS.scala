@@ -75,6 +75,7 @@ class GuiS(using controller: IController) extends swing.Frame with Observer {
   private val overviewPanel = new OverviewPanel(controller)
   private val sectorGridPanel = new SectorGridPanel(controller, detailsView)
   private val sideBarResearch = new Sidebar(controller)
+  private val sideBarFleetManager = new FleetManager(controller)
 
 
   private val mainPanel: BorderPanel = new BorderPanel {
@@ -82,6 +83,7 @@ class GuiS(using controller: IController) extends swing.Frame with Observer {
     layout(sectorGridPanel) = BorderPanel.Position.Center
     layout(sideBarResearch) = BorderPanel.Position.West
     layout(detailsView) = BorderPanel.Position.South
+    layout(sideBarFleetManager) = BorderPanel.Position.East
   }
   contents = mainPanel
 
@@ -122,14 +124,13 @@ class GuiS(using controller: IController) extends swing.Frame with Observer {
         centerOnScreen()
         open()
       }
-      case _: EndRoundCommand =>
+      case _ =>
         overviewPanel.update()
-        mainPanel.layout(new SectorGridPanel(controller, new DetailsView(controller))) = BorderPanel.Position.Center
-        mainPanel.layout(new Sidebar(controller)) = BorderPanel.Position.West
-      case _  =>
-        overviewPanel.update()
+        val detailsView = new DetailsView(controller)
+        mainPanel.layout(detailsView) = BorderPanel.Position.South
         mainPanel.layout(new SectorGridPanel(controller, detailsView)) = BorderPanel.Position.Center
         mainPanel.layout(new Sidebar(controller)) = BorderPanel.Position.West
+        mainPanel.layout(new FleetManager(controller)) = BorderPanel.Position.East
   }
 }
 

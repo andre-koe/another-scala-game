@@ -47,43 +47,13 @@ class BuyableItemView(name: String, sector: IPlayerSector, controller: IControll
 
   contents += countLabel
   contents += infoLabel
-  contents += new BoxPanel(Orientation.Horizontal) {
-    contents += sell
-    Swing.HGlue
-    contents += buy
-  }
-
-  listenTo(sell, buy)
-
-  reactions += {
-    case ButtonClicked(`sell`) =>
-      if (count > 0
-        && (sector.buildingsInSector.map(_.name).contains(go)
-        || sector.unitsInSector.flatMap(_.units).map(_.name).contains(go))) {
-        count -= 1
-        countLabel.text = s"In Possession: $count"
-        controller.processInput(SellCommand(go.asInstanceOf[IGameObject], 1, sector, controller.getState.getGSM))
-      }
-
-    case ButtonClicked(`buy`) =>
-      if (controller.getState.getGSM.currentPlayerValues.resourceHolder.decrease(go.cost).isDefined) {
-        count += 1
-        go match
-          case x: IBuilding => controller.processInput(BuildCommand(x, sector, controller.getState.getGSM))
-          case x: IUnit => controller.processInput(RecruitCommand(x, 1, sector, controller.getState.getGSM))
-          case _ =>
-      } else {
-        infoLabel.foreground = Color.white
-        infoLabel.text = "Insufficient Funds: Total Lacking:" +
-          controller.getState.getGSM.currentPlayerValues.resourceHolder.lacking(go.cost).toString
-      }
-      countLabel.text = s"In Possession: $count"
-  }
 
 
 class TechnologyItemView(name: String, controller: IController) extends ItemView(name, controller):
 
   var alreadyResearched: Boolean = false
+  background = Color.darkGray
+  foreground = Color.white
   private val buy = new Button("+")
   buy.background = Color.green
   buy.foreground = Color.white

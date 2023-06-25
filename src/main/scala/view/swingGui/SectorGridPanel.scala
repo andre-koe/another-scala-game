@@ -2,6 +2,7 @@ package view.swingGui
 
 import controller.IController
 import model.core.board.boardutils.Coordinate
+import model.core.board.sector.impl.IPlayerSector
 import utils.{Observable, Observer}
 
 import java.awt.{Color, Dimension}
@@ -32,7 +33,10 @@ class SectorGridPanel(controller: IController, detailsView: DetailsView) extends
       row <- 0 until rows
       col <- 0 until cols
     } yield {
-      val sectorView = SectorView(controller.getState.getGSM.gameMap.getSectorAtCoordinate(Coordinate(row, col)).get)
+      val sector = controller.getState.getGSM.gameMap.getSectorAtCoordinate(Coordinate(row, col)).get
+      val sectorView = sector match
+        case x: IPlayerSector => SectorView(x)
+        case y => SectorView(y)
       sectorView.addObserver(detailsView)
       sectorView
     }).toList

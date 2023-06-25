@@ -1,11 +1,14 @@
 package view.swingGui.guiUtils
 
 import controller.IController
+import model.core.board.boardutils.{Coordinate, ICoordinate}
 import model.core.board.sector.ISector
 import model.core.board.sector.sectorutils.Affiliation
+import model.core.gameobjects.purchasable.building.{EnergyGrid, Factory, Hangar, IBuilding, Mine, Shipyard}
 import model.core.utilities.{ICapacity, IResourceHolder, IRound, ResourceHolder}
 import model.core.gameobjects.resources.resourcetypes.{Alloys, Energy, Minerals, ResearchPoints}
 import model.core.gameobjects.resources.*
+import model.core.mechanics.fleets.components.units.IUnit
 
 import java.awt.{Color, Font, Image}
 import java.io.File
@@ -67,6 +70,7 @@ class GuiUtils {
     val l = Label()
     l.text = value
     l.foreground = color
+    l.background = Color.darkGray
     l.icon = new ImageIcon(new ImageIcon(getIconResourceAsString(res))
       .getImage.getScaledInstance(iconSize, iconSize, Image.SCALE_REPLICATE))
     l.horizontalTextPosition = if invertOrder then Alignment.Left else Alignment.Right
@@ -85,5 +89,10 @@ class GuiUtils {
         case "tech" => "src/main/resources/images/resource-icon/lab-svgrepo-com.png"
         case _ => ""
       case _ => ""
+
+
+  def stringToCoord(string: String): ICoordinate =
+    val pos = string.split("-")
+    Coordinate(pos(0).toInt, pos(1).toInt)
 
 }

@@ -26,17 +26,18 @@ class Sidebar(controller: IController) extends BoxPanel(Orientation.Vertical):
 
   reactions += {
     case ButtonClicked(`toggleButton`) =>
-      if (this.preferredSize.width == initWidth) {
-        this.preferredSize = new Dimension(300, 500)
+      if (preferredSize.width == initWidth) {
+        preferredSize = new Dimension(300, 500)
         toggleButton.text = "<"
         researchPane.visible = !researchPane.visible
       } else {
-        this.preferredSize = new Dimension(initWidth, 500)
+        preferredSize = new Dimension(initWidth, 500)
         toggleButton.text = ">"
         researchPane.visible = !researchPane.visible
       }
       background = Color.darkGray
       revalidate()
+      repaint()
   }
 
   contents += toggleButton
@@ -44,9 +45,8 @@ class Sidebar(controller: IController) extends BoxPanel(Orientation.Vertical):
   def createScrollPane(itemViews: List[ItemView]): ScrollPane = {
     val panel = new BoxPanel(Orientation.Vertical)
     panel.background = Color.darkGray
-    panel.contents += Swing.VGlue
     panel.contents += GuiUtils().iconLabel("Research", "tech")
-    panel.contents += Swing.VGlue
+    panel.contents += Swing.VStrut(40)
     itemViews.foreach(itemView =>
       panel.contents += itemView
       panel.contents += Swing.VGlue

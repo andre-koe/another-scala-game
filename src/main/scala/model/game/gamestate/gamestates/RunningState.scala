@@ -66,7 +66,7 @@ case class RunningState() extends IGameState:
 
 
   def move(gsm: IGameStateManager, what: String, where: ICoordinate): IGameStateManager =
-    val optFleet = gsm.gameMap.data.flatMap(_.flatMap(_.unitsInSector)).find(_.name.toLowerCase == what)
+    val optFleet = gsm.gameMap.data.flatMap(_.flatMap(_.unitsInSector)).find(_.name.toLowerCase == what.toLowerCase)
     val optSector = optFleet.flatMap(fleet => gsm.gameMap.getSectorAtCoordinate(fleet.location))
 
     (optFleet, optSector) match

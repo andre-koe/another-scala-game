@@ -2,6 +2,7 @@ package view.swingGui
 
 import controller.IController
 import controller.command.commands.{EndRoundCommand, UserAcceptCommand, UserDeclineCommand}
+import model.core.board.sector.sectorutils.Affiliation
 import model.core.utilities.{Capacity, ResourceHolder, Round}
 import model.game.gamestate.GameStateManager
 import model.core.gameobjects.resources.IResource
@@ -9,7 +10,8 @@ import view.swingGui
 import view.swingGui.guiUtils.GuiUtils
 
 import java.awt.{Color, Image}
-import javax.swing.ImageIcon
+import javax.swing.{BorderFactory, ImageIcon}
+import javax.swing.border._
 import scala.swing.*
 import scala.swing.event.ButtonClicked
 
@@ -17,6 +19,9 @@ class OverviewPanel(controller: IController) extends FlowPanel:
 
   private val nRButton: Button = nextRoundButton()
   private val gameValueInfoPanel: BoxPanel = createGameValueInfoPanel()
+
+
+  border = playerIndicator()
 
   private val roundLabel: Label =
     GuiUtils().colorLabel(s"Round: " +
@@ -44,6 +49,12 @@ class OverviewPanel(controller: IController) extends FlowPanel:
     GuiUtils().fillPlayerValueInfoPanel(panel, controller)
     panel
 
+  private def playerIndicator(): Border =
+    controller.getState.getGSM.affiliation match
+      case Affiliation.PLAYER => BorderFactory.createLineBorder(Color.BLUE, 2)
+      case Affiliation.ENEMY => BorderFactory.createLineBorder(Color.RED, 2)
+      case _ => BorderFactory.createLineBorder(Color.WHITE, 2)
+
   private def nextRoundButton(): Button =
     val button = new Button() {
       icon =
@@ -57,6 +68,7 @@ class OverviewPanel(controller: IController) extends FlowPanel:
   reactions += { case ButtonClicked(`nRButton`) => onClickHandler() }
 
   def update(): Unit =
+    border = playerIndicator()
     roundLabel.text = s"Round:  ${controller.getState.getCurrentRound}"
     capacityLabel.text =  s"Capacity: ${controller.getState.getCapacity}"
     gameValueInfoPanel.contents.clear()

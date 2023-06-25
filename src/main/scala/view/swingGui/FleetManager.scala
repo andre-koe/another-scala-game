@@ -14,14 +14,17 @@ import scala.swing.event.ButtonClicked
 class FleetManager(controller: IController) extends BoxPanel(Orientation.Vertical) {
 
   private val defaultBackground: Color = Color.darkGray
-  private val defaultForeground: Color = Color.white
   private val fleets: Vector[IFleet] =
     controller.getState.getGameMapInfo.getFleetsInSectors(controller.getState.getGSM.affiliation)
   private val fleetPanels = for (fleet <- fleets) yield createFleetPanel(fleet)
 
   border = EmptyBorder(0, 10, 5, 10)
 
-  contents += GuiUtils().colorLabel("FleetManager")
+  private val titleBox: BoxPanel = new BoxPanel(Orientation.Horizontal) {
+    contents += GuiUtils().colorLabel("FleetManager")
+    background = defaultBackground
+  }
+  contents += titleBox
   contents += Swing.VStrut(40)
   contents ++= fleetPanels
 

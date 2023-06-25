@@ -7,7 +7,6 @@ import model.core.board.boardutils.ICoordinate
 import model.core.gameobjects.purchasable.building.{BuildingFactory, IBuilding}
 import model.core.gameobjects.purchasable.units.UnitFactory
 import model.core.mechanics.fleets.Fleet
-import model.core.mechanics.fleets.components.Component
 import model.core.mechanics.fleets.components.units.IUnit
 import model.core.utilities.{BuildSlots, IBuildSlots, SeqOperations}
 

@@ -11,20 +11,20 @@ import model.core.gameobjects.resources.IResource
 class GameStateManagerWrapper(gsm: IGameStateManager) extends IGameStateManagerWrapper:
   override def getCurrentRound: Int = gsm.round.value
 
-  override def getCapacity: Int = gsm.playerValues.capacity.value
+  override def getCapacity: Int = gsm.currentPlayerValues.capacity.value
 
-  override def getPlayerTech: Vector[ITechnology] = gsm.playerValues.listOfTechnologies
+  override def getPlayerTech: Vector[ITechnology] = gsm.currentPlayerValues.listOfTechnologies
 
-  override def getPlayerTechCurrentlyResearch: Vector[ITechnology] = gsm.playerValues.listOfTechnologiesCurrentlyResearched
+  override def getPlayerTechCurrentlyResearch: Vector[ITechnology] = gsm.currentPlayerValues.listOfTechnologiesCurrentlyResearched
 
-  override def getPlayerResources: Vector[IResource[_]] = gsm.playerValues.resourceHolder.resourcesAsVector
+  override def getPlayerResources: Vector[IResource[_]] = gsm.currentPlayerValues.resourceHolder.resourcesAsVector
 
-  override def getPlayerIncome: Vector[IResource[_]] = gsm.playerValues.income.resourcesAsVector
+  override def getPlayerIncome: Vector[IResource[_]] = gsm.currentPlayerValues.income.resourcesAsVector
 
-  override def getPlayerUpkeep: Vector[IResource[_]] = gsm.playerValues.upkeep.resourcesAsVector
+  override def getPlayerUpkeep: Vector[IResource[_]] = gsm.currentPlayerValues.upkeep.resourcesAsVector
 
   override def getPlayerNetIncome: Vector[IResource[_]] =
-    gsm.playerValues.income.subtract(gsm.playerValues.upkeep).resourcesAsVector
+    gsm.currentPlayerValues.income.subtract(gsm.currentPlayerValues.upkeep).resourcesAsVector
 
   override def getGameMapInfo: IGameBoardInfoWrapper = GameBoardInfoWrapper(gsm.gameMap)
 

@@ -10,7 +10,7 @@ import model.game.gamestate.IGameStateManager
 case class BuildCommand(building: IBuilding, location: ISector, gameStateManager: IGameStateManager) extends ICommand, IUndoable:
   
   private def insufficientFundsMsg(cost: IResourceHolder): String =
-    s"insufficient Funds --- ${gameStateManager.playerValues.resourceHolder.lacking(cost)}."
+    s"insufficient Funds --- ${gameStateManager.currentPlayerValues.resourceHolder.lacking(cost)}."
 
   private def insufficientBuildSlots(sector: ISector): String =
     s"Sector ${sector.toString} does not provide enough build slots for construction"
@@ -36,4 +36,4 @@ case class BuildCommand(building: IBuilding, location: ISector, gameStateManager
       case None => gameStateManager.message(insufficientFundsMsg(b.cost))
 
   private def checkFunds(cost: IResourceHolder): Option[IResourceHolder] =
-    gameStateManager.playerValues.resourceHolder.decrease(cost)
+    gameStateManager.currentPlayerValues.resourceHolder.decrease(cost)

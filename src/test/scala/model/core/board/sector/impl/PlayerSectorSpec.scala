@@ -33,7 +33,7 @@ class PlayerSectorSpec extends AnyWordSpec:
 
     "be able to construct a building" in {
       val sector: ISector = Sector(Coordinate(0,0))
-      val building: IBuilding = BuildingFactory("Energy Grid", sector).get
+      val building: IBuilding = BuildingFactory("Energy Grid", sector.location).get
       val playerSector = PlayerSector(sector)
       val newPlayerSector = playerSector.constructBuilding(building)
       newPlayerSector.constQuBuilding.head.name shouldBe building.name
@@ -41,7 +41,7 @@ class PlayerSectorSpec extends AnyWordSpec:
 
     "be able to construct a unit" in {
       val sector: ISector = Sector(Coordinate(0,0))
-      val unit: IUnit = UnitFactory("Corvette", sector).get
+      val unit: IUnit = UnitFactory("Corvette").get
       val playerSector = PlayerSector(sector)
       val newPlayerSector = playerSector.constructUnit(unit, 1)
       newPlayerSector.constQuUnits.head.name shouldBe unit.name
@@ -50,7 +50,7 @@ class PlayerSectorSpec extends AnyWordSpec:
     "be able to update the sector" in {
       val sector: ISector = Sector(Coordinate(0,0))
       val playerSector = PlayerSector(sector,
-        constQuUnits = Vector(Corvette(location = sector, roundsToComplete = Round(1))))
+        constQuUnits = Vector(Corvette(roundsToComplete = Round(1))))
       val updatedPlayerSector = playerSector.updateSector()
       updatedPlayerSector.unitsInSector shouldNot be(empty)
       updatedPlayerSector.constQuUnits shouldBe empty
@@ -60,7 +60,7 @@ class PlayerSectorSpec extends AnyWordSpec:
       val sector: ISector = Sector(Coordinate(0,0))
       val playerSector = PlayerSector(sector)
       val clone = playerSector.cloneWith(location = Coordinate(1,1), affiliation = Affiliation.PLAYER,
-        sectorType = SectorType.BASE, unitsInSector = Vector(Fleet(location = playerSector)),
+        sectorType = SectorType.BASE, unitsInSector = Vector(Fleet(location = playerSector.location)),
         buildSlots = playerSector.buildSlots)
       clone should not be playerSector
     }

@@ -9,7 +9,7 @@ import model.core.board.sector.ISector
 import model.core.board.sector.sectorutils.{Affiliation, SectorType}
 import model.core.gameobjects.purchasable.building.{BuildingFactory, IBuilding}
 import model.core.gameobjects.purchasable.units.UnitFactory
-import model.core.mechanics.fleets.components.Component
+import model.core.mechanics.MoveVector
 import model.core.mechanics.fleets.components.units.IUnit
 import model.core.mechanics.fleets.{Fleet, IFleet}
 import model.core.utilities.{BuildSlots, IBuildSlots, SeqOperations}
@@ -55,11 +55,11 @@ case class PlayerSector(sector: ISector,
       case _ => this
 
   private def handleBuilding(building: IBuilding, newBuildSlots: IBuildSlots): IPlayerSector =
-    val buildingsInConstruction = this.constQuBuilding.:+(BuildingFactory(building.name.toLowerCase, this).get)
+    val buildingsInConstruction = this.constQuBuilding.:+(BuildingFactory(building.name.toLowerCase, this.location).get)
     this.copy(sector = sector.cloneWith(buildSlots = newBuildSlots), constQuBuilding = buildingsInConstruction)
 
   def constructUnit(rec: IUnit, qty: Int): IPlayerSector =
-    val unitsInConstruction = this.constQuUnits ++ Vector.tabulate(qty){_ => UnitFactory(rec.name.toLowerCase, this).get}
+    val unitsInConstruction = this.constQuUnits ++ Vector.tabulate(qty){_ => UnitFactory(rec.name.toLowerCase).get}
     this.copy(constQuUnits = unitsInConstruction)
 
   def removeUnits(rec: Vector[IUnit]): Option[IPlayerSector] =
@@ -83,7 +83,9 @@ case class PlayerSector(sector: ISector,
   private def assignUnits(newUnits: Vector[IUnit]): IPlayerSector = {
     val updatedFleets = if (newUnits.nonEmpty) {
       if (sector.unitsInSector.isEmpty) {
-        Vector(Fleet(fleetComponents = newUnits, location = this))
+        Vector(Fleet(fleetComponents = newUnits,
+          location = this.location,
+          moveVector = MoveVector(this.location, this.location)))
       } else {
         sector.unitsInSector.map(existingFleet =>
           existingFleet.extCopy(fleetComponents = existingFleet.fleetComponents ++ newUnits))

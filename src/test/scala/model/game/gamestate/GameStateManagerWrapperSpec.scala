@@ -21,37 +21,37 @@ class GameStateManagerWrapperSpec extends AnyWordSpec with Matchers {
     }
 
     "correctly get capacity" in {
-      gsmWrapper.getCapacity shouldBe gsm.playerValues.capacity.value
+      gsmWrapper.getCapacity shouldBe gsm.currentPlayerValues.capacity.value
     }
 
     "correctly get player technologies" in {
-      val pVal = PlayerValues(listOfTechnologies = Vector(Polymer()))
+      val pVal = Vector(PlayerValues(listOfTechnologies = Vector(Polymer())), PlayerValues(listOfTechnologies = Vector()))
       val gsmWithTech = GameStateManager(playerValues = pVal)
       val gsmWrapperWithTech = GameStateManagerWrapper(gsmWithTech)
       gsmWrapperWithTech.getPlayerTech should be(Vector(Polymer()))
     }
 
     "correctly get technologies currently being researched by the player" in {
-      val pVal = PlayerValues(listOfTechnologiesCurrentlyResearched = Vector(Polymer()))
+      val pVal = Vector(PlayerValues(listOfTechnologiesCurrentlyResearched = Vector(Polymer())))
       val gsmWithTech = GameStateManager(playerValues = pVal)
       val gsmWrapperWithTech = GameStateManagerWrapper(gsmWithTech)
       gsmWrapperWithTech.getPlayerTechCurrentlyResearch should be(Vector(Polymer()))
     }
 
     "correctly get player resources" in {
-      gsmWrapper.getPlayerResources shouldBe(gsm.playerValues.resourceHolder.resourcesAsVector)
+      gsmWrapper.getPlayerResources shouldBe(gsm.currentPlayerValues.resourceHolder.resourcesAsVector)
     }
 
     "correctly get player income" in {
-      gsmWrapper.getPlayerIncome shouldBe(gsm.playerValues.income.resourcesAsVector)
+      gsmWrapper.getPlayerIncome shouldBe(gsm.currentPlayerValues.income.resourcesAsVector)
     }
 
     "correctly get player upkeep" in {
-      gsmWrapper.getPlayerUpkeep shouldBe(gsm.playerValues.upkeep.resourcesAsVector)
+      gsmWrapper.getPlayerUpkeep shouldBe(gsm.currentPlayerValues.upkeep.resourcesAsVector)
     }
 
     "correctly get player net income" in {
-      gsmWrapper.getPlayerIncome shouldBe(gsm.playerValues.income.resourcesAsVector)
+      gsmWrapper.getPlayerIncome shouldBe(gsm.currentPlayerValues.income.resourcesAsVector)
     }
 
     "correctly get game map info" in {

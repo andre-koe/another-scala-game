@@ -37,17 +37,17 @@ class GameBoardInfoWrapperSpec extends AnyWordSpec with Matchers {
       }
 
       "retrieve player sector count" in {
-        wrapper.getPlayerSectorCount shouldEqual gameBoard.getPlayerSectors.length
+        wrapper.getPlayerSectorCount(Affiliation.PLAYER)shouldEqual gameBoard.getPlayerSectors(Affiliation.PLAYER).length
       }
 
       "retrieve free build slots" in {
-        wrapper.getFreeBuildSlots shouldEqual
-          gameBoard.getPlayerSectors
+        wrapper.getFreeBuildSlots(Affiliation.PLAYER) shouldEqual
+          gameBoard.getPlayerSectors(Affiliation.PLAYER)
             .map(x => x.buildSlots.value - (x.constQuBuilding.length + x.buildingsInSector.length)).head
       }
 
       "retrieve used capacity" in {
-        wrapper.getUsedCapacity shouldEqual 0 // Default start cap
+        wrapper.getUsedCapacity(Affiliation.PLAYER) shouldEqual 0 // Default start cap
       }
 
       "retrieve free build slots in sector" in {
@@ -60,12 +60,12 @@ class GameBoardInfoWrapperSpec extends AnyWordSpec with Matchers {
         val sector2: ISector = Sector(Coordinate(0,0), sectorType = SectorType.REGULAR)
         val pSector: ISector =
           PlayerSector(sector = sector,
-            constQuBuilding = Vector(Mine(location = sector)),
-            buildingsInSector = Vector(EnergyGrid(location = sector)))
+            constQuBuilding = Vector(Mine(location = sector.location)),
+            buildingsInSector = Vector(EnergyGrid(location = sector.location)))
         val pSector2: ISector =
           PlayerSector(sector = sector2,
-            constQuBuilding = Vector(Mine(location = sector)),
-            buildingsInSector = Vector(EnergyGrid(location = sector)))
+            constQuBuilding = Vector(Mine(location = sector.location)),
+            buildingsInSector = Vector(EnergyGrid(location = sector.location)))
         gameBoard.updateSector(pSector)
         gameBoard.updateSector(pSector2)
         wrapper.getFreeBuildSlotsInSectorRemaining(pSector).get shouldEqual 6
@@ -74,13 +74,13 @@ class GameBoardInfoWrapperSpec extends AnyWordSpec with Matchers {
 
       "retrieve buildings in sector" in {
         val sector: ISector = Sector(Coordinate(0,0))
-        val pSector: ISector = PlayerSector(sector = sector, buildingsInSector = Vector(EnergyGrid(location = sector)))
+        val pSector: ISector = PlayerSector(sector = sector, buildingsInSector = Vector(EnergyGrid(location = sector.location)))
         wrapper.update(pSector).getBuildingsInSector(pSector).head.name shouldEqual "Energy Grid"
       }
 
       "retrieve buildings under construction in sector" in {
         val sector: ISector = Sector(Coordinate(0, 0))
-        val pSector: ISector = PlayerSector(sector = sector, constQuBuilding = Vector(EnergyGrid(location = sector)))
+        val pSector: ISector = PlayerSector(sector = sector, constQuBuilding = Vector(EnergyGrid(location = sector.location)))
         gameBoard.updateSector(pSector)
         wrapper.getBuildingConstructionInSector(pSector).head.name shouldEqual "Energy Grid"
       }
@@ -102,29 +102,29 @@ class GameBoardInfoWrapperSpec extends AnyWordSpec with Matchers {
       "retrieve units under construction in all sectors" in {
         val sector: ISector = Sector(Coordinate(0, 0))
         val sector2: ISector = Sector(Coordinate(1, 1))
-        val pSector: ISector = PlayerSector(sector = sector, constQuUnits = Vector(Corvette(location = sector)))
-        val pSector2: ISector = PlayerSector(sector = sector2, constQuUnits = Vector(Battleship(location = sector)))
+        val pSector: ISector = PlayerSector(sector = sector, constQuUnits = Vector(Corvette()))
+        val pSector2: ISector = PlayerSector(sector = sector2, constQuUnits = Vector(Battleship()))
 
         wrapper.update(pSector).update(pSector2)
-          .getUnitConstructionInSectors.length shouldEqual 2
+          .getUnitConstructionInSectors(Affiliation.PLAYER).length shouldEqual 2
         wrapper.update(pSector).update(pSector2)
-          .getUnitConstructionInSectors.map(_.name).contains("Battleship") shouldBe true
+          .getUnitConstructionInSectors(Affiliation.PLAYER).map(_.name).contains("Battleship") shouldBe true
         wrapper.update(pSector).update(pSector2)
-          .getUnitConstructionInSectors.map(_.name).contains("Battleship") shouldBe true
+          .getUnitConstructionInSectors(Affiliation.PLAYER).map(_.name).contains("Battleship") shouldBe true
       }
 
       "retrieve buildings under construction in all sectors" in {
         val sector: ISector = Sector(Coordinate(0, 0), affiliation = Affiliation.PLAYER)
         val sector2: ISector = Sector(Coordinate(1, 1), affiliation = Affiliation.PLAYER)
-        val pSector: ISector = PlayerSector(sector = sector, constQuBuilding = Vector(EnergyGrid(location = sector)))
-        val pSector2: ISector = PlayerSector(sector = sector2, constQuBuilding = Vector(Mine(location = sector)))
+        val pSector: ISector = PlayerSector(sector = sector, constQuBuilding = Vector(EnergyGrid(location = sector.location)))
+        val pSector2: ISector = PlayerSector(sector = sector2, constQuBuilding = Vector(Mine(location = sector.location)))
 
-        wrapper.update(pSector)
-          .update(pSector2).getBuildingConstructionInSectors.length shouldEqual 2
-        wrapper.update(pSector)
-          .update(pSector2).getBuildingConstructionInSectors.map(_.name).contains("Mine") shouldBe true
-        wrapper.update(pSector)
-          .update(pSector2).getBuildingConstructionInSectors.map(_.name).contains("Energy Grid") shouldBe true
+        wrapper.update(pSector).update(pSector2)
+          .getBuildingConstructionInSectors(Affiliation.PLAYER).length shouldEqual 2
+        wrapper.update(pSector).update(pSector2)
+          .getBuildingConstructionInSectors(Affiliation.PLAYER).map(_.name).contains("Mine") shouldBe true
+        wrapper.update(pSector).update(pSector2)
+          .getBuildingConstructionInSectors(Affiliation.PLAYER).map(_.name).contains("Energy Grid") shouldBe true
       }
 
       "retrieve gameboard size x" in {

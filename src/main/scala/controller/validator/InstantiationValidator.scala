@@ -62,7 +62,7 @@ case class InstantiationValidator(orig: String, gsm: IGameStateManager) extends 
   private def mapCoordToSector(coord: Option[ICoordinate]): Option[ISector] =
     coord match
       case Some(x) => gsm.gameMap.getSectorAtCoordinate(x)
-      case _ => gsm.gameMap.getPlayerSectors.headOption
+      case _ => gsm.gameMap.getPlayerSectors(gsm.currentPlayerValues.affiliation).headOption
 
   private def helpCommand(commandType: CommandType): String =
     commandType match
@@ -71,6 +71,7 @@ case class InstantiationValidator(orig: String, gsm: IGameStateManager) extends 
       case BUILD  => "build <building name> - Enter list buildings for an overview of all available buildings."
       case RESEARCH => "research <technology name> - Enter 'list technologies' " +
         "for an overview of all available technologies."
+      case _ => ""
 
   private def helpObject(commandType: CommandType, go: String): String =
     commandType match
@@ -80,8 +81,10 @@ case class InstantiationValidator(orig: String, gsm: IGameStateManager) extends 
         s" use 'list units' to get an overview of all available units."
       case RESEARCH => s"A technology with name '$go' does not exist," +
         s" use 'list tech' to get an overview of all available technologies."
+      case _ => ""
 
   private def helpLocation(commandType: CommandType, go: String): String =
     commandType match
       case BUILD | RECRUIT => s"Invalid location specified! '$go' Lacking BuildSlots?"
       case RESEARCH => s"location is not applicable to 'research' use 'research help' to list all available options."
+      case _ => ""

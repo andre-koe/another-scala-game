@@ -39,7 +39,7 @@ class SectorSpec extends AnyWordSpec {
     "clone with new values correctly" in {
       val initialSector = Sector(Coordinate(0,0), Affiliation.PLAYER, SectorType.BASE, Vector.empty)
       val newUnits: Vector[Fleet] =
-        Vector(Fleet(location = initialSector, fleetComponents = Vector(Corvette())))
+        Vector(Fleet(location = initialSector.location, fleetComponents = Vector(Corvette())))
       val clonedSector = initialSector.cloneWith(unitsInSector = newUnits)
 
       clonedSector.unitsInSector should be(newUnits)

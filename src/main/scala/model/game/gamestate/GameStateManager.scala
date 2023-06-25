@@ -8,6 +8,8 @@ import model.core.board.*
 import model.core.board.boardutils.{ICoordinate, IGameBoardInfoWrapper}
 import model.core.board.sector.*
 import model.core.board.sector.impl.{IPlayerSector, PlayerSector}
+import model.core.board.sector.sectorutils.Affiliation
+import model.core.board.sector.sectorutils.Affiliation.{ENEMY, PLAYER}
 import model.core.fileIO.IFileIOStrategy
 import model.core.gameobjects.purchasable.IGameObject
 import model.core.gameobjects.purchasable.building.*
@@ -27,12 +29,16 @@ import scala.compiletime.ops.string
 
 case class GameStateManager(round: IRound = Round(),
                             gameMap: IGameBoard = GameBoardBuilder().build,
-                            playerValues: IPlayerValues = PlayerValues(),
+                            currentPlayerIndex: Int = 0,
+                            playerValues: Vector[IPlayerValues] = Vector(PlayerValues(affiliation = PLAYER), PlayerValues(affiliation = ENEMY)),
                             message: String = "",
                             gameState: IGameState = RunningState())
                            (using gameValues: IGameValues) extends IGameStateManager:
 
   override def getGameValues: IGameValues = this.gameValues
+  override def currentPlayerValues: IPlayerValues = playerValues(currentPlayerIndex)
+  override def affiliation: Affiliation = currentPlayerValues.affiliation
+  
 
   override def build(sector: IPlayerSector, nB: IResourceHolder, msg: String): IGameStateManager =
     gameState match
@@ -40,68 +46,82 @@ case class GameStateManager(round: IRound = Round(),
       case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
       case _ => this.extCopy(message = "Invalid")
 
+  
   override def research(tech: ITechnology, nB: IResourceHolder, msg: String): IGameStateManager =
     gameState match
       case runningState: RunningState => runningState.research(gsm = this, tech = tech, newBalance = nB, msg = msg)
       case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
       case _ => this.extCopy(message = "Invalid")
 
+  
   override def recruit(sector: IPlayerSector, nB: IResourceHolder, nC: ICapacity, msg: String): IGameStateManager =
     gameState match
       case runningState: RunningState => runningState.recruit(gsm = this, sector = sector, nB = nB, nCap = nC, msg = msg)
       case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
       case _ => this.extCopy(message = "Invalid")
 
+  
   override def sell(sellStrategy: ISellStrategy): IGameStateManager =
     gameState match
       case runningState: RunningState => runningState.sell(gsm = this, sellStrategy)
       case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
       case _ => this.extCopy(message = "Invalid")
 
+  
   override def show(): IGameStateManager =
     gameState match
       case runningState: RunningState => runningState.show(this)
       case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
       case _ => this.extCopy(message = "Invalid")
 
+  
   override def move(what: String, where: ICoordinate): IGameStateManager =
     gameState match
       case runningState: RunningState => runningState.move(this, what, where)
       case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
       case _ => this.extCopy(message = "Invalid")
 
+  
   override def invalid(input: String): IGameStateManager =
     gameState match
       case runningState: RunningState => runningState.invalid(this, input)
       case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
       case _ => this.extCopy(message = "Invalid")
+      
+      
   override def endRoundRequest(): IGameStateManager = WaitForUserConfirmation().ask(this)
 
+  
   override def accept(): IGameStateManager =
     gameState match
       case x: WaitForUserConfirmation => x.update(this)
       case _ => this.empty()
 
+  
   override def decline(): IGameStateManager =
     gameState match
       case x: WaitForUserConfirmation => x.back(this)
       case _ => this.empty()
 
+  
   override def exit(): IGameStateManager =
     gameState match
       case _: RunningState => ExitedState().update(this)
       case _: WaitForUserConfirmation => ExitedState().update(this)
       case _ => this.extCopy(message = "Invalid")
 
+  
   override def save(fileIOStrategy: IFileIOStrategy, as: Option[String]): IGameStateManager =
     gameState match
       case runningState: RunningState => runningState.save(this, fileIOStrategy, as)
       case _ => this.extCopy(message = "Invalid")
 
+  
   override def load(fileIOStrategy: IFileIOStrategy, as: Option[String]): IGameStateManager =
     gameState match
       case runningState: RunningState => runningState.load(this, fileIOStrategy, as)
       case _ => this.extCopy(message = "Invalid")
+  
   
   override def message(what: String): IGameStateManager =
     gameState match
@@ -109,17 +129,24 @@ case class GameStateManager(round: IRound = Round(),
       case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
       case _ => this.extCopy(message = "Invalid")
     
+    
   override def empty(): IGameStateManager =
     gameState match
       case runningState: RunningState => runningState.update(this)
       case endRoundRequestState: WaitForUserConfirmation => endRoundRequestState.ask(this)
       case _ => this.extCopy(message = "Invalid")
 
+  
   override def extCopy(round: IRound = round, gameMap: IGameBoard = gameMap,
-                       playerValues: IPlayerValues = playerValues, gameState: IGameState = gameState,
+                       currentPlayerIndex: Int = currentPlayerIndex,
+                       playerValues: Vector[IPlayerValues] = playerValues, gameState: IGameState = gameState,
                        message: String = message): IGameStateManager =
-    this.copy(round = round, gameMap = gameMap, playerValues = playerValues, gameState = gameState, message = message)
-
+    this.copy(round = round,
+      gameMap = gameMap,
+      currentPlayerIndex = currentPlayerIndex,
+      playerValues = playerValues,
+      gameState = gameState,
+      message = message)
 
   override def toString: String = message
 

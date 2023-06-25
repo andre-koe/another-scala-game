@@ -11,12 +11,11 @@ import model.core.gameobjects.purchasable.units.{Battleship, Corvette, Cruiser, 
 import model.core.gameobjects.resources.resourcetypes.{Alloys, Energy, Minerals, ResearchPoints}
 import model.core.mechanics.MoveVector
 import model.core.mechanics.fleets.{Fleet, IFleet}
-import model.core.mechanics.fleets.components.Component
 import model.core.mechanics.fleets.components.units.IUnit
 import model.core.utilities.{Capacity, GameValues, IGameValues, IRound, ResourceHolder, Round}
 import model.game.gamestate.gamestates.RunningState
 import model.game.gamestate.{GameStateManager, IGameStateManager}
-import model.game.playervalues.PlayerValues
+import model.game.playervalues.{IPlayerValues, PlayerValues}
 
 import scala.util.{Failure, Try}
 import scala.xml.{Elem, Node}
@@ -29,10 +28,13 @@ object XMLConverter {
   private def xmlToFleet(elem: Node): IFleet =
     val name = (elem \ "Name").text.trim
     val fleetComponentsXML = elem \ "FleetComponents"
-    val location = xmlToSector((elem \ "Location").head)
+    val location = xmlToCoordinate((elem \ "Location").head)
     val moveVector = xmlToMoveVector((elem \ "MoveVector").head)
+    val affiliationText = (elem \ "Affiliation").text.trim
+    val affiliation = mapAffiliation(affiliationText)
+
     val fleetComponents = fleetComponentsXML.map(x => xmlToUnit(x)).toVector
-    Fleet(name = name, fleetComponents = fleetComponents, location = location, moveVector = moveVector)
+    Fleet(name = name, fleetComponents = fleetComponents, affiliation = affiliation, location = location, moveVector = moveVector)
 
 
   private def xmlToMoveVector(elem: Node): MoveVector =
@@ -44,24 +46,30 @@ object XMLConverter {
   def xmlToGameStateManager(elem: Node): IGameStateManager =
     val round = (elem \ "Round").text.trim.toInt
     val gameMap = xmlToGameBoard((elem \ "GameBoard").head)
-    val playerValues = xmlToPlayerValues((elem \ "PlayerValues").head)
-    GameStateManager(round = Round(round), gameMap = gameMap, playerValues = playerValues, gameState = RunningState())
+    val currentPlayerIndex = (elem \ "CurrentPlayerIndex").text.trim.toInt
+    val playerValuesXML = (elem \ "PlayerValuesM" \ "PlayerValues").toVector
+    val playerValues: Vector[IPlayerValues] = playerValuesXML.map(x => xmlToPlayerValues(x))
+
+    GameStateManager(round = Round(round),
+      gameMap = gameMap,
+      currentPlayerIndex = currentPlayerIndex,
+      playerValues = playerValues,
+      gameState = RunningState())
 
   private def xmlToUnit(elem: Node): IUnit =
     val name = (elem \ "Name").text.trim
     val rounds = xmlToRound((elem \ "Round").head)
-    val location = xmlToSector((elem \ "Sector").head)
 
     name match
-      case "Battleship" => Battleship(roundsToComplete = rounds, location = location)
-      case "Cruiser" => Cruiser(roundsToComplete = rounds, location = location)
-      case "Destroyer" => Destroyer(roundsToComplete = rounds, location = location)
-      case "Corvette" => Corvette(roundsToComplete = rounds, location = location)
+      case "Battleship" => Battleship(roundsToComplete = rounds)
+      case "Cruiser" => Cruiser(roundsToComplete = rounds)
+      case "Destroyer" => Destroyer(roundsToComplete = rounds)
+      case "Corvette" => Corvette(roundsToComplete = rounds)
 
   private def xmlToBuilding(elem: Node): IBuilding =
     val name = (elem \ "Name").text.trim
     val rounds = xmlToRound((elem \ "Round").head)
-    val location = xmlToSectorType((elem \\ "Sector").head)
+    val location = xmlToCoordinate((elem \\ "Sector").head)
 
     name match
       case "Energy Grid" => EnergyGrid(roundsToComplete = rounds, location = location)
@@ -70,12 +78,6 @@ object XMLConverter {
       case "Hangar" => Hangar(roundsToComplete = rounds, location = location)
       case "Research Lab" => ResearchLab(roundsToComplete = rounds, location = location)
       case "Shipyard" => Shipyard(roundsToComplete = rounds, location = location)
-
-
-  private def xmlToComponent(elem: Node): Component =
-    (elem \ "Type").text.trim match
-      case "Fleet" => xmlToFleet(elem)
-      case _ => xmlToUnit(elem)
 
   private def xmlToCoordinate(elem: Node): ICoordinate =
     val xPos = (elem \\ "xPos").text.toInt
@@ -90,11 +92,7 @@ object XMLConverter {
     val unitDataXML = elem \ "UnitsInSector" \\ "Fleet"
 
     val unitsInSector: Vector[IFleet] = unitDataXML.map(x => xmlToFleet(x)).toVector
-    val affiliation = affiliationText match {
-      case "ENEMY" => Affiliation.ENEMY
-      case "INDEPENDENT" => Affiliation.INDEPENDENT
-      case "PLAYER" => Affiliation.PLAYER
-    }
+    val affiliation = mapAffiliation(affiliationText)
 
     val sectorType = sectorTypeText match {
       case "BASE" => SectorType.BASE
@@ -162,11 +160,13 @@ object XMLConverter {
     val capacity = (elem \\ "Capacity").text.toInt
     val upkeep = xmlToResourceHolder((elem \\ "Upkeep").head)
     val income = xmlToResourceHolder((elem \\ "Income").head)
+    val affiliationText = (elem \\ "Affiliation").text.trim
+    val affiliation = mapAffiliation(affiliationText)
 
     val tech = technologiesXml.map(x => xmlToTechnology(x)).toVector
     val research = researchXml.map(x => xmlToTechnology(x)).toVector
 
-    PlayerValues(balance, tech, research, Capacity(capacity), upkeep, income)
+    PlayerValues(balance, tech, affiliation, research, Capacity(capacity), upkeep, income)
 
 
   private def xmlToTechnology(elem: Node): ITechnology =
@@ -177,5 +177,12 @@ object XMLConverter {
       case "AdvancedPropulsion" => AdvancedPropulsion(roundsToComplete = roundsToComplete)
       case "AdvancedMaterials" => AdvancedMaterials(roundsToComplete = roundsToComplete)
       case "NanoRobotics" => NanoRobotics(roundsToComplete = roundsToComplete)
+
+
+  private def mapAffiliation(str: String): Affiliation = str match
+      case "ENEMY" => Affiliation.ENEMY
+      case "INDEPENDENT" => Affiliation.INDEPENDENT
+      case "PLAYER" => Affiliation.PLAYER
+
 
 }

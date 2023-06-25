@@ -11,7 +11,7 @@ case class ResearchCommand(technology: ITechnology, gameStateManager: IGameState
     s"'${string}' is either being currently researched or has already been researched."
 
   private def insufficientFundsMsg(cost: IResourceHolder): String =
-    s"Insufficient Funds --- ${gameStateManager.playerValues.resourceHolder.lacking(cost)}."
+    s"Insufficient Funds --- ${gameStateManager.currentPlayerValues.resourceHolder.lacking(cost)}."
 
   private def successMsg(tech: ITechnology) =
     s"Beginning research of '${tech.name}' " +
@@ -28,8 +28,8 @@ case class ResearchCommand(technology: ITechnology, gameStateManager: IGameState
         case None => gameStateManager.message(insufficientFundsMsg(tech.cost))
 
   private def techAlreadyResearched(tech: ITechnology): Boolean =
-    gameStateManager.playerValues.listOfTechnologies.exists(_.name == tech.name) ||
-      gameStateManager.playerValues.listOfTechnologiesCurrentlyResearched.exists(_.name == tech.name)
+    gameStateManager.currentPlayerValues.listOfTechnologies.exists(_.name == tech.name) ||
+      gameStateManager.currentPlayerValues.listOfTechnologiesCurrentlyResearched.exists(_.name == tech.name)
 
   private def checkFunds(cost: IResourceHolder): Option[IResourceHolder] =
-    gameStateManager.playerValues.resourceHolder.decrease(cost)
+    gameStateManager.currentPlayerValues.resourceHolder.decrease(cost)

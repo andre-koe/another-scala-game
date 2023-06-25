@@ -4,7 +4,7 @@ import io.circe.generic.auto.*
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.syntax.*
 import io.circe.{Decoder, Encoder}
-import model.core.board.boardutils.Coordinate
+import model.core.board.boardutils.{Coordinate, ICoordinate}
 import model.core.board.sector.ISector
 import model.core.board.sector.impl.Sector
 import model.core.board.sector.sectorutils.{Affiliation, SectorType}
@@ -19,7 +19,7 @@ case class Hangar(name: String = "Hangar",
                   description: String = "The Hangar provides additional unit capacity.",
                   upkeep: ResourceHolder = ResourceHolder(energy = Energy(3), minerals = Minerals(5)),
                   output: Output = Output(cap = Capacity(10)),
-                  location: ISector = Sector(Coordinate(-1,-1), Affiliation.INDEPENDENT, SectorType.REGULAR)
+                  location: ICoordinate = Coordinate(-1,-1)
                  ) extends IBuilding:
   
   override def toString: String = "Hangar"

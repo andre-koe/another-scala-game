@@ -21,7 +21,7 @@ class SellValidatorSpec extends AnyWordSpec {
 
   "The SellValidator" should {
     val playerValues = PlayerValues(listOfTechnologies = Vector(Polymer(), Polymer(), Polymer()))
-    val gsm = GameStateManager(playerValues = playerValues, gameMap = getGSMWithThingsToSell)
+    val gsm = GameStateManager(playerValues = Vector(playerValues), gameMap = getGSMWithThingsToSell)
 
     "turn an input string with command sell into the appropriate command" when {
       "input is sell should return message command" in {

@@ -5,7 +5,7 @@ import io.circe.syntax.*
 import model.core.board.sector.ISector
 import model.core.board.sector.impl.Sector
 import model.core.board.sector.sectorutils.{Affiliation, SectorType}
-import model.core.board.boardutils.Coordinate
+import model.core.board.boardutils.{Coordinate, ICoordinate}
 import model.core.gameobjects.purchasable.IGameObject
 import model.core.gameobjects.resources.resourcetypes.{Alloys, Energy, Minerals}
 import model.core.mechanics.fleets.components.units.IUnit
@@ -22,9 +22,7 @@ case class Battleship(name: String = "Battleship",
                       upkeep: IResourceHolder = ResourceHolder(energy = Energy(20)),
                       capacity: ICapacity = Capacity(10),
                       firepower: Int = 500,
-                      speed: Int = 1,
-                      location: ISector = Sector(Coordinate(-1, -1), Affiliation.INDEPENDENT, SectorType.REGULAR)
-                     ) extends IUnit:
+                      speed: Int = 1) extends IUnit:
   override def toString: String = "Battleship"
 
   override def decreaseRoundsToComplete: Battleship = this.copy(roundsToComplete = roundsToComplete.decrease.get)

@@ -58,7 +58,7 @@ class OverviewPanel(controller: IController) extends FlowPanel:
 
   def update(): Unit =
     roundLabel.text = s"Round:  ${controller.getState.getCurrentRound}"
-    capacityLabel.text =  s"Capacity: ${controller.getState.getCurrentRound}"
+    capacityLabel.text =  s"Capacity: ${controller.getState.getCapacity}"
     gameValueInfoPanel.contents.clear()
     GuiUtils().fillPlayerValueInfoPanel(gameValueInfoPanel, controller)
     revalidate()

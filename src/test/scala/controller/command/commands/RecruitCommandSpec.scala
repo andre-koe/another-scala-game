@@ -23,10 +23,10 @@ class RecruitCommandSpec extends AnyWordSpec {
         val pV: PlayerValues = playervalues.PlayerValues(
           capacity = Capacity(100),
           resourceHolder = ResourceHolder(energy = Energy(1000), minerals = Minerals(1000)))
-        val gsm: GameStateManager = GameStateManager(playerValues = pV)
+        val gsm: GameStateManager = GameStateManager(playerValues = Vector(pV))
         val sector = gsm.gameMap.getSectorAtCoordinate(Coordinate(0,0)).get
         val recruitCommand = RecruitCommand(Corvette(), 2, sector, gsm)
-        recruitCommand.execute().gameMap.getPlayerSectors.map(_.constQuUnits).isEmpty should be(false)
+        recruitCommand.execute().gameMap.getPlayerSectors(Affiliation.PLAYER).map(_.constQuUnits).isEmpty should be(false)
         recruitCommand.execute().toString should be("Beginning construction of 2 x Corvette " +
           s"for ${Corvette().cost.multiplyBy(2)}, completion in ${Corvette().roundsToComplete.value} rounds.")
       }
@@ -35,7 +35,7 @@ class RecruitCommandSpec extends AnyWordSpec {
         val pV: PlayerValues = playervalues.PlayerValues(
           capacity = Capacity(0),
           resourceHolder = ResourceHolder(energy = Energy(1000), minerals = Minerals(1000)))
-        val gsm: GameStateManager = GameStateManager(playerValues = pV)
+        val gsm: GameStateManager = GameStateManager(playerValues = Vector(pV))
         val sector = gsm.gameMap.getSectorAtCoordinate(Coordinate(0,0)).get
         val recruitCommand = RecruitCommand(Corvette(), 2, sector, gsm)
         recruitCommand.execute().gameMap.getSectorAtCoordinate(Coordinate(0,0)).get.unitsInSector.isEmpty should be(true)
@@ -46,7 +46,7 @@ class RecruitCommandSpec extends AnyWordSpec {
         val pV: PlayerValues = playervalues.PlayerValues(
           capacity = Capacity(2),
           resourceHolder = ResourceHolder(energy = Energy(0), minerals = Minerals(0)))
-        val gsm: GameStateManager = GameStateManager(playerValues = pV)
+        val gsm: GameStateManager = GameStateManager(playerValues = Vector(pV))
         val sector = gsm.gameMap.getSectorAtCoordinate(Coordinate(0,0)).get
         val recruitCommand = RecruitCommand(Corvette(), 2, sector, gsm)
         recruitCommand.execute().gameMap.getSectorAtCoordinate(Coordinate(0,0)).get.unitsInSector.isEmpty should be(true)
@@ -57,7 +57,7 @@ class RecruitCommandSpec extends AnyWordSpec {
         val pV: PlayerValues = playervalues.PlayerValues(
           capacity = Capacity(2),
           resourceHolder = ResourceHolder(energy = Energy(0), minerals = Minerals(0)))
-        val gsm: GameStateManager = GameStateManager(playerValues = pV)
+        val gsm: GameStateManager = GameStateManager(playerValues = Vector(pV))
         val sector = gsm.gameMap.getSectorAtCoordinate(Coordinate(1, 1)).get
         val recruitCommand = RecruitCommand(Corvette(), 2, sector, gsm)
         recruitCommand.execute().gameMap.getSectorAtCoordinate(Coordinate(1, 1)).get.unitsInSector.isEmpty should be(true)

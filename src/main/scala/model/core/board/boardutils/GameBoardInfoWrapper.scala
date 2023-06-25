@@ -2,14 +2,14 @@ package model.core.board.boardutils
 
 import io.circe.generic.auto.*
 import io.circe.syntax.*
-
 import model.core.board.{GameBoard, IGameBoard}
 import model.core.board.sector.ISector
-import model.core.board.sector.impl.PlayerSector
+import model.core.board.sector.impl.{IPlayerSector, PlayerSector}
+import model.core.board.sector.sectorutils.Affiliation
 import model.core.gameobjects.purchasable.building.IBuilding
 import model.core.mechanics.fleets.IFleet
 import model.core.mechanics.fleets.components.units.IUnit
-import model.core.utilities.{IBuildSlots, BuildSlots, ICapacity, Capacity}
+import model.core.utilities.{BuildSlots, Capacity, IBuildSlots, ICapacity}
 
 case class GameBoardInfoWrapper(gameBoard: IGameBoard) extends IGameBoardInfoWrapper:
 
@@ -20,15 +20,18 @@ case class GameBoardInfoWrapper(gameBoard: IGameBoard) extends IGameBoardInfoWra
   override def getSector(row: Int, col: Int): Option[ISector] =
     if row < gameBoard.sizeY && col < gameBoard.sizeX then Some(gameBoard.data(row)(col)) else None
 
-  override def getPlayerSectorCount: Int = gameBoard.getPlayerSectors.length
+  override def getPlayerSectorCount(affiliation: Affiliation): Int = gameBoard.getPlayerSectors(affiliation).length
 
-  override def getFreeBuildSlots: Int =
-    gameBoard.getPlayerSectors.map(_.buildSlots).foldLeft(BuildSlots())((x: IBuildSlots,y: IBuildSlots) => x.increase(y)).value
+  override def getFreeBuildSlots(affiliation: Affiliation): Int =
+    gameBoard
+      .getPlayerSectors(affiliation)
+      .map(_.buildSlots)
+      .foldLeft(BuildSlots())((x: IBuildSlots,y: IBuildSlots) => x.increase(y)).value
 
-  override def getUsedCapacity: Int =
-    val fromUnits = gameBoard.getPlayerSectors.flatMap(_.unitsInSector).map(_.capacity)
+  override def getUsedCapacity(affiliation: Affiliation): Int =
+    val fromUnits = gameBoard.getPlayerSectors(affiliation).flatMap(_.unitsInSector).map(_.capacity)
       .foldLeft(Capacity())((x: ICapacity, y: ICapacity) => x.increase(y))
-    val fromConstruction = getUnitConstructionInSectors.map(_.capacity)
+    val fromConstruction = getUnitConstructionInSectors(affiliation).map(_.capacity)
       .foldLeft(Capacity())((x: ICapacity, y:ICapacity) => x.increase(y))
 
     fromUnits.increase(fromConstruction).value
@@ -59,15 +62,20 @@ case class GameBoardInfoWrapper(gameBoard: IGameBoard) extends IGameBoardInfoWra
       case x: PlayerSector => x.constQuUnits
       case _ => Vector()
 
-  override def getBuildingsInSectors: Vector[IBuilding] = gameBoard.getPlayerSectors.flatMap(_.buildingsInSector)
+  override def getBuildingsInSectors(affiliation: Affiliation): Vector[IBuilding] =
+    gameBoard.getPlayerSectors(affiliation).flatMap(_.buildingsInSector)
 
-  override def getFleetsInSectors: Vector[IFleet] = gameBoard.getPlayerSectors.flatMap(_.unitsInSector)
+  override def getFleetsInSectors(affiliation: Affiliation): Vector[IFleet] =
+    gameBoard.getPlayerSectors(affiliation).flatMap(_.unitsInSector)
 
-  override def getUnitsInSectors: Vector[IUnit] = gameBoard.getSectors.flatMap(_.unitsInSector).flatMap(_.units)
+  override def getUnitsInSectors(affiliation: Affiliation): Vector[IUnit] =
+    gameBoard.getSectors.flatMap(_.unitsInSector).filter(_.affiliation == affiliation).flatMap(_.units)
 
-  override def getUnitConstructionInSectors: Vector[IUnit] = gameBoard.getPlayerSectors.flatMap(_.constQuUnits)
+  override def getUnitConstructionInSectors(affiliation: Affiliation): Vector[IUnit] =
+    gameBoard.getPlayerSectors(affiliation).flatMap(_.constQuUnits)
 
-  override def getBuildingConstructionInSectors: Vector[IBuilding] = gameBoard.getPlayerSectors.flatMap(_.constQuBuilding)
+  override def getBuildingConstructionInSectors(affiliation: Affiliation): Vector[IBuilding] =
+    gameBoard.getPlayerSectors(affiliation).flatMap(_.constQuBuilding)
 
   override def getSizeX: Int = gameBoard.sizeX
 

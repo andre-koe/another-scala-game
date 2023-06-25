@@ -6,7 +6,7 @@ import utils.DefaultValueProvider.given_IFileIOStrategy
 import model.core.board.sector.impl.{IPlayerSector, PlayerSector, Sector}
 import model.core.board.sector.sectorutils.{Affiliation, SectorType}
 import model.core.board.boardutils.Coordinate
-import model.core.fileIO.JSONStrategy
+import model.core.fileIO.{JSONStrategy, XMLStrategy}
 import model.core.gameobjects.purchasable.building.{Hangar, IBuilding, Mine, ResearchLab}
 import model.core.gameobjects.purchasable.technology.{AdvancedMaterials, ITechnology, Polymer}
 import model.core.gameobjects.purchasable.units.Corvette
@@ -24,13 +24,24 @@ import org.scalatest.wordspec.AnyWordSpec
 
 import java.io
 import java.io.File
-import better.files._
+import better.files.*
+import controller.command.commands.SaveCommand
+
+import java.nio.file.{Files, Path}
 
 
 class GameStateManagerSpec extends AnyWordSpec with BeforeAndAfterAll {
 
-  val dir: io.File = io.File("./savegamesGSMTest")
-  override def afterAll(): Unit = dir.delete()
+  var tempDir: Path = _
+
+  override def beforeAll(): Unit =
+    tempDir = Files.createTempDirectory("saveGamesGSMTest")
+
+  override def afterAll(): Unit =
+    val directory = tempDir.toFile
+    directory.listFiles().foreach(_.delete())
+    directory.delete()
+
 
   val aSector: ISector = Sector(Coordinate(0,0), Affiliation.PLAYER, SectorType.REGULAR)
 
@@ -42,42 +53,42 @@ class GameStateManagerSpec extends AnyWordSpec with BeforeAndAfterAll {
           alloys = Alloys(10),
           researchPoints = ResearchPoints(100)
         ), capacity = Capacity(20))
-      val state: IGameStateManager = GameStateManager(playerValues = playerVal)
+      val state: IGameStateManager = GameStateManager(playerValues = Vector(playerVal))
       "have a Round value of 1" in {
         state.round.value should be(1)
       }
       "have an Energy value of 100" in {
-        state.playerValues.resourceHolder.energy.value should be(100)
+        state.currentPlayerValues.resourceHolder.energy.value should be(100)
       }
       "have a Mineral value of 100" in {
-        state.playerValues.resourceHolder.minerals.value should be(100)
+        state.currentPlayerValues.resourceHolder.minerals.value should be(100)
       }
       "have an Alloy value of 10" in {
-        state.playerValues.resourceHolder.alloys.value should be(10)
+        state.currentPlayerValues.resourceHolder.alloys.value should be(10)
       }
       "have a Research value of 100" in {
-        state.playerValues.resourceHolder.researchPoints.value should be(100)
+        state.currentPlayerValues.resourceHolder.researchPoints.value should be(100)
       }
       "have a list of technologies" in {
-        val gameStateManager = GameStateManager(playerValues = PlayerValues(listOfTechnologies = Vector[ITechnology](Polymer())))
-        gameStateManager.playerValues.listOfTechnologies shouldBe a[Vector[_]]
-        gameStateManager.playerValues.listOfTechnologies should not be empty
-        gameStateManager.playerValues.listOfTechnologies.head shouldBe a[ITechnology]
+        val gameStateManager = GameStateManager(playerValues = Vector(PlayerValues(listOfTechnologies = Vector[ITechnology](Polymer()))))
+        gameStateManager.currentPlayerValues.listOfTechnologies shouldBe a[Vector[_]]
+        gameStateManager.currentPlayerValues.listOfTechnologies should not be empty
+        gameStateManager.currentPlayerValues.listOfTechnologies.head shouldBe a[ITechnology]
       }
     }
     "handling a player command" should {
       val state: IGameStateManager = GameStateManager()
 
       "update the game state and the string representation if move is invoked" in {
-        state.move("",Coordinate(0,0)).toString should be("move not implemented yet")
+        state.move("",Coordinate(0,0)).toString should be("The specified fleet or sector doesn't exist")
       }
       "update the game state and the string representation if save is invoked" in {
-        state.save(JSONStrategy(dir), Option("Test")).toString should be("")
+        state.save(JSONStrategy(tempDir.toFile), Option("Test")).toString should be("")
         checkFile("Test", "json") shouldBe true
       }
       "update the game state and the string representation if load is invoked" in {
-        state.save(JSONStrategy(dir), Option("Test"))
-        state.load(JSONStrategy(dir), Option("Test.json")).toString should be("")
+        state.save(JSONStrategy(tempDir.toFile), Option("Test"))
+        state.load(JSONStrategy(tempDir.toFile), Option("Test.json")).toString should be("")
       }
       "update the game state and the string representation if empty is invoked" in {
         state.empty().toString should be("")
@@ -119,14 +130,13 @@ class GameStateManagerSpec extends AnyWordSpec with BeforeAndAfterAll {
     }
   }
   "When in GameState WaitForUserConfirmation" should {
-    val playerVal: IPlayerValues =
-      playervalues.PlayerValues(resourceHolder = ResourceHolder(energy = Energy(100),
+    val playerVal = PlayerValues(resourceHolder = ResourceHolder(energy = Energy(100),
         minerals = Minerals(100),
         alloys = Alloys(10),
         researchPoints = ResearchPoints(100)
       ), capacity = Capacity(20))
 
-    val state: IGameStateManager = GameStateManager(playerValues = playerVal, gameState = WaitForUserConfirmation())
+    val state: IGameStateManager = GameStateManager(playerValues = Vector(playerVal), gameState = WaitForUserConfirmation())
 
     "not update the game state and the string representation if move is invoked" in {
       state.move("", Coordinate(0,0)).toString should be("Are you sure? [yes (y) / no (n)]")
@@ -174,7 +184,7 @@ class GameStateManagerSpec extends AnyWordSpec with BeforeAndAfterAll {
     "update the game state if a accept is invoked" in {
       state.accept().round.value should be(2)
       state.accept().toString should be(GameStateStringFormatter(round = Round(), gsm = state.accept())
-        .overview(state.round.next, state.playerValues.resourceHolder))
+        .overview(state.round.next, state.currentPlayerValues.resourceHolder))
     }
     "update the game state if a decline is invoked" in {
       state.decline().round.value should be(1)
@@ -189,8 +199,8 @@ class GameStateManagerSpec extends AnyWordSpec with BeforeAndAfterAll {
         researchPoints = ResearchPoints(100)
       ), capacity = Capacity(20))
 
-    val stateExit: IGameStateManager = GameStateManager(playerValues = playerVal, gameState = ExitedState())
-    val stateEndRound: IGameStateManager = GameStateManager(playerValues = playerVal, gameState = EndRoundConfirmationState())
+    val stateExit: IGameStateManager = GameStateManager(playerValues = Vector(playerVal), gameState = ExitedState())
+    val stateEndRound: IGameStateManager = GameStateManager(playerValues = Vector(playerVal), gameState = EndRoundConfirmationState())
 
     "not update the game state and the string representation if move is invoked" in {
       stateExit.move("", Coordinate(0,0)).toString should be("Invalid")
@@ -253,7 +263,6 @@ class GameStateManagerSpec extends AnyWordSpec with BeforeAndAfterAll {
   }
 
   def checkFile(f: String, ext: String): Boolean =
-    val dir = io.File("./savegamesGSMTest")
-    if dir.exists && dir.isDirectory then dir.listFiles().exists(_.getName == f + "." + ext) else false
+    tempDir.toFile.listFiles().exists(_.getName == f + "." + ext)
 
 }

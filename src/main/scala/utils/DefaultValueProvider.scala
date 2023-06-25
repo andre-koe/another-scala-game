@@ -14,8 +14,6 @@ object DefaultValueProvider {
 
   given IController = Controller()
   given IGameValues = GameValues()
-  given IPlayerValues = PlayerValues()
-  given IGameState = RunningState()
   given ICommandTokenizer = CommandTokenizer()
   given IFileIOStrategy = JSONStrategy()
 

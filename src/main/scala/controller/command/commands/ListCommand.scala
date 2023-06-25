@@ -49,12 +49,12 @@ case class ListCommand(param: ListParams, gameStateManager: IGameStateManager, g
         (returnOptionRemainingResources(unit.cost), returnOptionRemainingCapacity(unit.capacity)) match
             case (Some(_), Some(_)) =>
                 unit.name + s" " +
-                  s"(${Math.min(gameStateManager.playerValues.resourceHolder.holds(unit.cost).get,
-                      gameStateManager.playerValues.capacity.holds(unit.capacity).get)})"
+                  s"(${Math.min(gameStateManager.currentPlayerValues.resourceHolder.holds(unit.cost).get,
+                      gameStateManager.currentPlayerValues.capacity.holds(unit.capacity).get)})"
             case (Some(_), None) => handleStringColor(AnsiColor.RED,
-                unit.name + " Total Lacking: " + gameStateManager.playerValues.capacity.lacking(unit.capacity))
+                unit.name + " Total Lacking: " + gameStateManager.currentPlayerValues.capacity.lacking(unit.capacity))
             case _ => handleStringColor(AnsiColor.RED,
-                unit.name + " " + gameStateManager.playerValues.resourceHolder.lacking(unit.cost))
+                unit.name + " " + gameStateManager.currentPlayerValues.resourceHolder.lacking(unit.cost))
 
     private def styleTechnologyListEntry(str: String): String =
         val tech = gameValues.tech.find(_.name == str).head
@@ -65,15 +65,15 @@ case class ListCommand(param: ListParams, gameStateManager: IGameStateManager, g
         returnOptionRemainingResources(obj.cost) match
             case Some(_) => obj.name
             case None => handleStringColor(AnsiColor.RED,
-                    obj.name + " " + gameStateManager.playerValues.resourceHolder.lacking(obj.cost))
+                    obj.name + " " + gameStateManager.currentPlayerValues.resourceHolder.lacking(obj.cost))
     private def returnOptionRemainingResources(resourceHolder: IResourceHolder): Option[IResourceHolder] =
-        gameStateManager.playerValues.resourceHolder.decrease(resourceHolder)
+        gameStateManager.currentPlayerValues.resourceHolder.decrease(resourceHolder)
 
     private def returnOptionRemainingCapacity(capacity: ICapacity): Option[ICapacity] =
-        gameStateManager.playerValues.capacity.decrease(capacity)
+        gameStateManager.currentPlayerValues.capacity.decrease(capacity)
 
     private def checkIfTechAlreadyResearched(name: String): Boolean =
-        gameStateManager.playerValues.listOfTechnologiesCurrentlyResearched.exists(_.name == name) ||
-          gameStateManager.playerValues.listOfTechnologies.exists(_.name == name)
+        gameStateManager.currentPlayerValues.listOfTechnologiesCurrentlyResearched.exists(_.name == name) ||
+          gameStateManager.currentPlayerValues.listOfTechnologies.exists(_.name == name)
 
     private def handleStringColor(color: String, target: String): String = color + target + AnsiColor.RESET

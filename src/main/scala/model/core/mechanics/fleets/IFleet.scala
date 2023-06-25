@@ -1,21 +1,23 @@
 package model.core.mechanics.fleets
 
+import model.core.board.boardutils.ICoordinate
 import model.core.board.sector.ISector
+import model.core.gameobjects.purchasable.IGameObject
 import model.core.mechanics.IMoveVector
-import model.core.mechanics.fleets.components.Component
 import model.core.mechanics.fleets.components.units.IUnit
-import model.core.utilities.interfaces.{ILocatable, IMovable}
-import model.core.utilities.{ICapacity, IResourceHolder}
+import model.core.utilities.interfaces.{ILocatable, IMovable, IPurchasable, IUpkeep}
+import model.core.utilities.{IAffiliated, ICapacity, IResourceHolder}
+import utils.IXMLSerializable
 
 import scala.xml.Elem
 
-trait IFleet extends Component, IMovable:
+trait IFleet extends IUpkeep, IGameObject, IXMLSerializable, IMovable, ILocatable, IAffiliated :
 
   def name: String
 
   def fleetComponents: Vector[IUnit]
 
-  def location: ISector
+  def location: ICoordinate
 
   def moveVector: IMoveVector
 
@@ -37,7 +39,7 @@ trait IFleet extends Component, IMovable:
 
   def extCopy(name: String = name,
               fleetComponents: Vector[IUnit] = fleetComponents,
-              location: ISector = location,
+              location: ICoordinate = location,
               moveVector: IMoveVector = moveVector): IFleet
 
   override def toXML: Elem =
@@ -46,6 +48,7 @@ trait IFleet extends Component, IMovable:
       <Name>{name}</Name>
       <Location>{location.toXML}</Location>
       <MoveVector>{moveVector.toXML}</MoveVector>
+      <Affiliation>{affiliation.toString}</Affiliation>
       <FleetComponents>
         {fleetComponents.map(_.toXML)}
       </FleetComponents>

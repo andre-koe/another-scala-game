@@ -61,7 +61,7 @@ class ListCommandSpec extends AnyWordSpec {
     "return a building list with red colored items if the player has insufficient funds for any of them " +
         "appended by the amount of resources lacking" in {
         val plV: PlayerValues = PlayerValues(resourceHolder = ResourceHolder())
-        val gsM: GameStateManager = GameStateManager(playerValues = plV)
+        val gsM: GameStateManager = GameStateManager(playerValues = Vector(plV))
         val listBuilding: ListCommand = ListCommand(BUILDING, gsM, GameValues(buildings = Vector(ResearchLab())))
 
         listBuilding.execute()
@@ -76,7 +76,7 @@ class ListCommandSpec extends AnyWordSpec {
           minerals = Minerals(200),
           alloys = Alloys(200)
       ))
-      val gsM: GameStateManager = GameStateManager(playerValues = plV)
+      val gsM: GameStateManager = GameStateManager(playerValues = Vector(plV))
       val listBuilding: ListCommand =
         ListCommand(BUILDING, gsM, gameValues = GameValues(buildings = Vector(ResearchLab())))
 
@@ -88,7 +88,7 @@ class ListCommandSpec extends AnyWordSpec {
     "return a technology list with red colored items if the player has insufficient funds for any of them" +
       "appended by the amount of resources lacking" in {
       val plV: PlayerValues = PlayerValues(resourceHolder = ResourceHolder())
-      val gsM: GameStateManager = GameStateManager(playerValues = plV)(using gameValues = GameValues(tech = Vector(AdvancedMaterials())))
+      val gsM: GameStateManager = GameStateManager(playerValues = Vector(plV))(using gameValues = GameValues(tech = Vector(AdvancedMaterials())))
       val listTech: ListCommand =
         ListCommand(TECHNOLOGY, gsM, gameValues = GameValues(tech = Vector(AdvancedMaterials())))
 
@@ -102,7 +102,7 @@ class ListCommandSpec extends AnyWordSpec {
         resourceHolder = ResourceHolder(
           researchPoints = ResearchPoints(200)
         ))
-      val gsM: GameStateManager = GameStateManager(playerValues = plV)
+      val gsM: GameStateManager = GameStateManager(playerValues = Vector(plV))
       val listBuilding: ListCommand =
         ListCommand(TECHNOLOGY, gsM, gameValues = GameValues(tech = Vector(AdvancedMaterials())))
 
@@ -119,7 +119,7 @@ class ListCommandSpec extends AnyWordSpec {
         ),
         listOfTechnologies = Vector(AdvancedMaterials())
       )
-      val gsM: GameStateManager = GameStateManager(playerValues = plV)
+      val gsM: GameStateManager = GameStateManager(playerValues = Vector(plV))
       val listBuilding: ListCommand =
         ListCommand(TECHNOLOGY, gsM, gameValues = GameValues(tech = Vector(AdvancedMaterials())))
 
@@ -136,7 +136,7 @@ class ListCommandSpec extends AnyWordSpec {
         ),
         listOfTechnologies = Vector(AdvancedMaterials())
       )
-      val gsM: GameStateManager = GameStateManager(playerValues = plV)
+      val gsM: GameStateManager = GameStateManager(playerValues = Vector(plV))
       val listBuilding: ListCommand =
         ListCommand(TECHNOLOGY, gsM, gameValues = GameValues(tech = Vector(AdvancedMaterials())))
 
@@ -153,7 +153,7 @@ class ListCommandSpec extends AnyWordSpec {
         ),
         listOfTechnologiesCurrentlyResearched = Vector(AdvancedMaterials())
       )
-      val gsM: GameStateManager = GameStateManager(playerValues = plV)
+      val gsM: GameStateManager = GameStateManager(playerValues = Vector(plV))
       val listBuilding: ListCommand =
         ListCommand(TECHNOLOGY, gsM, gameValues = GameValues(tech = Vector(AdvancedMaterials())))
       listBuilding.execute()
@@ -164,7 +164,7 @@ class ListCommandSpec extends AnyWordSpec {
     "return a unit list with red colored items if the player has insufficient funds for any of them" +
       "appended by the amount of resources lacking" in {
       val plV: PlayerValues = PlayerValues(resourceHolder = ResourceHolder())
-      val gsM: GameStateManager = GameStateManager(playerValues = plV)
+      val gsM: GameStateManager = GameStateManager(playerValues = Vector(plV))
       val listUnit: ListCommand =
         ListCommand(UNITS, gsM, gameValues = GameValues(units = Vector(Corvette())))
 
@@ -177,7 +177,7 @@ class ListCommandSpec extends AnyWordSpec {
       " for any of them appended by the amount of resources lacking" in {
       val plV: PlayerValues = playervalues.PlayerValues(
         resourceHolder = ResourceHolder(energy = Energy(100), minerals = Minerals(100)), capacity = Capacity(0))
-      val gsM: GameStateManager = GameStateManager(playerValues = plV)
+      val gsM: GameStateManager = GameStateManager(playerValues = Vector(plV))
       val listUnit: ListCommand =
         ListCommand(UNITS, gsM, gameValues = GameValues(units = Vector(Corvette())))
 
@@ -194,7 +194,7 @@ class ListCommandSpec extends AnyWordSpec {
           energy = Energy(210),
           minerals = Minerals(90)
         ))
-      val gsM: GameStateManager = GameStateManager(playerValues = plV)
+      val gsM: GameStateManager = GameStateManager(playerValues = Vector(plV))
       val listBuilding: ListCommand = ListCommand(UNITS, gsM, gameValues = GameValues(units = Vector(Corvette())))
 
       listBuilding.execute()

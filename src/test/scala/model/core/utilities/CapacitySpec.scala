@@ -49,6 +49,12 @@ class CapacitySpec extends AnyWordSpec {
         cap.toString should be(f"[Capacity: ${cap.value}]")
       }
     }
+    "empty is invoked" should {
+      val cap: ICapacity = Capacity().empty()
+      "return an empty instance" in {
+        cap.value should be(0)
+      }
+    }
     "asked for holds" should {
       val cap1: Capacity = Capacity(10)
       "2 if capacity contains 2 times other capacity" in {

@@ -1,6 +1,6 @@
 package model.core.utilities.interfaces
 
-import model.core.board.sector.ISector
+import model.core.board.boardutils.ICoordinate
 
 trait ILocatable:
-  def location: ISector
+  def location: ICoordinate

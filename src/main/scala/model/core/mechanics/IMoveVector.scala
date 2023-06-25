@@ -17,6 +17,10 @@ trait IMoveVector extends IXMLSerializable:
 
   def setTarget(coordinate: ICoordinate): IMoveVector
 
+  def nextStep: IMoveVector
+  
+  def isMoving: Boolean
+
   override def toXML: Elem =
     <Movevector>
       <Start>{start.toXML}</Start>

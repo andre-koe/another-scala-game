@@ -5,7 +5,9 @@ import controller.command.commands.{InvalidCommand, MessageCommand, MoveCommand}
 import controller.newInterpreter.KeywordType.*
 import controller.newInterpreter.{InterpretedCommand, InterpretedInput, KeywordType}
 import controller.validator.validatorutils.ValidatorUtils
+import model.core.board.boardutils.ICoordinate
 import model.game.gamestate.IGameStateManager
+import model.game.gamestate.enums.messages.MessageType
 import model.game.gamestate.enums.messages.MessageType.{INVALID_INPUT, MALFORMED_INPUT}
 import model.utils.GameObjectUtils
 
@@ -13,30 +15,30 @@ case class MoveValidator(orig: String, gsm: IGameStateManager) extends IValidato
 
 
   override def validate(input: Vector[InterpretedInput]): Either[IValidator, Option[ICommand]] =
-    //val keywords = ValidatorUtils().findKeyWords(input)
-    // need from and to (Coordinate/Fleet/Unit)
-    val returns = input match
-      case Vector(x) => MoveCommand(List(x.toString), gsm)
-      case _ => InvalidCommand(orig, gsm)
+    val unidentified = ValidatorUtils().findUnidentified(input)
+    val coordinate = ValidatorUtils().findCoordinate(input)
+
+    val t = ValidatorUtils().findSubcommands(input)
+    val l = ValidatorUtils().findKeyWords(input)
+
+    val returns = unidentified match
+      case Some(x) if x contains "help" =>
+        MessageCommand("Enter move <fleet name> <location> to send your fleet to another sector",
+          messageType = MessageType.HELP, gsm)
+      case Some(x) if x.length == 1 =>
+          coordinate match
+            case Some(y) => validate(x.head, y)
+            case _ => InvalidCommand(orig + " no coordinate specified", gsm)
+      case _ => InvalidCommand(orig + " no fleet name specified", gsm)
 
     Right(Some(returns))
 
-  /*
-private def handleMove(keywordType: KeywordType): ICommand =
-  keywordType match
-    case TO => MoveCommand(List(), gsm)
-    case _ => MessageCommand(wrongKeyword(keywordType), MALFORMED_INPUT, gsm)
+  private def validate(fName: String, coord: ICoordinate): ICommand =
+    if (fleetExists(fName) && coordIsValid(coord)) then MoveCommand(fName, coord, gsm)
+    else InvalidCommand(s"$fName is not a valid fleet", gsm)
 
-private def wrongKeyword(keyword: KeywordType): String =
-  val got = keyword match
-    case WITH => "with"
-    case FROM => "from"
-    case _ => ""
-  s"move command expected 'TO' but found '$got'"
+  private def fleetExists(str: String): Boolean = 
+    gsm.gameMap.data.flatMap(_.flatMap(_.unitsInSector)).exists(_.name.toLowerCase == str)
 
-private def inputFormat(str: String): String =
-  s"Invalid Format found '$str' expected: move <what> to coordinate <1-A>"
-
-private def movableDoesNotExist(str: String): String = s"Unit or Fleet with name '$str' does not exist"
-*/
+  private def coordIsValid(coord: ICoordinate): Boolean = gsm.gameMap.getSectorAtCoordinate(coord).isDefined
 

@@ -4,6 +4,7 @@ import model.core.board.IGameBoard
 import model.core.board.boardutils.ICoordinate
 import model.core.board.sector.ISector
 import model.core.board.sector.impl.IPlayerSector
+import model.core.board.sector.sectorutils.Affiliation
 import model.core.fileIO.IFileIOStrategy
 import model.core.gameobjects.purchasable.technology.ITechnology
 import model.core.utilities.*
@@ -22,7 +23,13 @@ trait IGameStateManager extends IXMLSerializable:
 
   def message: String
 
-  def playerValues: IPlayerValues
+  def currentPlayerIndex: Int
+  
+  def affiliation: Affiliation
+
+  def currentPlayerValues: IPlayerValues
+
+  def playerValues: Vector[IPlayerValues]
 
   def gameState: IGameState
 
@@ -60,16 +67,21 @@ trait IGameStateManager extends IXMLSerializable:
 
   def extCopy(round: IRound = round,
               gameMap: IGameBoard = gameMap,
-              playerValues: IPlayerValues = playerValues,
+              currentPlayerIndex: Int = currentPlayerIndex,
+              playerValues: Vector[IPlayerValues] = playerValues,
               gameState: IGameState = gameState,
               message: String = message): IGameStateManager
-
 
   override def toXML: scala.xml.Elem =
     <GameStateManager>
       <Round>
         {round.value}
       </Round>
-        {gameMap.toXML}
-        {playerValues.toXML}
+      {gameMap.toXML}
+      <CurrentPlayerIndex>
+        {currentPlayerIndex}
+      </CurrentPlayerIndex>
+      <PlayerValuesM>
+        {playerValues.map(_.toXML)}
+      </PlayerValuesM>
     </GameStateManager>

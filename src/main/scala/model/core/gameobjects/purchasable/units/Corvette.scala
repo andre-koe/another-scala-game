@@ -5,7 +5,7 @@ import io.circe.syntax.*
 import model.core.board.sector.ISector
 import model.core.board.sector.impl.Sector
 import model.core.board.sector.sectorutils.{Affiliation, SectorType}
-import model.core.board.boardutils.Coordinate
+import model.core.board.boardutils.{Coordinate, ICoordinate}
 import model.core.gameobjects.resources.resourcetypes.{Energy, Minerals}
 import model.core.mechanics.MoveVector
 import model.core.mechanics.fleets.components.units.IUnit
@@ -19,9 +19,7 @@ case class Corvette(name: String = "Corvette",
                     upkeep: IResourceHolder = ResourceHolder(energy = Energy(1)),
                     capacity: ICapacity = Capacity(1),
                     firepower: Int = 14,
-                    speed: Int = 4,
-                    location: ISector = Sector(Coordinate(-1,-1),Affiliation.INDEPENDENT,SectorType.REGULAR)
-                   ) extends IUnit:
+                    speed: Int = 4) extends IUnit:
   
   override def toString: String = "Corvette"
   

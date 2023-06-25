@@ -22,14 +22,14 @@ class BuildCommandSpec extends AnyWordSpec {
         minerals = Minerals(1000),
         alloys = Alloys(1000)
       ))
-    val gameStateManager: GameStateManager = GameStateManager(playerValues = playerValues)
+    val gameStateManager: GameStateManager = GameStateManager(playerValues = Vector(playerValues))
 
 
     "correctly handle the construction of a Building if sufficient funds are available" in {
       val sector: ISector = gameStateManager.gameMap.getSectorAtCoordinate(Coordinate(0,0)).get
       val gsm = BuildCommand(Mine(), sector, gameStateManager).execute()
       
-      gsm.gameMap.getPlayerSectors.flatMap(_.constQuBuilding) should not be empty
+      gsm.gameMap.getPlayerSectors(Affiliation.PLAYER).flatMap(_.constQuBuilding) should not be empty
       gsm.toString should be(s"Beginning construction of ${Mine().name} " +
         s"for ${Mine().cost}, completion in ${Mine().roundsToComplete.value} rounds.")
     }
@@ -41,13 +41,13 @@ class BuildCommandSpec extends AnyWordSpec {
           minerals = Minerals(),
           alloys = Alloys()
         ))
-      val gameStateManager: GameStateManager = GameStateManager(playerValues = playerValues)
+      val gameStateManager: GameStateManager = GameStateManager(playerValues = Vector(playerValues))
       val sector: ISector = gameStateManager.gameMap.getSectorAtCoordinate(Coordinate(0,0)).get
       val gsm = BuildCommand(Mine(), sector, gameStateManager).execute()
 
-      gsm.gameMap.getPlayerSectors.flatMap(_.constQuBuilding).isEmpty should be(true)
+      gsm.gameMap.getPlayerSectors(Affiliation.PLAYER).flatMap(_.constQuBuilding).isEmpty should be(true)
       gsm.toString should be( s"insufficient Funds --- " +
-        s"${gameStateManager.playerValues.resourceHolder.lacking(Mine().cost)}.")
+        s"${gameStateManager.currentPlayerValues.resourceHolder.lacking(Mine().cost)}.")
     }
 
     "return a GameState with notAPlayerSector Message if sector not playersector" in {
@@ -57,11 +57,11 @@ class BuildCommandSpec extends AnyWordSpec {
           minerals = Minerals(),
           alloys = Alloys()
         ))
-      val gameStateManager: GameStateManager = GameStateManager(playerValues = playerValues)
+      val gameStateManager: GameStateManager = GameStateManager(playerValues = Vector(playerValues))
       val sector = gameStateManager.gameMap.getSectorAtCoordinate(Coordinate(1,1)).get
       val gsm = BuildCommand(Mine(), sector, gameStateManager).execute()
 
-      gsm.gameMap.getPlayerSectors.flatMap(_.constQuBuilding).isEmpty should be(true)
+      gsm.gameMap.getPlayerSectors(Affiliation.PLAYER).flatMap(_.constQuBuilding).isEmpty should be(true)
       gsm.toString should be(s"Can't begin construction in $sector - is not a player sector")
     }
   }

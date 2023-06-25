@@ -21,15 +21,15 @@ class GameBoardDataSpec extends AnyWordSpec with Matchers {
         gameBoard.foreach(_.should(have.length(rows)))
       }
 
-      "have a PlayerSector at first coordinate" in {
+      "have a PlayerSector with Affiliation Player at first coordinate" in {
         gameBoard(0)(0) shouldBe a [PlayerSector]
       }
 
-      "have an EnemySector at last coordinate" in {
+      "have a PlayerSector with Affiliation Enemy at last coordinate" in {
         val lastCoordinateSector = gameBoard(cols - 1)(rows - 1)
-        lastCoordinateSector shouldBe a [Sector]
-        lastCoordinateSector.asInstanceOf[Sector].affiliation should be (Affiliation.ENEMY)
-        lastCoordinateSector.asInstanceOf[Sector].sectorType should be (SectorType.BASE)
+        lastCoordinateSector shouldBe a [PlayerSector]
+        lastCoordinateSector.asInstanceOf[PlayerSector].affiliation should be (Affiliation.ENEMY)
+        lastCoordinateSector.asInstanceOf[PlayerSector].sectorType should be (SectorType.BASE)
       }
 
       "have IndependentSectors at all other coordinates" in {

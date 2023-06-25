@@ -4,6 +4,7 @@ import io.circe.*
 import io.circe.generic.semiauto.*
 import utils.CirceImplicits.*
 import io.circe.syntax.EncoderOps
+import model.core.board.sector.sectorutils.Affiliation
 import model.core.gameobjects.purchasable.IGameObject
 import model.core.gameobjects.purchasable.building.IBuilding
 import model.core.gameobjects.purchasable.technology.ITechnology
@@ -19,18 +20,20 @@ case class PlayerValues(resourceHolder: IResourceHolder = ResourceHolder(
                           researchPoints = ResearchPoints(1000),
                           alloys = Alloys(10)),
                         listOfTechnologies: Vector[ITechnology] = Vector(),
+                        affiliation: Affiliation = Affiliation.INDEPENDENT,
                         listOfTechnologiesCurrentlyResearched: Vector[ITechnology] = Vector(),
                         capacity: ICapacity = Capacity(3),
                         upkeep: IResourceHolder = ResourceHolder(descriptor = "Running Cost"),
                         income: IResourceHolder = ResourceHolder(descriptor = "Income")) extends IPlayerValues:
 
   override def extCopy(resourceHolder: IResourceHolder = resourceHolder, 
-                       listOfTechnologies: Vector[ITechnology] = listOfTechnologies, 
+                       listOfTechnologies: Vector[ITechnology] = listOfTechnologies,
+                       affiliation: Affiliation = affiliation,
                        listOfTechnologiesCurrentlyResearched: Vector[ITechnology] = listOfTechnologiesCurrentlyResearched,
                        capacity: ICapacity = capacity,
                        upkeep: IResourceHolder = upkeep,
-                       income: IResourceHolder = resourceHolder): IPlayerValues =
-    this.copy(resourceHolder, listOfTechnologies, listOfTechnologiesCurrentlyResearched, capacity, upkeep, income)
+                       income: IResourceHolder = income): IPlayerValues =
+    this.copy(resourceHolder, listOfTechnologies, affiliation, listOfTechnologiesCurrentlyResearched, capacity, upkeep, income)
 
 
 object PlayerValues:

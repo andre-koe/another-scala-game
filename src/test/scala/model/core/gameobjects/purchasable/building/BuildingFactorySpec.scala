@@ -2,14 +2,14 @@ package model.core.gameobjects.purchasable.building
 
 import model.core.board.sector.impl.Sector
 import model.core.board.sector.sectorutils.{Affiliation, SectorType}
-import model.core.board.boardutils.Coordinate
+import model.core.board.boardutils.{Coordinate, ICoordinate}
 import model.core.gameobjects.purchasable.building.{BuildingFactory, EnergyGrid, Factory, Hangar, Mine, ResearchLab, Shipyard}
 import org.scalatest.matchers.should.Matchers.*
 import org.scalatest.wordspec.AnyWordSpec
 class BuildingFactorySpec extends AnyWordSpec {
 
   "The BuildingFactory" should {
-    val location: Sector = Sector(Coordinate(-1,-1), Affiliation.INDEPENDENT, SectorType.REGULAR)
+    val location: ICoordinate = Coordinate(-1,-1)
     "return Options" in {
       BuildingFactory("shipyard", location) should be(Option(Shipyard()))
     }

@@ -5,7 +5,7 @@ import io.circe.syntax.*
 import model.core.board.sector.ISector
 import model.core.board.sector.impl.Sector
 import model.core.board.sector.sectorutils.{Affiliation, SectorType}
-import model.core.board.boardutils.Coordinate
+import model.core.board.boardutils.{Coordinate, ICoordinate}
 import model.core.mechanics.MoveVector
 import model.core.mechanics.fleets.components.units.IUnit
 import model.core.utilities.{Capacity, ICapacity, IResourceHolder, IRound, ResourceHolder, Round}
@@ -22,9 +22,7 @@ case class Cruiser(name: String = "Cruiser",
                    upkeep: IResourceHolder = ResourceHolder(energy = Energy(12)),
                    capacity: ICapacity = Capacity(4),
                    firepower: Int = 210,
-                   speed: Int = 2,
-                   location: ISector = Sector(Coordinate(-1,-1),Affiliation.INDEPENDENT,SectorType.REGULAR)
-                  ) extends IUnit:
+                   speed: Int = 2) extends IUnit:
   
   override def toString: String = "Cruiser"
   

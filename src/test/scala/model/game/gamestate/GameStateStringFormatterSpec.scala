@@ -43,9 +43,9 @@ class GameStateStringFormatterSpec extends AnyWordSpec {
 
     "Asked for an 'overview'" should {
       "return a formatted overview containing round, funds and research" in {
-        val gsm = GameStateManager(playerValues = PlayerValues(resourceHolder = ResourceHolder(descriptor = "Balance",
+        val gsm = GameStateManager(playerValues = Vector(PlayerValues(resourceHolder = ResourceHolder(descriptor = "Balance",
           energy = Energy(100),
-          researchPoints = ResearchPoints(100))))
+          researchPoints = ResearchPoints(100)))))
         val f = GameStateStringFormatter(gsm = gsm).overview()
         f.contains("Energy: 100") should be(true)
         f.contains("Minerals: 0") should be(true)
@@ -86,7 +86,8 @@ class GameStateStringFormatterSpec extends AnyWordSpec {
       }
 
       "show a list of technologies currently researched" in {
-        val pV = PlayerValues(listOfTechnologiesCurrentlyResearched = Vector(Polymer(), Polymer(), AdvancedMaterials()))
+        val pV = Vector(
+          PlayerValues(listOfTechnologiesCurrentlyResearched = Vector(Polymer(), Polymer(), AdvancedMaterials())))
         val f = GameStateStringFormatter(gsm = GameStateManager(playerValues = pV)).overview()
         f.contains(" Ongoing research: [Polymer, Polymer, Advanced Materials | Rounds to complete: 3]") should be(true)
       }

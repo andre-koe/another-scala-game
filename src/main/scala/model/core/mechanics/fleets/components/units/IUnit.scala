@@ -6,21 +6,24 @@ import model.core.board.sector.impl.Sector
 import model.core.board.boardutils.Coordinate
 import model.core.gameobjects.purchasable.units.*
 import model.core.gameobjects.purchasable.IGameObject
-import model.core.mechanics.fleets.components.Component
 import model.core.utilities.interfaces.{IPurchasable, IRoundBasedConstructable, IUpkeep}
 import model.core.utilities.{Capacity, ICapacity, Round}
+import utils.IXMLSerializable
 
 import scala.xml.Elem
 
-trait IUnit extends Component, IRoundBasedConstructable, IPurchasable:
+trait IUnit extends IUpkeep, IGameObject, IPurchasable, IXMLSerializable, IRoundBasedConstructable:
 
-  override def capacity: ICapacity
+  def firepower: Int
+
+  def speed: Int
+
+  def capacity: ICapacity
 
   override def toXML: Elem =
     <Unit>
       <Type>{"Unit"}</Type>
       <Name>{name}</Name>
       <Rounds>{roundsToComplete.value}</Rounds>
-      {location.toXML}
     </Unit>
 

@@ -66,7 +66,7 @@ class BuyableItemView(name: String, sector: IPlayerSector, controller: IControll
       }
 
     case ButtonClicked(`buy`) =>
-      if (controller.getState.getGSM.playerValues.resourceHolder.decrease(go.cost).isDefined) {
+      if (controller.getState.getGSM.currentPlayerValues.resourceHolder.decrease(go.cost).isDefined) {
         count += 1
         go match
           case x: IBuilding => controller.processInput(BuildCommand(x, sector, controller.getState.getGSM))
@@ -75,7 +75,7 @@ class BuyableItemView(name: String, sector: IPlayerSector, controller: IControll
       } else {
         infoLabel.foreground = Color.white
         infoLabel.text = "Insufficient Funds: Total Lacking:" +
-          controller.getState.getGSM.playerValues.resourceHolder.lacking(go.cost).toString
+          controller.getState.getGSM.currentPlayerValues.resourceHolder.lacking(go.cost).toString
       }
       countLabel.text = s"In Possession: $count"
   }

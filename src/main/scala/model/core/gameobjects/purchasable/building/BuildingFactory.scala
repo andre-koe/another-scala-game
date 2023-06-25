@@ -1,9 +1,9 @@
 package model.core.gameobjects.purchasable.building
 
-import model.core.board.sector.ISector
+import model.core.board.boardutils.ICoordinate
 
 object BuildingFactory:
-  def apply(string: String, location: ISector): Option[IBuilding] =
+  def apply(string: String, location: ICoordinate): Option[IBuilding] =
     string.toLowerCase match
       case "hangar" => Option(Hangar(location = location))
       case "energy grid" => Option(EnergyGrid(location = location))

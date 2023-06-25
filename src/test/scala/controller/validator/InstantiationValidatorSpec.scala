@@ -16,7 +16,7 @@ class InstantiationValidatorSpec extends AnyWordSpec {
   val player: PlayerValues =
     PlayerValues(resourceHolder =
       ResourceHolder(energy = Energy(1000), minerals = Minerals(1000), alloys = Alloys(1000)))
-  val gsm: GameStateManager = GameStateManager(playerValues = player)
+  val gsm: GameStateManager = GameStateManager(playerValues = Vector(player))
 
   "The InstantiationValidator" when {
 
@@ -39,7 +39,7 @@ class InstantiationValidatorSpec extends AnyWordSpec {
       }
 
       "return a BuildCommand if string input consists of build with valid building" in {
-        val input = "build research lab"
+        val input = "build research lab 0-0"
         val instantiationValidator = InstantiationValidator(input, gsm)
         val res = instantiationValidator.validate(CommandTokenizer().parseInput(input).input).toOption.get
         res shouldBe a[Option[ICommand]]
@@ -110,12 +110,21 @@ class InstantiationValidatorSpec extends AnyWordSpec {
       }
 
       "return a RecruitCommand if string input consists of recruit with valid technology" in {
-        val input = "recruit corvette 1"
+        val input = "recruit corvette 1 0-0"
         val instantiationValidator = InstantiationValidator(input, gsm)
         val res = instantiationValidator.validate(CommandTokenizer().parseInput(input).input).toOption.get
         res shouldBe a[Option[ICommand]]
         res.get shouldBe a[RecruitCommand]
       }
+
+      "return a RecruitCommand if string input consists of recruit with valid technology reversed input order" in {
+        val input = "recruit 1 corvette 0-0"
+        val instantiationValidator = InstantiationValidator(input, gsm)
+        val res = instantiationValidator.validate(CommandTokenizer().parseInput(input).input).toOption.get
+        res shouldBe a[Option[ICommand]]
+        res.get shouldBe a[RecruitCommand]
+      }
+
 
       "return a MessageCommand with 'unit does not exist' content if string input consists of " +
         "recruit with invalid unit name" in {

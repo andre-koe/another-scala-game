@@ -5,6 +5,7 @@ import io.circe.generic.auto.*
 import model.core.board.sector.ISector
 import model.core.board.sector.impl.IPlayerSector
 import model.core.board.boardutils.ICoordinate
+import model.core.board.sector.sectorutils.Affiliation
 import model.core.mechanics.fleets.IFleet
 import utils.IXMLSerializable
 
@@ -24,7 +25,7 @@ trait IGameBoard extends IXMLSerializable:
 
   def getSectorAtCoordinate(coordinate: ICoordinate): Option[ISector]
 
-  def getPlayerSectors: Vector[IPlayerSector]
+  def getPlayerSectors(affiliation: Affiliation): Vector[IPlayerSector]
 
   def getSectors: Vector[ISector]
 

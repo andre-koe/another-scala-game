@@ -2,6 +2,7 @@ package model.core.board.boardutils
 
 import model.core.board.sector.ISector
 import model.core.board.sector.impl.PlayerSector
+import model.core.board.sector.sectorutils.Affiliation
 import model.core.gameobjects.purchasable.building.IBuilding
 import model.core.mechanics.fleets.components.units.IUnit
 import model.core.mechanics.fleets.IFleet
@@ -15,11 +16,11 @@ trait IGameBoardInfoWrapper:
 
   def getSector(row: Int, col: Int): Option[ISector]
 
-  def getPlayerSectorCount: Int
+  def getPlayerSectorCount(affiliation: Affiliation): Int
 
-  def getFreeBuildSlots: Int
+  def getFreeBuildSlots(affiliation: Affiliation): Int
 
-  def getUsedCapacity: Int
+  def getUsedCapacity(affiliation: Affiliation): Int
 
   def getFreeBuildSlotsInSectorTotal(sector: ISector): Int
 
@@ -35,15 +36,15 @@ trait IGameBoardInfoWrapper:
 
   def getFleetsInSector(sector: ISector): Vector[IFleet]
 
-  def getBuildingsInSectors: Vector[IBuilding]
+  def getBuildingsInSectors(affiliation: Affiliation): Vector[IBuilding]
 
-  def getFleetsInSectors: Vector[IFleet]
+  def getFleetsInSectors(affiliation: Affiliation): Vector[IFleet]
 
-  def getUnitsInSectors: Vector[IUnit]
+  def getUnitsInSectors(affiliation: Affiliation): Vector[IUnit]
 
-  def getUnitConstructionInSectors: Vector[IUnit]
+  def getUnitConstructionInSectors(affiliation: Affiliation): Vector[IUnit]
 
-  def getBuildingConstructionInSectors: Vector[IBuilding]
+  def getBuildingConstructionInSectors(affiliation: Affiliation): Vector[IBuilding]
   
   def getSizeX: Int
   

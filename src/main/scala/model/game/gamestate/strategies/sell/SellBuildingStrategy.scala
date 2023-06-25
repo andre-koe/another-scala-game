@@ -14,12 +14,14 @@ case class SellBuildingStrategy(location: IPlayerSector, str: IBuilding, quantit
     val msg = sellSuccessMsg(str.name, quantity, profit)
     
     val nMap = gsm.gameMap.updateSector(location.extCopy(buildingsInSector = buildings._1.toVector))
+
+    val indexToUpdate = gsm.currentPlayerIndex
+    val updatedPlayerValues = gsm.currentPlayerValues.extCopy(
+      resourceHolder = gsm.currentPlayerValues.resourceHolder.increase(profit),
+      capacity = gsm.currentPlayerValues.capacity.decrease(capLost).get)
     
     gsm.extCopy(
       gameMap = nMap,
-      playerValues = gsm.playerValues.extCopy(
-        resourceHolder = gsm.playerValues.resourceHolder.increase(profit),
-        capacity = gsm.playerValues.capacity.decrease(capLost).get
-      ),
+      playerValues = gsm.playerValues.updated(indexToUpdate, updatedPlayerValues),
       message = msg
     )

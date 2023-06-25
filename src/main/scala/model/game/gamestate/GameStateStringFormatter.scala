@@ -7,7 +7,6 @@ import model.core.gameobjects.purchasable.IGameObject
 import model.core.gameobjects.purchasable.building.IBuilding
 import model.core.gameobjects.resources.resourcetypes.{Energy, ResearchPoints}
 import model.core.mechanics.fleets.Fleet
-import model.core.mechanics.fleets.components.Component
 import model.core.mechanics.fleets.components.units.IUnit
 import model.core.utilities.interfaces.IRoundBasedConstructable
 import model.core.utilities.{GameValues, ICapacity, IResourceHolder, IRound, Round}
@@ -30,7 +29,7 @@ case class GameStateStringFormatter(round: IRound = Round(),
   
   def empty: String = ""
   
-  def overview(round: IRound = round, resourceHolder: IResourceHolder = gsm.playerValues.resourceHolder): String =
+  def overview(round: IRound = round, resourceHolder: IResourceHolder = gsm.currentPlayerValues.resourceHolder): String =
     header(round, resourceHolder) + gsm.gameMap.toString + "\n" + researching + "\n" +  getSectorDetails
     
   def goodbyeResponse: String = f"Goodbye!"
@@ -38,27 +37,27 @@ case class GameStateStringFormatter(round: IRound = Round(),
   def invalidInputResponse(msg: String): String =
     f"$msg - invalid\nEnter help to get an overview of all available commands"
     
-  private def header(round: IRound = round, resourceHolder: IResourceHolder = gsm.playerValues.resourceHolder): String =
+  private def header(round: IRound = round, resourceHolder: IResourceHolder = gsm.currentPlayerValues.resourceHolder): String =
     val len: Int =
       (round.toString + separator() + resourceOverview(resourceHolder) + capacityInfo + separator()).length + 2
     vertBar(len) + "\n" + " " + round + separator()
       + resourceOverview(resourceHolder) + separator() + capacityInfo + " " + "\n" + vertBar(len) + "\n"
     
   private def capacityInfo: String =
-    val usedCapacity: Int = gsmMapInfoWrapper.getUsedCapacity
-    s"Capacity: ${usedCapacity}/${gsm.playerValues.capacity.value + usedCapacity}"
+    val usedCapacity: Int = gsmMapInfoWrapper.getUsedCapacity(gsm.currentPlayerValues.affiliation)
+    s"Capacity: ${usedCapacity}/${gsm.currentPlayerValues.capacity.value + usedCapacity}"
 
   private def researching: String =
-    groupAndMapWithRemainingRounds(gsm.playerValues.listOfTechnologiesCurrentlyResearched, "Ongoing research")
+    groupAndMapWithRemainingRounds(gsm.currentPlayerValues.listOfTechnologiesCurrentlyResearched, "Ongoing research")
 
   private def getSectorDetails: String =
     "Sector Details: \n" +
-    gsm.gameMap.getPlayerSectors.flatMap(sector => {
+    gsm.gameMap.getPlayerSectors(gsm.currentPlayerValues.affiliation).flatMap(sector => {
       s"""Sector: $sector
         | ${calculateSectorBuildSlots(sector)}
         | ${listWithIdAndCount("Buildings", sector.buildingsInSector)}
         | ${sectorFleets(sector)}
-        | ${sectorProduction(sector)}""".stripMargin
+        | ${sectorProduction(sector)}\n\n""".stripMargin
     }).mkString
 
   private def calculateSectorBuildSlots(sector: IPlayerSector, prepend: String = "Used building slots: "): String =
@@ -91,13 +90,13 @@ case class GameStateStringFormatter(round: IRound = Round(),
   private def resourceOverview(resourceHolder: IResourceHolder): String =
     s"Total Balance: " +
       s"[Energy: ${resourceHolder.energy.value}" +
-      s"${getTrend(gsm.playerValues.income.subtract(gsm.playerValues.upkeep).energy.value)}] " +
+      s"${getTrend(gsm.currentPlayerValues.income.subtract(gsm.currentPlayerValues.upkeep).energy.value)}] " +
       s"[Minerals: ${resourceHolder.minerals.value}" +
-      s"${getTrend(gsm.playerValues.income.subtract(gsm.playerValues.upkeep).minerals.value)}] " +
+      s"${getTrend(gsm.currentPlayerValues.income.subtract(gsm.currentPlayerValues.upkeep).minerals.value)}] " +
       s"[Alloys: ${resourceHolder.alloys.value}" +
-      s"${getTrend(gsm.playerValues.income.subtract(gsm.playerValues.upkeep).alloys.value)}] " +
+      s"${getTrend(gsm.currentPlayerValues.income.subtract(gsm.currentPlayerValues.upkeep).alloys.value)}] " +
       s"[Research Points: ${resourceHolder.researchPoints.value}" +
-      s"${getTrend(gsm.playerValues.income.subtract(gsm.playerValues.upkeep).researchPoints.value)}]"
+      s"${getTrend(gsm.currentPlayerValues.income.subtract(gsm.currentPlayerValues.upkeep).researchPoints.value)}]"
   
   private def getTrend(value: Int): String =
     if value > 0 then AnsiColor.GREEN + s" + $value" + AnsiColor.RESET

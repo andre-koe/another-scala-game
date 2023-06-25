@@ -15,7 +15,6 @@ import model.core.gameobjects.purchasable.units.{Battleship, Corvette, Cruiser, 
 import model.core.gameobjects.resources.IResource
 import model.core.gameobjects.resources.resourcetypes.{Alloys, Energy, Minerals, ResearchPoints}
 import model.core.mechanics.{IMoveVector, MoveVector}
-import model.core.mechanics.fleets.components.Component
 import model.core.mechanics.fleets.{Fleet, IFleet}
 import model.core.mechanics.fleets.components.units.IUnit
 import model.core.utilities.{BuildSlots, Capacity, GameValues, IBuildSlots, ICapacity, IGameValues, IResourceHolder, IRound, ResourceHolder, Round}
@@ -64,7 +63,7 @@ object CirceImplicits {
     for {
       buildingType <- c.downField("type").as[String]
       round <- c.downField("round").as[Int]
-      l <- c.downField("location").as[ISector]
+      l <- c.downField("location").as[ICoordinate]
       building <- buildingType match {
         case "Mine" => Right(Mine(roundsToComplete = Round(round), location = l))
         case "EnergyGrid" => Right(EnergyGrid(roundsToComplete = Round(round), location = l))
@@ -81,22 +80,18 @@ object CirceImplicits {
     case corvette: Corvette => Json.obj(
       ("type", Json.fromString("Corvette")),
       ("round", Json.fromInt(corvette.roundsToComplete.value)),
-      ("location", corvette.location.asJson)
     )
     case destroyer: Destroyer => Json.obj(
       ("type", Json.fromString("Destroyer")),
       ("round", Json.fromInt(destroyer.roundsToComplete.value)),
-      ("location", destroyer.location.asJson)
     )
     case cruiser: Cruiser => Json.obj(
       ("type", Json.fromString("Cruiser")),
       ("round", Json.fromInt(cruiser.roundsToComplete.value)),
-      ("location", cruiser.location.asJson)
     )
     case battleship: Battleship => Json.obj(
       ("type", Json.fromString("Battleship")),
       ("round", Json.fromInt(battleship.roundsToComplete.value)),
-      ("location", battleship.location.asJson)
     )
   }
 
@@ -104,12 +99,11 @@ object CirceImplicits {
     for {
       unitType <- c.downField("type").as[String]
       round <- c.downField("round").as[Int]
-      l <- c.downField("location").as[ISector]
       unit <- unitType match {
-        case "Corvette" => Right(Corvette(roundsToComplete = Round(round), location = l))
-        case "Destroyer" => Right(Destroyer(roundsToComplete = Round(round), location = l))
-        case "Cruiser" => Right(Cruiser(roundsToComplete = Round(round), location = l))
-        case "Battleship" => Right(Battleship(roundsToComplete = Round(round), location = l))
+        case "Corvette" => Right(Corvette(roundsToComplete = Round(round)))
+        case "Destroyer" => Right(Destroyer(roundsToComplete = Round(round)))
+        case "Cruiser" => Right(Cruiser(roundsToComplete = Round(round)))
+        case "Battleship" => Right(Battleship(roundsToComplete = Round(round)))
         case _ => Left(DecodingFailure("Unknown unit type", c.history))
       }
     } yield unit
@@ -279,6 +273,7 @@ object CirceImplicits {
     case gsm: GameStateManager => Json.obj(
       ("Round", gsm.round.asJson),
       ("GameBoard", gsm.gameMap.asJson),
+      ("CurrentPlayerIndex", Json.fromInt(gsm.currentPlayerIndex)),
       ("PlayerValues", gsm.playerValues.asJson)
     )
   }
@@ -287,9 +282,13 @@ object CirceImplicits {
     for {
       round <- c.downField("Round").as[IRound]
       gameBoard <- c.downField("GameBoard").as[IGameBoard]
-      playerValues <- c.downField("PlayerValues").as[IPlayerValues]
+      currentPlayerIndex  <- c.downField("CurrentPlayerIndex").as[Int]
+      playerValues <- c.downField("PlayerValues").as[Vector[IPlayerValues]]
     } yield {
-      GameStateManager(round = round, gameMap = gameBoard, playerValues = playerValues)
+      GameStateManager(round = round,
+        gameMap = gameBoard,
+        currentPlayerIndex = currentPlayerIndex,
+        playerValues = playerValues)
     }
   }
 
@@ -339,17 +338,6 @@ object CirceImplicits {
     }
   }
 
-  implicit val encodeComponent: Encoder[Component] = Encoder.instance {
-    case fleet: IFleet => encodeIFleet(fleet)
-    case unit: IUnit => encodeIUnit(unit)
-  }
-
-  implicit val decodeComponent: Decoder[Component] = (c: HCursor) => {
-    val decodeIFleetResult = decodeIFleet(c)
-    if (decodeIFleetResult.isRight) decodeIFleetResult
-    else decodeIUnit(c)
-  }
-
   implicit val encodeSectorType: Encoder[SectorType] = Encoder.instance {
     case SectorType.BASE => Json.obj("SectorType" -> Json.fromString("BASE"))
     case SectorType.REGULAR => Json.obj("SectorType" -> Json.fromString("REGULAR"))
@@ -365,7 +353,6 @@ object CirceImplicits {
       }
     }
 
-
   implicit val encodeIFleet: Encoder[IFleet] = Encoder.instance {
     case fleet: Fleet => Json.obj(
       ("name", Json.fromString(fleet.name)),
@@ -379,7 +366,7 @@ object CirceImplicits {
     for {
       name <- c.downField("name").as[String]
       moveVector <- c.downField("movement").as[MoveVector]
-      location <- c.downField("location").as[ISector]
+      location <- c.downField("location").as[ICoordinate]
       components <- c.downField("components").as[Vector[IUnit]]
     } yield {
       Fleet(name = name, fleetComponents = components, location = location, moveVector = moveVector)

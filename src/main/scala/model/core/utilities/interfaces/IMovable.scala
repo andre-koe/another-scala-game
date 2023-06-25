@@ -4,6 +4,4 @@ import model.core.mechanics.IMoveVector
 
 trait IMovable:
 
-  def getMove: IMoveVector
-  
-  def move: Option[IMoveVector]
+  def moveVector: IMoveVector

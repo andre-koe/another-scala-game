@@ -4,11 +4,11 @@ import io.circe.{Decoder, Encoder}
 import io.circe.generic.auto.*
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.syntax.*
-import utils.CirceImplicits._
+import utils.CirceImplicits.*
 import model.core.board.sector.ISector
 import model.core.board.sector.impl.Sector
 import model.core.board.sector.sectorutils.{Affiliation, SectorType}
-import model.core.board.boardutils.Coordinate
+import model.core.board.boardutils.{Coordinate, ICoordinate}
 import model.core.gameobjects.purchasable.utils.Output
 import model.core.gameobjects.resources.resourcetypes.{Alloys, Energy, Minerals, ResearchPoints}
 import model.core.mechanics.fleets.components.units.IUnit
@@ -23,7 +23,7 @@ case class ResearchLab(name: String = "Research Lab",
                        description: String = "The Research Lab increases research output.",
                        upkeep: ResourceHolder = ResourceHolder(energy = Energy(10), alloys = Alloys(10)),
                        output: Output = Output(ResourceHolder(researchPoints = ResearchPoints(20))),
-                       location: ISector = Sector(Coordinate(-1,-1), Affiliation.INDEPENDENT, SectorType.REGULAR)
+                       location: ICoordinate = Coordinate(-1,-1)
                       ) extends IBuilding:
   
   override def toString: String = "Research Lab"

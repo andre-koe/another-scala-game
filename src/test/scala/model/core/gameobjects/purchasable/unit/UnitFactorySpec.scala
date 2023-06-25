@@ -10,24 +10,16 @@ class UnitFactorySpec extends AnyWordSpec {
 
   "The UnitFactory" should {
     "return Options" in {
-      UnitFactory("corvette",
-        Sector(Coordinate(-1,-1),
-          Affiliation.PLAYER,
-          SectorType.REGULAR)) should be(Option(Corvette(location = Sector(Coordinate(-1,-1),
-        Affiliation.PLAYER, SectorType.REGULAR))))
+      UnitFactory("corvette") should be(Option(Corvette()))
     }
     "create the following units based on their name" in {
-      UnitFactory("battleship", Sector(Coordinate(-1,-1), Affiliation.PLAYER, SectorType.REGULAR))
-        .get should be(Battleship(location = Sector(Coordinate(-1,-1), Affiliation.PLAYER, SectorType.REGULAR)))
-      UnitFactory("corvette", Sector(Coordinate(-1,-1), Affiliation.PLAYER, SectorType.REGULAR))
-        .get should be(Corvette(location = Sector(Coordinate(-1,-1), Affiliation.PLAYER, SectorType.REGULAR)))
-      UnitFactory("cruiser", Sector(Coordinate(-1,-1), Affiliation.PLAYER, SectorType.REGULAR))
-        .get should be(Cruiser(location = Sector(Coordinate(-1,-1), Affiliation.PLAYER, SectorType.REGULAR)))
-      UnitFactory("destroyer", Sector(Coordinate(-1,-1), Affiliation.PLAYER, SectorType.REGULAR))
-        .get should be(Destroyer(location = Sector(Coordinate(-1,-1), Affiliation.PLAYER, SectorType.REGULAR)))
+      UnitFactory("battleship").get should be(Battleship())
+      UnitFactory("corvette").get should be(Corvette())
+      UnitFactory("cruiser").get should be(Cruiser())
+      UnitFactory("destroyer").get should be(Destroyer())
     }
     "return None if an nonexitent unit name is passed to it" in {
-      UnitFactory("test unit", Sector(Coordinate(-1,-1), Affiliation.PLAYER, SectorType.REGULAR)) should be(None)
+      UnitFactory("test unit") should be(None)
     }
   }
 

@@ -16,7 +16,7 @@ class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
     "add memento correctly and execute the command" in {
       val manager = UndoRedoManager()
       val gameStateManager = GameStateManager()
-      val command = BuildCommand(BuildingFactory("energy grid", Sector(Coordinate(0,0))).get
+      val command = BuildCommand(BuildingFactory("energy grid", Coordinate(0,0)).get
         , PlayerSector(Sector(Coordinate(0,0))), gameStateManager)
 
       val result = manager.addMemento(command)
@@ -26,7 +26,7 @@ class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
     "undo correctly and retrieve the previous game state" in {
       val manager = UndoRedoManager()
       val gameStateManager = GameStateManager()
-      val command = BuildCommand(BuildingFactory("energy grid", Sector(Coordinate(0,0))).get
+      val command = BuildCommand(BuildingFactory("energy grid", Coordinate(0,0)).get
         , PlayerSector(Sector(Coordinate(0, 0))), gameStateManager)
 
       manager.addMemento(command)
@@ -36,7 +36,7 @@ class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
     "redo correctly and retrieve the previous game state" in {
       val manager = UndoRedoManager()
       val gameStateManager = GameStateManager()
-      val command = BuildCommand(BuildingFactory("energy grid", Sector(Coordinate(0,0))).get
+      val command = BuildCommand(BuildingFactory("energy grid", Coordinate(0,0)).get
         , PlayerSector(Sector(Coordinate(0, 0))), gameStateManager)
 
       manager.addMemento(command)

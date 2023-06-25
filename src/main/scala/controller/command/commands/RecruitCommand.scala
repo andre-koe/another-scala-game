@@ -15,10 +15,10 @@ case class RecruitCommand(unit: IUnit, quantity: Int, location: ISector, gameSta
       s"for ${rUnit.cost.multiplyBy(quantity)}, completion in ${rUnit.roundsToComplete.value} rounds."
 
   private def insufficientCapsMsg(capacity: ICapacity): String =
-    s"Insufficient Capacity --- ${gameStateManager.playerValues.capacity.lacking(capacity)}."
+    s"Insufficient Capacity --- ${gameStateManager.currentPlayerValues.capacity.lacking(capacity)}."
 
   private def insufficientFundsMsg(cost: IResourceHolder): String =
-    s"Insufficient Funds --- ${gameStateManager.playerValues.resourceHolder.lacking(cost)}."
+    s"Insufficient Funds --- ${gameStateManager.currentPlayerValues.resourceHolder.lacking(cost)}."
 
   private def invalidSector(sector: ISector): String =
     s"Can't begin construction in ${sector.toString} - is not a player sector"
@@ -38,7 +38,7 @@ case class RecruitCommand(unit: IUnit, quantity: Int, location: ISector, gameSta
       case _ => gameStateManager.message(insufficientFundsMsg(rUnit.cost.multiplyBy(qty)))
 
   private def checkCapacity(cap: ICapacity, quantity: Int): Option[ICapacity] =
-    gameStateManager.playerValues.capacity.decrease(cap.multiplyBy(quantity))
+    gameStateManager.currentPlayerValues.capacity.decrease(cap.multiplyBy(quantity))
 
   private def checkFunds(cost: IResourceHolder, quantity: Int): Option[IResourceHolder] =
-    gameStateManager.playerValues.resourceHolder.decrease(cost.multiplyBy(quantity))
+    gameStateManager.currentPlayerValues.resourceHolder.decrease(cost.multiplyBy(quantity))

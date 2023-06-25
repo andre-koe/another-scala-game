@@ -4,7 +4,7 @@ import io.circe.generic.auto.*
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.syntax.*
 import io.circe.{Decoder, Encoder}
-import model.core.board.boardutils.Coordinate
+import model.core.board.boardutils.{Coordinate, ICoordinate}
 import model.core.board.sector.ISector
 import model.core.board.sector.impl.Sector
 import model.core.board.sector.sectorutils.{Affiliation, SectorType}
@@ -22,7 +22,7 @@ case class Mine(name: String = "Mine",
                   "Minerals are the base resource for the production of alloys.",
                 upkeep: IResourceHolder = ResourceHolder(energy = Energy(10)),
                 output: Output = Output(rHolder = ResourceHolder(minerals = Minerals(10))),
-                location: ISector = Sector(Coordinate(-1,-1), Affiliation.INDEPENDENT, SectorType.REGULAR)
+                location: ICoordinate = Coordinate(-1,-1)
                ) extends IBuilding:
   
   override def toString: String = "Mine"

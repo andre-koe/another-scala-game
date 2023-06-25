@@ -15,7 +15,7 @@ case class GameBoardData(cols: Int, rows: Int):
       (cols, rows) => val coord = Coordinate(cols, rows)
       coord match
         case Coordinate(0,0) => PlayerSector(Sector(Coordinate(cols, rows), Affiliation.PLAYER, SectorType.BASE))
-        case Coordinate(_,_) if isLast(coord) => Sector(Coordinate(cols, rows), Affiliation.ENEMY, SectorType.BASE)
+        case Coordinate(_,_) if isLast(coord) => PlayerSector(Sector(Coordinate(cols, rows), Affiliation.ENEMY, SectorType.BASE))
         case _ =>  Sector(Coordinate(cols, rows), Affiliation.INDEPENDENT, SectorType.REGULAR)
     }
 

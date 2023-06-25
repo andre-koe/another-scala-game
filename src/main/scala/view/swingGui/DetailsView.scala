@@ -18,6 +18,7 @@ import view.swingGui.BuyableItemView
 
 import java.awt.{Color, Dimension}
 import javax.swing.border.EmptyBorder
+
 import scala.swing.event.{ButtonClicked, SelectionChanged}
 import scala.swing.{BoxPanel, Button, ComboBox, Component, Dialog, Dimension, GridPanel, Label, Orientation, ScrollPane, Swing, TabbedPane, TextField}
 

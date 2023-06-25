@@ -1,14 +1,16 @@
 package view.tui
 
-import controller.Controller
-import controller.newInterpreter.ExpressionParser
+import com.google.inject.Guice
+import controller.IController
+import controller.newInterpreter.ICommandTokenizer
 import controller.validator.ValidationHandler
 import utils.Observer
 
 import scala.annotation.tailrec
 import scala.io.StdIn
+import utils.DefaultValueProvider.{given_IController, given_ICommandTokenizer}
 
-case class Tui(controller: Controller) extends Observer {
+case class Tui()(using controller: IController, commandTokenizer: ICommandTokenizer) extends Observer {
 
   def gameTitle: String = "TBD"
 
@@ -25,7 +27,7 @@ case class Tui(controller: Controller) extends Observer {
     def runGameLoop(running: Boolean): Boolean = {
       if running then
         val input = StdIn.readLine(">>> ")
-        val state = controller.processInput(ExpressionParser().parseInput(input))
+        val state = controller.processInput(commandTokenizer.parseInput(input))
         runGameLoop(state)
       else
         endGame(false)

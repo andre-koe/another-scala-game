@@ -1,16 +1,32 @@
 package model.game.gamestate.strategies.sell
 
-import model.game.{Capacity, PlayerValues}
-import model.game.gamestate.GameStateManager
-import model.game.purchasable.units.IUnit
-import model.game.resources.ResourceHolder
+import model.core.board.sector.impl.IPlayerSector
+import model.core.mechanics.fleets.Fleet
+import model.core.mechanics.fleets.components.units.IUnit
+import model.core.utilities.{ICapacity, IResourceHolder}
+import model.game.gamestate.IGameStateManager
+import model.game.playervalues.IPlayerValues
 
-case class SellUnitStrategy(units: List[IUnit], profit: ResourceHolder, cap: Capacity) extends ISellStrategy:
+import scala.annotation.tailrec
 
-  override def sell(gsm: GameStateManager): GameStateManager =
-    gsm.copy(
-      playerValues = PlayerValues(
-        resourceHolder = gsm.playerValues.resourceHolder.increase(profit),
-        capacity = gsm.playerValues.capacity.increase(cap),
-        listOfUnits = units)
+case class SellUnitStrategy(sector: IPlayerSector, tbr: Seq[IUnit]) extends ISellStrategy:
+  override def sell(gsm: IGameStateManager): IGameStateManager =
+    val profit = calcProfit(tbr)
+    val capGained = returnAccumulated(tbr, (b: IUnit) => b.capacity, (x: ICapacity, y: ICapacity) => x.increase(y))
+    val msg = sellSuccessMsg(tbr.head.name, tbr.size, profit)
+    val nMap = gsm.gameMap.updateSector(sector.removeUnits(tbr.toVector).get)
+
+    val indexToUpdate = gsm.currentPlayerIndex
+    val updatedPlayerValues = gsm.currentPlayerValues.extCopy(
+      resourceHolder = gsm.currentPlayerValues.resourceHolder.increase(profit),
+      capacity = gsm.currentPlayerValues.capacity.increase(capGained))
+
+    gsm.extCopy(
+      gameMap = nMap,
+      playerValues = gsm.playerValues.updated(indexToUpdate, updatedPlayerValues),
+      message = msg
     )
+
+
+
+

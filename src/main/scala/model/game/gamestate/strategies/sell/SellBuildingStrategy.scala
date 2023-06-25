@@ -1,16 +1,27 @@
 package model.game.gamestate.strategies.sell
 
-import model.game.{Capacity, PlayerValues}
-import model.game.gamestate.GameStateManager
-import model.game.purchasable.building.IBuilding
-import model.game.resources.ResourceHolder
+import model.core.board.sector.impl.IPlayerSector
+import model.core.gameobjects.purchasable.building.IBuilding
+import model.core.gameobjects.purchasable.utils.IOutput
+import model.game.gamestate.IGameStateManager
 
-case class SellBuildingStrategy(buildings: List[IBuilding], profit: ResourceHolder, cap: Capacity) extends ISellStrategy:
+case class SellBuildingStrategy(location: IPlayerSector, str: IBuilding, quantity: Int) extends ISellStrategy:
 
-  override def sell(gsm: GameStateManager): GameStateManager =
-    gsm.copy(
-      playerValues = PlayerValues(
-        resourceHolder = gsm.playerValues.resourceHolder.increase(profit), 
-        capacity = gsm.playerValues.capacity.decrease(cap).get, 
-        listOfBuildings = buildings)
+  override def sell(gsm: IGameStateManager): IGameStateManager =
+    val buildings = removeFromSeq(location.buildingsInSector, quantity, str)
+    val profit = calcProfit(buildings._2)
+    val capLost = returnAccumulated(buildings._2, (b: IBuilding) => b.output, (x:IOutput, y:IOutput) => x.increase(y)).cap
+    val msg = sellSuccessMsg(str.name, quantity, profit)
+    
+    val nMap = gsm.gameMap.updateSector(location.extCopy(buildingsInSector = buildings._1.toVector))
+
+    val indexToUpdate = gsm.currentPlayerIndex
+    val updatedPlayerValues = gsm.currentPlayerValues.extCopy(
+      resourceHolder = gsm.currentPlayerValues.resourceHolder.increase(profit),
+      capacity = gsm.currentPlayerValues.capacity.decrease(capLost).get)
+    
+    gsm.extCopy(
+      gameMap = nMap,
+      playerValues = gsm.playerValues.updated(indexToUpdate, updatedPlayerValues),
+      message = msg
     )

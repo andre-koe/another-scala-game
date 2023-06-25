@@ -2,6 +2,7 @@ package controller.command.commands
 
 import model.game.gamestate.GameStateManager
 import org.scalatest.wordspec.AnyWordSpec
+import utils.DefaultValueProvider.given_IGameValues
 import org.scalatest.matchers.should.Matchers.*
 class EmptyCommandSpec extends AnyWordSpec {
 

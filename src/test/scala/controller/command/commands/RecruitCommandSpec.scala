@@ -1,10 +1,16 @@
 package controller.command.commands
 
-import model.game.{Capacity, PlayerValues}
+import model.core.board.sector.ISector
+import model.core.board.sector.impl.Sector
+import utils.DefaultValueProvider.given_IGameValues
+import model.core.board.sector.sectorutils.{Affiliation, SectorType}
+import model.core.board.boardutils.Coordinate
+import model.core.gameobjects.purchasable.units.Corvette
+import model.core.gameobjects.resources.resourcetypes.{Alloys, Energy, Minerals}
+import model.core.utilities.{Capacity, ResourceHolder}
 import model.game.gamestate.GameStateManager
-import model.game.purchasable.units.Corvette
-import model.game.resources.ResourceHolder
-import model.game.resources.resourcetypes.{Alloys, Energy, Minerals}
+import model.game.playervalues
+import model.game.playervalues.PlayerValues
 import org.scalatest.matchers.should.Matchers.*
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -14,37 +20,48 @@ class RecruitCommandSpec extends AnyWordSpec {
     "invoke the correct behaviour corresponding to the request" when {
 
       "initialized with with valid unit and sufficient capacity and resources" in {
-        val pV: PlayerValues = PlayerValues(
+        val pV: PlayerValues = playervalues.PlayerValues(
           capacity = Capacity(100),
           resourceHolder = ResourceHolder(energy = Energy(1000), minerals = Minerals(1000)))
-        val gsm: GameStateManager = GameStateManager(playerValues = pV)
-
-        val recruitCommand = RecruitCommand(Corvette(), 2, gsm)
-        recruitCommand.execute().playerValues.listOfUnitsUnderConstruction.isEmpty should be(false)
+        val gsm: GameStateManager = GameStateManager(playerValues = Vector(pV))
+        val sector = gsm.gameMap.getSectorAtCoordinate(Coordinate(0,0)).get
+        val recruitCommand = RecruitCommand(Corvette(), 2, sector, gsm)
+        recruitCommand.execute().gameMap.getPlayerSectors(Affiliation.PLAYER).map(_.constQuUnits).isEmpty should be(false)
         recruitCommand.execute().toString should be("Beginning construction of 2 x Corvette " +
           s"for ${Corvette().cost.multiplyBy(2)}, completion in ${Corvette().roundsToComplete.value} rounds.")
       }
 
       "initialized with with valid unit and sufficient resources but insuffficient capacity" in {
-        val pV: PlayerValues = PlayerValues(
+        val pV: PlayerValues = playervalues.PlayerValues(
           capacity = Capacity(0),
           resourceHolder = ResourceHolder(energy = Energy(1000), minerals = Minerals(1000)))
-        val gsm: GameStateManager = GameStateManager(playerValues = pV)
-
-        val recruitCommand = RecruitCommand(Corvette(), 2, gsm)
-        recruitCommand.execute().playerValues.listOfUnitsUnderConstruction.isEmpty should be(true)
+        val gsm: GameStateManager = GameStateManager(playerValues = Vector(pV))
+        val sector = gsm.gameMap.getSectorAtCoordinate(Coordinate(0,0)).get
+        val recruitCommand = RecruitCommand(Corvette(), 2, sector, gsm)
+        recruitCommand.execute().gameMap.getSectorAtCoordinate(Coordinate(0,0)).get.unitsInSector.isEmpty should be(true)
         recruitCommand.execute().toString should be(s"Insufficient Capacity --- [Capacity: 2].")
       }
 
       "initialized with with valid unit and sufficient capacity but insuffficient resources" in {
-        val pV: PlayerValues = PlayerValues(
+        val pV: PlayerValues = playervalues.PlayerValues(
           capacity = Capacity(2),
           resourceHolder = ResourceHolder(energy = Energy(0), minerals = Minerals(0)))
-        val gsm: GameStateManager = GameStateManager(playerValues = pV)
-
-        val recruitCommand = RecruitCommand(Corvette(), 2, gsm)
-        recruitCommand.execute().playerValues.listOfUnitsUnderConstruction.isEmpty should be(true)
+        val gsm: GameStateManager = GameStateManager(playerValues = Vector(pV))
+        val sector = gsm.gameMap.getSectorAtCoordinate(Coordinate(0,0)).get
+        val recruitCommand = RecruitCommand(Corvette(), 2, sector, gsm)
+        recruitCommand.execute().gameMap.getSectorAtCoordinate(Coordinate(0,0)).get.unitsInSector.isEmpty should be(true)
         recruitCommand.execute().toString should be(s"Insufficient Funds --- Total Lacking: [Energy: 140] [Minerals: 60].")
+      }
+
+      "initialized with with valid unit, sufficient capacity and resources but wrong sector" in {
+        val pV: PlayerValues = playervalues.PlayerValues(
+          capacity = Capacity(2),
+          resourceHolder = ResourceHolder(energy = Energy(0), minerals = Minerals(0)))
+        val gsm: GameStateManager = GameStateManager(playerValues = Vector(pV))
+        val sector = gsm.gameMap.getSectorAtCoordinate(Coordinate(1, 1)).get
+        val recruitCommand = RecruitCommand(Corvette(), 2, sector, gsm)
+        recruitCommand.execute().gameMap.getSectorAtCoordinate(Coordinate(1, 1)).get.unitsInSector.isEmpty should be(true)
+        recruitCommand.execute().toString should be(s"Can't begin construction in ${sector} - is not a player sector")
       }
 
     }

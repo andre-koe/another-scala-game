@@ -1,8 +1,10 @@
 package controller.command.commands
 
 import controller.command.ICommand
-import model.game.gamestate.GameStateManager
+import model.core.fileIO.IFileIOStrategy
+import model.game.gamestate.IGameStateManager
+import utils.DefaultValueProvider.given_IFileIOStrategy
+case class LoadCommand(string: Option[String],
+                       gameStateManager: IGameStateManager)(using fileIOStrategy: IFileIOStrategy) extends ICommand:
 
-case class LoadCommand(string: Option[String], gameStateManager: GameStateManager) extends ICommand:
-
-  override def execute(): GameStateManager = gameStateManager.load(string)
+  override def execute(): IGameStateManager = gameStateManager.load(fileIOStrategy, string)

@@ -1,7 +1,10 @@
 package controller.command
 
-import model.game.gamestate.GameStateManager
+import utils.DefaultValueProvider.given_IGameValues
+import model.game.gamestate.IGameStateManager
 
 trait ICommand:
-  def execute(): GameStateManager
+
+  def gameStateManager: IGameStateManager
+  def execute(): IGameStateManager
 

@@ -1,9 +1,9 @@
 package controller.command.commands
 
 import controller.command.ICommand
-import model.game.gamestate.GameStateManager
+import model.game.gamestate.IGameStateManager
 import model.game.gamestate.enums.messages.MessageType
 
-case class ShowCommand(gsm: GameStateManager) extends ICommand:
+case class ShowCommand(gameStateManager: IGameStateManager) extends ICommand:
   
-  override def execute(): GameStateManager = gsm.show()
+  override def execute(): IGameStateManager = gameStateManager.show()

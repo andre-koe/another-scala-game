@@ -2,8 +2,9 @@ package controller.command.commands
 
 import model.game.gamestate.GameStateManager
 import model.game.gamestate.gamestates.{RunningState, WaitForUserConfirmation}
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers.*
+import org.scalatest.wordspec.AnyWordSpec
+import utils.DefaultValueProvider.given_IGameValues
 
 
 case class UserDeclineCommandSpec() extends AnyWordSpec:

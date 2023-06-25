@@ -2,15 +2,15 @@ package controller.validator
 
 import controller.command.ICommand
 import controller.command.commands.{HelpCommand, InvalidCommand, MessageCommand}
-import controller.newInterpreter.{InterpretedCommand, InterpretedExpression, InterpretedGameObject, InterpretedSubcommand}
-import controller.validator.utils.ValidatorUtils
-import model.game.gamestate.GameStateManager
+import controller.newInterpreter.{InterpretedCommand, InterpretedInput, InterpretedGameObject, InterpretedSubcommand}
+import controller.validator.validatorutils.ValidatorUtils
+import model.core.gameobjects.purchasable.IGameObject
+import model.game.gamestate.IGameStateManager
 import model.game.gamestate.enums.help.HelpContext.{BUILDING, GENERAL, SPECIFIC, TECHNOLOGY, UNIT}
 import model.game.gamestate.enums.messages.MessageType.HELP
-import model.game.purchasable.IGameObject
 
-case class HelpValidator(orig: String, gsm: GameStateManager) extends IValidator:
-  override def validate(input: Vector[InterpretedExpression]): Either[IValidator, Option[ICommand]] =
+case class HelpValidator(orig: String, gsm: IGameStateManager) extends IValidator:
+  override def validate(input: Vector[InterpretedInput]): Either[IValidator, Option[ICommand]] =
     val unidentified = ValidatorUtils().findUnidentified(input)
     val obj = ValidatorUtils().findGameObjects(input)
     val string = ValidatorUtils().findSubcommands(input)

@@ -1,35 +1,44 @@
 package controller.command.commands
 
 import controller.command.{ICommand, IUndoable}
-import model.game.{Capacity, GameValues}
-import model.game.gamestate.GameStateManager
-import model.game.purchasable.units.{IUnit, UnitFactory}
-import model.game.resources.ResourceHolder
+import model.core.board.sector.ISector
+import model.core.board.sector.impl.IPlayerSector
+import model.core.gameobjects.purchasable.units.UnitFactory
+import model.core.mechanics.fleets.components.units.IUnit
+import model.core.utilities.{ICapacity, IResourceHolder}
+import model.game.gamestate.IGameStateManager
 
-case class RecruitCommand(unit: IUnit, quantity: Int, gameStateManager: GameStateManager) extends ICommand, IUndoable:
+case class RecruitCommand(unit: IUnit, quantity: Int, location: ISector, gameStateManager: IGameStateManager) extends ICommand, IUndoable:
 
   private def successMsg(rUnit: IUnit, quantity: Int) =
     s"Beginning construction of ${quantity} x ${rUnit.name} " +
       s"for ${rUnit.cost.multiplyBy(quantity)}, completion in ${rUnit.roundsToComplete.value} rounds."
 
-  private def insufficientCapsMsg(capacity: Capacity): String =
-    s"Insufficient Capacity --- ${gameStateManager.playerValues.capacity.lacking(capacity)}."
+  private def insufficientCapsMsg(capacity: ICapacity): String =
+    s"Insufficient Capacity --- ${gameStateManager.currentPlayerValues.capacity.lacking(capacity)}."
 
-  private def insufficientFundsMsg(cost: ResourceHolder): String =
-    s"Insufficient Funds --- ${gameStateManager.playerValues.resourceHolder.lacking(cost)}."
+  private def insufficientFundsMsg(cost: IResourceHolder): String =
+    s"Insufficient Funds --- ${gameStateManager.currentPlayerValues.resourceHolder.lacking(cost)}."
+
+  private def invalidSector(sector: ISector): String =
+    s"Can't begin construction in ${sector.toString} - is not a player sector"
     
-  override def execute(): GameStateManager = handleRecruitment(unit, quantity)
+  override def execute(): IGameStateManager = validateSector(location)
 
-  private def handleRecruitment(rUnit: IUnit, quantity: Int): GameStateManager =
-    (checkFunds(rUnit.cost, quantity), checkCapacity(rUnit.capacity, quantity)) match
+  private def validateSector(location: ISector): IGameStateManager =
+    location match
+      case x : IPlayerSector => handleRecruitment(unit, quantity, x)
+      case _ => gameStateManager.message(invalidSector(location))
+
+  private def handleRecruitment(rUnit: IUnit, qty: Int, sector: IPlayerSector): IGameStateManager =
+    (checkFunds(rUnit.cost, qty), checkCapacity(rUnit.capacity, qty)) match
       case (Some(newBalance), Some(newCapacity)) =>
-        gameStateManager.recruit(Vector.fill(quantity)(rUnit), newBalance, newCapacity, successMsg(rUnit, quantity))
-      case (Some(_), None) =>
-        gameStateManager.message(insufficientCapsMsg(rUnit.capacity.multiplyBy(quantity)))
-      case _ => gameStateManager.message(insufficientFundsMsg(rUnit.cost.multiplyBy(quantity)))
+        gameStateManager.recruit(sector.constructUnit(rUnit, qty), newBalance, newCapacity, successMsg(rUnit, qty))
+      case (Some(_), None) => gameStateManager.message(insufficientCapsMsg(rUnit.capacity.multiplyBy(qty)))
+      case _ => gameStateManager.message(insufficientFundsMsg(rUnit.cost.multiplyBy(qty)))
 
-  private def checkCapacity(cap: Capacity, quantity: Int): Option[Capacity] =
-    gameStateManager.playerValues.capacity.decrease(cap.multiplyBy(quantity))
+  private def checkCapacity(cap: ICapacity, quantity: Int): Option[ICapacity] =
+    gameStateManager.currentPlayerValues.capacity.decrease(cap.multiplyBy(quantity))
 
-  private def checkFunds(cost: ResourceHolder, quantity: Int): Option[ResourceHolder] =
-    gameStateManager.playerValues.resourceHolder.decrease(cost.multiplyBy(quantity))
+  private def checkFunds(cost: IResourceHolder, quantity: Int): Option[IResourceHolder] =
+    gameStateManager.currentPlayerValues.resourceHolder.decrease(cost.multiplyBy(quantity))

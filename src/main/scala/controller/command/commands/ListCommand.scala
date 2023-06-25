@@ -1,38 +1,38 @@
 package controller.command.commands
 
 import controller.command.ICommand
-import model.game.{Capacity, GameValues}
-import model.game.gamestate.GameStateManager
+import model.core.gameobjects.purchasable.IGameObject
+import model.core.gameobjects.purchasable.building.IBuilding
+import model.core.gameobjects.purchasable.technology.ITechnology
+import model.core.mechanics.fleets.components.units.IUnit
+import model.core.utilities.interfaces.IPurchasable
+import model.core.utilities.{Capacity, GameValues, ICapacity, IResourceHolder, ResourceHolder}
+import model.game.gamestate.IGameStateManager
 import model.game.gamestate.enums.ListParams
-import model.game.gamestate.enums.ListParams.{TECHNOLOGY, UNITS, BUILDING, ALL}
-import model.game.purchasable.IGameObject
-import model.game.purchasable.building.IBuilding
-import model.game.purchasable.technology.ITechnology
-import model.game.purchasable.units.IUnit
-import model.game.resources.ResourceHolder
+import model.game.gamestate.enums.ListParams.{ALL, BUILDING, TECHNOLOGY, UNITS}
 
 import scala.io
 import scala.io.AnsiColor
 
-case class ListCommand(param: ListParams, gsm: GameStateManager) extends ICommand:
+case class ListCommand(param: ListParams, gameStateManager: IGameStateManager, gameValues: GameValues = GameValues()) extends ICommand:
 
-    override def execute(): GameStateManager =
+    override def execute(): IGameStateManager =
         val message = param match
-            case TECHNOLOGY => listSection("technologies", gsm.gameValues.listOfTechnologies)
-            case UNITS => listSection("units", gsm.gameValues.listOfUnits)
-            case BUILDING => listSection("buildings", gsm.gameValues.listOfBuildings)
+            case TECHNOLOGY => listSection("technologies", gameValues.tech)
+            case UNITS => listSection("units", gameValues.units)
+            case BUILDING => listSection("buildings", gameValues.buildings)
             case ALL => listAll
-        gsm.message(message)
+        gameStateManager.message(message)
 
-    private def listSection[T<:IGameObject](name: String, list: List[T]): String =
-        s"==== ${name.toUpperCase} ====\n${prependString(list.map(addStyle)).mkString("\n")}\n"
+    private def listSection[T<:IGameObject](name: String, vec: Vector[T]): String =
+        s"==== ${name.toUpperCase} ====\n${prependString(vec.map(addStyle)).mkString("\n")}\n"
 
     def listAll: String =
-        listSection("buildings", gsm.gameValues.listOfBuildings) +
-        listSection("technologies", gsm.gameValues.listOfTechnologies) +
-        listSection("units", gsm.gameValues.listOfUnits)
+        listSection("buildings", gameValues.buildings) +
+        listSection("technologies", gameValues.tech) +
+        listSection("units", gameValues.units)
 
-    private def prependString(l: List[String]) = l.map(_.prependedAll(" - "))
+    private def prependString(l: Vector[String]) = l.map(_.prependedAll(" - "))
 
     private def addStyle(gameObj: IGameObject): String =
         gameObj match
@@ -41,39 +41,39 @@ case class ListCommand(param: ListParams, gsm: GameStateManager) extends IComman
             case _:ITechnology => styleTechnologyListEntry(gameObj.name)
 
     private def styleBuildingListEntry(str: String): String =
-        val building = gsm.gameValues.listOfBuildings.find(_.name == str).head
+        val building = gameValues.buildings.find(_.name == str).head
         handleColoring(building)
 
     private def styleUnitListEntry(str: String): String =
-        val unit = gsm.gameValues.listOfUnits.find(_.name == str).head
+        val unit = gameValues.units.find(_.name == str).head
         (returnOptionRemainingResources(unit.cost), returnOptionRemainingCapacity(unit.capacity)) match
             case (Some(_), Some(_)) =>
-                unit.toString + s" " +
-                  s"(${Math.min(gsm.playerValues.resourceHolder.holds(unit.cost).get,
-                      gsm.playerValues.capacity.holds(unit.capacity).get)})"
+                unit.name + s" " +
+                  s"(${Math.min(gameStateManager.currentPlayerValues.resourceHolder.holds(unit.cost).get,
+                      gameStateManager.currentPlayerValues.capacity.holds(unit.capacity).get)})"
             case (Some(_), None) => handleStringColor(AnsiColor.RED,
-                unit.toString + " Total Lacking: " + gsm.playerValues.capacity.lacking(unit.capacity))
+                unit.name + " Total Lacking: " + gameStateManager.currentPlayerValues.capacity.lacking(unit.capacity))
             case _ => handleStringColor(AnsiColor.RED,
-                unit.toString + " " + gsm.playerValues.resourceHolder.lacking(unit.cost))
+                unit.name + " " + gameStateManager.currentPlayerValues.resourceHolder.lacking(unit.cost))
 
     private def styleTechnologyListEntry(str: String): String =
-        val tech = gsm.gameValues.listOfTechnologies.find(_.name == str).head
+        val tech = gameValues.tech.find(_.name == str).head
         if checkIfTechAlreadyResearched(tech.name)
         then handleStringColor(AnsiColor.CYAN, tech.toString + " (already researched)") else handleColoring(tech)
 
-    private def handleColoring(obj: IGameObject): String =
+    private def handleColoring(obj: IGameObject & IPurchasable): String =
         returnOptionRemainingResources(obj.cost) match
-            case Some(_) => obj.toString
+            case Some(_) => obj.name
             case None => handleStringColor(AnsiColor.RED,
-                    obj.toString + " " + gsm.playerValues.resourceHolder.lacking(obj.cost))
-    private def returnOptionRemainingResources(resourceHolder: ResourceHolder): Option[ResourceHolder] =
-        gsm.playerValues.resourceHolder.decrease(resourceHolder)
+                    obj.name + " " + gameStateManager.currentPlayerValues.resourceHolder.lacking(obj.cost))
+    private def returnOptionRemainingResources(resourceHolder: IResourceHolder): Option[IResourceHolder] =
+        gameStateManager.currentPlayerValues.resourceHolder.decrease(resourceHolder)
 
-    private def returnOptionRemainingCapacity(capacity: Capacity): Option[Capacity] =
-        gsm.playerValues.capacity.decrease(capacity)
+    private def returnOptionRemainingCapacity(capacity: ICapacity): Option[ICapacity] =
+        gameStateManager.currentPlayerValues.capacity.decrease(capacity)
 
     private def checkIfTechAlreadyResearched(name: String): Boolean =
-        gsm.playerValues.listOfTechnologiesCurrentlyResearched.exists(_.name == name) ||
-          gsm.playerValues.listOfTechnologies.exists(_.name == name)
+        gameStateManager.currentPlayerValues.listOfTechnologiesCurrentlyResearched.exists(_.name == name) ||
+          gameStateManager.currentPlayerValues.listOfTechnologies.exists(_.name == name)
 
     private def handleStringColor(color: String, target: String): String = color + target + AnsiColor.RESET

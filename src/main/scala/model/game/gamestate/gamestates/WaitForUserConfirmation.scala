@@ -1,13 +1,15 @@
 package model.game.gamestate.gamestates
 
-import model.game.gamestate.{GameStateManager, IGameState}
+import io.circe.*
+import io.circe.generic.auto.*
+import model.game.gamestate.{IGameStateManager, IGameState}
 
 case class WaitForUserConfirmation() extends IGameState:
 
-  override def update(gsm: GameStateManager): GameStateManager = EndRoundConfirmationState().update(gsm)
+  override def update(gsm: IGameStateManager): IGameStateManager = EndRoundConfirmationState().update(gsm)
 
-  def back(gsm: GameStateManager): GameStateManager =
-    gsm.copy(gameState = RunningState(), message = "End round aborted")
+  def back(gsm: IGameStateManager): IGameStateManager =
+    gsm.extCopy(message = "End round aborted", gameState = RunningState())
 
-  def ask(gsm: GameStateManager): GameStateManager =
-    gsm.copy(gameState = WaitForUserConfirmation(), message = "Are you sure? [yes (y) / no (n)]")
+  def ask(gsm: IGameStateManager): IGameStateManager =
+    gsm.extCopy(message = "Are you sure? [yes (y) / no (n)]", gameState = WaitForUserConfirmation())

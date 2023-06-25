@@ -1,21 +1,21 @@
 package controller.command.commands
 
 import controller.command.ICommand
-import model.game.GameValues
-import model.game.gamestate.GameStateManager
+import model.core.gameobjects.purchasable.IGameObject
+import model.core.utilities.GameValues
+import model.game.gamestate.IGameStateManager
 import model.game.gamestate.enums.help.HelpContext
 import model.game.gamestate.enums.help.HelpContext._
-import model.game.purchasable.IGameObject
 import model.utils.GameObjectUtils
 
-case class HelpCommand(context: HelpContext, gsm: GameStateManager, value: Option[IGameObject] = None) extends ICommand:
-  override def execute(): GameStateManager =
+case class HelpCommand(context: HelpContext, gameStateManager: IGameStateManager, value: Option[IGameObject] = None) extends ICommand:
+  override def execute(): IGameStateManager =
     context match
-      case BUILDING => gsm.message(helpBuilding)
-      case TECHNOLOGY => gsm.message(helpTech)
-      case UNIT => gsm.message(helpUnit)
-      case GENERAL => gsm.message(defaultHelpResponse)
-      case SPECIFIC => gsm.message(value.get.toString)
+      case BUILDING => gameStateManager.message(helpBuilding)
+      case TECHNOLOGY => gameStateManager.message(helpTech)
+      case UNIT => gameStateManager.message(helpUnit)
+      case GENERAL => gameStateManager.message(defaultHelpResponse)
+      case SPECIFIC => gameStateManager.message(value.get.toString)
 
   private def helpBuilding: String = "A building can impact the game in various ways, " +
     "such as increasing research output, providing energy, or increasing unit capacity."

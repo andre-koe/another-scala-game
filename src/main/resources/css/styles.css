@@ -1,0 +1,13 @@
+@font-face {
+    font-family: 'Roboto';
+    src: url('../fonts/Roboto-Regular.ttf');
+}
+
+* {
+    #-fx-background-color: #222;
+    -fx-fill: white;
+}
+
+.scroll-pane > * {
+    -fx-background-color: #1113;
+}

@@ -1,7 +1,7 @@
 package controller.command.commands
 
 import controller.command.ICommand
-import model.game.gamestate.GameStateManager
+import model.game.gamestate.IGameStateManager
 
-case class UserDeclineCommand(gsm: GameStateManager) extends ICommand:
-  override def execute(): GameStateManager = gsm.decline()
+case class UserDeclineCommand(gameStateManager: IGameStateManager) extends ICommand:
+  override def execute(): IGameStateManager = gameStateManager.decline()

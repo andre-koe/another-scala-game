@@ -17,10 +17,11 @@ This is a 2-player turn-based strategy game set in space. It was developed durin
 
 **Resource Management:** There are several resources to manage in the game:
 
-**Energy:** Essential for maintaining units and buildings.
-Minerals: Used for constructing units and buildings.
-Alloys: A higher-level resource used in advanced constructions.
-Research Points: Necessary for researching new technologies.
+- Energy: Essential for maintaining units and buildings.
+- Minerals: Used for constructing units and buildings.
+- Alloys: A higher-level resource used in advanced constructions.
+- Research Points: Necessary for researching new technologies.
+
 Building Construction: Players can construct several types of buildings:
 
 - Energy Grid: Generates Energy.

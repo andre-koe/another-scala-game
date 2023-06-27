@@ -13,15 +13,16 @@ This is a 2-player turn-based strategy game set in space. It was developed durin
 ## Core Features:
 **Multiplayer:** The game supports two players, each with their own sectors and resources.
 
-**Sector Control:** Players manage various sectors, each with its own affiliation: Player, Enemy, or Independent. Each sector has a unique set of buildings and units, and these assets can be traded.
+**Sector Control:** Players manage various sectors. Each sector supports the construction of buildings to grant you the resources to size up your fleets and crush the enemy.
 
 **Resource Management:** There are several resources to manage in the game:
 
-**Energy:** Essential for maintaining units and buildings.
-Minerals: Used for constructing units and buildings.
-Alloys: A higher-level resource used in advanced constructions.
-Research Points: Necessary for researching new technologies.
-Building Construction: Players can construct several types of buildings:
+- Energy: Essential for maintaining units and buildings.
+- Minerals: Used for constructing units and buildings.
+- Alloys: A higher-level resource used in advanced constructions.
+- Research Points: Necessary for researching new technologies.
+
+**Building Construction:** Players can construct several types of buildings:
 
 - Energy Grid: Generates Energy.
 - Mine: Produces Minerals.

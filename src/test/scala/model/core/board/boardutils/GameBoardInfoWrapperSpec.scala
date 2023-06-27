@@ -72,10 +72,15 @@ class GameBoardInfoWrapperSpec extends AnyWordSpec with Matchers {
         wrapper.getFreeBuildSlotsInSectorRemaining(pSector2).get shouldEqual 1
       }
 
-      "retrieve buildings in sector" in {
+      "retrieve buildings in player sector" in {
         val sector: ISector = Sector(Coordinate(0,0))
         val pSector: ISector = PlayerSector(sector = sector, buildingsInSector = Vector(EnergyGrid(location = sector.location)))
         wrapper.update(pSector).getBuildingsInSector(pSector).head.name shouldEqual "Energy Grid"
+      }
+
+      "retrieve empty vector for buildings in sector" in {
+        val sector: ISector = Sector(Coordinate(0, 0))
+        wrapper.update(sector).getBuildingsInSector(sector) shouldBe Vector()
       }
 
       "retrieve buildings under construction in sector" in {
@@ -97,6 +102,20 @@ class GameBoardInfoWrapperSpec extends AnyWordSpec with Matchers {
           unitsInSector = Vector(Fleet(fleetComponents = Vector(Corvette()))))
         val pSector: ISector = PlayerSector(sector = sector)
         wrapper.update(pSector).getUnitsInSector(pSector).head.name shouldBe ("Corvette")
+      }
+
+      "retrieve units under construction in sector" in {
+        val sector: ISector = Sector(location = Coordinate(0, 0),
+          unitsInSector = Vector(Fleet(fleetComponents = Vector(Corvette()))))
+        val pSector: ISector = PlayerSector(sector = sector)
+        wrapper.update(pSector).getUnitConstructionInSectors(sector.affiliation) shouldBe Vector()
+      }
+
+      "retrieve units under construction in player sector" in {
+        val sector: ISector = Sector(location = Coordinate(0, 0),
+          unitsInSector = Vector())
+        val pSector: ISector = PlayerSector(sector = sector, constQuUnits = Vector(Corvette()))
+        wrapper.update(pSector).getUnitConstructionInSectors(sector.affiliation).head.name shouldBe "Corvette"
       }
 
       "retrieve units under construction in all sectors" in {

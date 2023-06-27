@@ -71,4 +71,10 @@ class PlayerSectorSpec extends AnyWordSpec:
       val newPlayerSector = playerSector.switchAffiliation(Affiliation.ENEMY)
       newPlayerSector.affiliation should be(Affiliation.ENEMY)
     }
+
+    "return a copy of itself if extCopy() is called" in {
+      val sector: ISector = Sector(Coordinate(0, 0))
+      val playerSector: IPlayerSector = PlayerSector(sector)
+      playerSector.extCopy().sector should be(sector)
+    }
   }

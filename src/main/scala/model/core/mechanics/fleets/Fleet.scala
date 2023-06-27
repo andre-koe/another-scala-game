@@ -36,11 +36,7 @@ case class Fleet(name: String = "Battlegroup-" + Random().between(1,1000),
     fleetComponents.map(_.capacity).foldLeft(Capacity())((x: ICapacity, y: ICapacity) => x.increase(y))
 
   override def description: String =
-    s"""${name}
-      |Firepower: ${firepower}
-      |Size: ${units.length}
-      |""".stripMargin
-
+    s"$name\n Firepower: $firepower\n Size: ${units.length}\n Capacity: $capacity\n Upkeep: $upkeep"
   override def split(): (IFleet, IFleet) =
     val (f1: Vector[IUnit], f2: Vector[IUnit]) = fleetComponents.splitAt(fleetComponents.length / 2)
     (Fleet(fleetComponents = f1), Fleet(fleetComponents = f2))

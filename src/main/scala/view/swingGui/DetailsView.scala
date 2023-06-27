@@ -208,13 +208,6 @@ class DetailsView(controller: IController) extends ScrollPane with GUIObserver[I
       background = defaultBackground
       obj.foreach(x =>
         contents += seqToBoxPanel(Seq(
-          GuiUtils().colorLabel(x.name),
-          Swing.HGlue,
-          GuiUtils().colorLabel(
-            if x.moveVector.isMoving then s"In transit to dest. ${x.moveVector.target}"
-            else s"stationed in ${x.location}"
-          ),
-          Swing.HGlue,
           GuiUtils().colorLabel(x.description),
           Swing.HGlue
         ))

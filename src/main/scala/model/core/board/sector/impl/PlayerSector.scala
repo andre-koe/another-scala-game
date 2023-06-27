@@ -76,7 +76,7 @@ case class PlayerSector(sector: ISector,
       }
 
     val nFleets = removeRecursively(sector.unitsInSector, rec)
-    if (nFleets == sector.unitsInSector) then None
+    if nFleets == sector.unitsInSector then None
     else Some(this.copy(sector = sector.cloneWith(unitsInSector = nFleets)))
 
 
@@ -85,7 +85,9 @@ case class PlayerSector(sector: ISector,
       if (sector.unitsInSector.isEmpty) {
         Vector(Fleet(fleetComponents = newUnits,
           location = this.location,
-          moveVector = MoveVector(this.location, this.location)))
+          moveVector = MoveVector(this.location, this.location),
+          affiliation = sector.affiliation)
+        )
       } else {
         sector.unitsInSector.map(existingFleet =>
           existingFleet.extCopy(fleetComponents = existingFleet.fleetComponents ++ newUnits))

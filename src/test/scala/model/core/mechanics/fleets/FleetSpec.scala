@@ -69,7 +69,7 @@ class FleetSpec extends AnyWordSpec with Matchers {
     "show the correct description" in {
       val fleet = Fleet(name = "TestFleet", fleetComponents = Vector(Corvette(), Corvette()))
 
-      fleet.description should be(s"$fleet.name\n Firepower: ${fleet.firepower}\n Size: ${fleet.units.length}\n Capacity: ${fleet.capacity}\n Upkeep: ${fleet.upkeep}")
+      fleet.description should be(s"${fleet.name}\n Firepower: ${fleet.firepower}\n Size: ${fleet.units.length}\n Capacity: ${fleet.capacity}\n Upkeep: ${fleet.upkeep}")
     }
   }
 }

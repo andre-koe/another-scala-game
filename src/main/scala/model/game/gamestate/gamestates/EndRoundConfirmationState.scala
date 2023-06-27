@@ -101,6 +101,8 @@ case class EndRoundConfirmationState() extends IGameState:
 
   private def handleBattle(fleet: IFleet, enemyFleets: Vector[IFleet], gameBoard: IGameBoard): IGameBoard =
     if (battle(fleet, enemyFleets)) {
+      val s = gameBoard.getSectorAtCoordinate(fleet.moveVector.target)
+      s.get.unitsInSector.filterNot(x => enemyFleets.map(_.name).contains(x.name))
       gameBoard.toPlayerSector(fleet.moveVector.target, fleet)
     } else {
       val sectorToUpdate = gameBoard.getSectorAtCoordinate(fleet.moveVector.target).get

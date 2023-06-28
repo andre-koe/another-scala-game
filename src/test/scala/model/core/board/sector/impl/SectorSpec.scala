@@ -59,5 +59,13 @@ class SectorSpec extends AnyWordSpec {
       val sector = Sector(Coordinate(0, 0), Affiliation.INDEPENDENT, SectorType.BASE, Vector.empty)
       sector.toString should be(AnsiColor.WHITE + "[0-0]" + AnsiColor.RESET)
     }
+
+    "should clone the sector when cloneWith is invoked" in {
+      val sector = Sector(Coordinate(0, 0))
+      val cloned = sector.cloneWith()
+      cloned.affiliation shouldBe sector.affiliation
+      cloned.location shouldBe sector.location
+      cloned.buildSlots shouldBe sector.buildSlots
+    }
   }
 }

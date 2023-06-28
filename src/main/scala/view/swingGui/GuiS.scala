@@ -1,6 +1,5 @@
 package view.swingGui
 
-import com.google.inject.Guice
 import controller.IController
 import controller.command.commands.{EndGameCommand, EndRoundCommand, LoadCommand, SaveCommand, UserAcceptCommand, UserDeclineCommand}
 import model.game.gamestate.gamestates.WaitForUserConfirmation

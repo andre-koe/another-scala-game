@@ -9,13 +9,13 @@ import scala.annotation.tailrec
 import scala.io.StdIn
 import utils.DefaultValueProvider.{given_IController, given_ICommandTokenizer}
 
-case class Tui()(using controller: IController, commandTokenizer: ICommandTokenizer) extends Observer {
+case class Tui()(using controller: IController, commandTokenizer: ICommandTokenizer) extends Observer:
 
-  def gameTitle: String = "TBD"
+  def gameTitle: String = "Srimp Shimp"
 
   def introductionMessage: String =
     f"""Welcome to $gameTitle
-       | This is an introduction
+       | Enter 'help' to get an overview of all available commands
        |""".stripMargin
 
   def run(): Boolean = {
@@ -39,5 +39,3 @@ case class Tui()(using controller: IController, commandTokenizer: ICommandTokeni
     isRunning
 
   override def update(): Unit = println(controller.toString)
-
-}

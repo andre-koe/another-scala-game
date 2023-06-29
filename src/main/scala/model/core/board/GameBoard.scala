@@ -46,7 +46,6 @@ case class GameBoard(sizeX: Int, sizeY: Int, data: Vector[Vector[ISector]]) exte
     val x = coordinate.xPos
     val y = coordinate.yPos
     x >= 0 && x < sizeX && y >= 0 && y < sizeY
-  
 
   private def separator: String = "\n" + ("  | " + " " * 4) * sizeX + "\n"
 

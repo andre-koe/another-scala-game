@@ -23,7 +23,6 @@ class Controller(val undoAllowed: Boolean = false) extends IController :
 
   override def toString: String = gameStateManager.toString
 
-
   def processInput(toDo : TokenizedInput | ICommand): Boolean =
 
     val executable = toDo match
@@ -43,9 +42,7 @@ class Controller(val undoAllowed: Boolean = false) extends IController :
     notifyObservers()
     handleGameState(gameStateManager)
 
-
   def getState: IGameStateManagerWrapper = GameStateManagerWrapper(gameStateManager)
-
 
   private def handleGameState(gsm: IGameStateManager): Boolean =
     gsm.gameState match

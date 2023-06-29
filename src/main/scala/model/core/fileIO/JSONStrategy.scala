@@ -18,15 +18,11 @@ import scala.util.{Failure, Try}
 case class JSONStrategy(override val dir: File = new File("./savegames")) extends IFileIOStrategy:
 
   override def load(string: Option[String]): Try[IGameStateManager] =
-    val file: Option[File] = string match
-      case Some(x) => getFile(x)
-      case _ => getLatest
-
-    file match
+    getFileByNameOrLatest(string) match
       case Some(x) => parse(String(Files.readAllBytes(x.toPath))).flatMap(_.as[IGameStateManager]).toTry
       case _ => Failure(new FileNotFoundException("No file found."))
 
-  override def save(gsm: IGameStateManager, string: Option[String]): IGameStateManager = {
+  override def save(gsm: IGameStateManager, string: Option[String]): IGameStateManager =
     val filename = string.getOrElse(formatter.format(Instant.now())) + ".json"
     if !dir.exists() then dir.mkdir()
     val file = new File(dir, filename)
@@ -35,6 +31,4 @@ case class JSONStrategy(override val dir: File = new File("./savegames")) extend
     fileWriter.write(jsonString)
     fileWriter.close()
     gsm
-  }
-
 

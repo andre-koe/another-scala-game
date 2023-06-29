@@ -10,11 +10,19 @@ import utils.IXMLSerializable
 
 import scala.xml.Elem
 
-trait IBuilding extends IUpkeep,
-  ILocatable, IGameObject, IRoundBasedConstructable, IPurchasable, IXMLSerializable:
+/** Represents a Building in the game. */
+trait IBuilding extends IUpkeep, ILocatable, IGameObject, IRoundBasedConstructable, IPurchasable, IXMLSerializable:
 
+  /** Retrieves the output of the building.
+   *
+   *  @return the output of the building.
+   */
   def output: IOutput
 
+  /** Serializes the current state of the Building to XML format.
+   *
+   *  @return an XML representation of the Building's current state.
+   */
   override def toXML: scala.xml.Elem =
     <Building>
       <Name>{name}</Name>

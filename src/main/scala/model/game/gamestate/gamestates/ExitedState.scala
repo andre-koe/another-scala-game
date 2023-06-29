@@ -6,7 +6,7 @@ import model.game.gamestate.{IGameState, IGameStateManager}
 
 case class ExitedState() extends IGameState:
   
-  override def update(gsm: IGameStateManager): IGameStateManager =
+  override def update(gsm: IGameStateManager): IGameStateManager = 
     gsm.extCopy(message = goodbyeMsg, gameState = ExitedState())
 
   private def goodbyeMsg: String = "Goodbye!"

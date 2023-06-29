@@ -10,11 +10,10 @@ import model.game.gamestate.gamestates.RunningState
 import model.game.gamestate.{GameStateManager, IGameState, IGameStateManager}
 import model.game.playervalues.{IPlayerValues, PlayerValues}
 
-object DefaultValueProvider {
+object DefaultValueProvider:
 
   given IController = Controller()
   given IGameValues = GameValues()
   given ICommandTokenizer = CommandTokenizer()
   given IFileIOStrategy = JSONStrategy()
 
-}

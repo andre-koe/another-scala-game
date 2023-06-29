@@ -15,14 +15,14 @@ class TuiSpec extends AnyWordSpec {
 
   "In the TUI" should {
     val tui = Tui()
-    val title: String = "TBD"
+    val title: String = "Srimp Shimp"
     "the game title be returned" in {
       tui.gameTitle should be(title)
     }
     "the introductory message be returned and contain game title" in {
       tui.introductionMessage should be(
         f"""Welcome to $title
-           | This is an introduction
+           | Enter 'help' to get an overview of all available commands
            |""".stripMargin)
     }
   }

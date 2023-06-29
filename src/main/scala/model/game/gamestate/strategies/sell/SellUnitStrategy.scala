@@ -12,7 +12,9 @@ import scala.annotation.tailrec
 case class SellUnitStrategy(sector: IPlayerSector, tbr: Seq[IUnit]) extends ISellStrategy:
   override def sell(gsm: IGameStateManager): IGameStateManager =
     val profit = calcProfit(tbr)
+
     val capGained = returnAccumulated(tbr, (b: IUnit) => b.capacity, (x: ICapacity, y: ICapacity) => x.increase(y))
+
     val msg = sellSuccessMsg(tbr.head.name, tbr.size, profit)
     val nMap = gsm.gameMap.updateSector(sector.removeUnits(tbr.toVector).get)
 

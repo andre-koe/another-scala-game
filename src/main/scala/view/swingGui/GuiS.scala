@@ -13,7 +13,7 @@ import scala.swing.event.{ActionEvent, ButtonClicked, Key}
 import utils.DefaultValueProvider.given_IController
 
 
-class GuiS(using controller: IController) extends swing.Frame with Observer {
+class GuiS(using controller: IController) extends swing.Frame with Observer:
   
   controller.registerObserver(this)
 
@@ -89,40 +89,41 @@ class GuiS(using controller: IController) extends swing.Frame with Observer {
   pack()
   visible = true
 
-  override def update(): Unit = {
-    controller.getState.getState match
-      case _: WaitForUserConfirmation => new Dialog {
-        title = "End Turn Dialog"
-        peer.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE)
-        modal = true
-        preferredSize = new Dimension(400, 200)
-        val boxPanel: BoxPanel = new BoxPanel(Orientation.Vertical) {
-          contents += Swing.VGlue
-          contents += new Label() {
-            text = "Are you sure you want to end your turn?"
-          }
-          contents += Swing.VGlue
-
-          val buttonPanel: BoxPanel = new BoxPanel(Orientation.Horizontal) {
-            contents += Swing.HGlue
-            contents += Button("No") {
-              controller.processInput(UserDeclineCommand(controller.getState.getGSM))
-              dispose()
-            }
-            contents += Swing.HGlue
-            contents += Button("Yes") {
-              controller.processInput(UserAcceptCommand(controller.getState.getGSM))
-              dispose()
-            }
-            contents += Swing.HGlue
-          }
-          contents += buttonPanel
-          contents += Swing.VGlue
-        }
-        contents = boxPanel
-        centerOnScreen()
-        open()
+  private def endTurnDialogBox: Dialog = new Dialog {
+    title = "End Turn Dialog"
+    peer.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE)
+    modal = true
+    preferredSize = new Dimension(400, 200)
+    val boxPanel: BoxPanel = new BoxPanel(Orientation.Vertical) {
+      contents += Swing.VGlue
+      contents += new Label() {
+        text = "Are you sure you want to end your turn?"
       }
+      contents += Swing.VGlue
+
+      val buttonPanel: BoxPanel = new BoxPanel(Orientation.Horizontal) {
+        contents += Swing.HGlue
+        contents += Button("No") {
+          controller.processInput(UserDeclineCommand(controller.getState.getGSM))
+          dispose()
+        }
+        contents += Swing.HGlue
+        contents += Button("Yes") {
+          controller.processInput(UserAcceptCommand(controller.getState.getGSM))
+          dispose()
+        }
+        contents += Swing.HGlue
+      }
+      contents += buttonPanel
+      contents += Swing.VGlue
+    }
+    contents = boxPanel
+    centerOnScreen()
+    open()
+  }
+
+  override def update(): Unit = controller.getState.getState match
+      case _: WaitForUserConfirmation => endTurnDialogBox
       case _ =>
         overviewPanel.update()
         val detailsView = new DetailsView(controller)
@@ -130,8 +131,6 @@ class GuiS(using controller: IController) extends swing.Frame with Observer {
         mainPanel.layout(new SectorGridPanel(controller, detailsView)) = BorderPanel.Position.Center
         mainPanel.layout(new Sidebar(controller)) = BorderPanel.Position.West
         mainPanel.layout(new FleetManager(controller)) = BorderPanel.Position.East
-  }
-}
 
 
 

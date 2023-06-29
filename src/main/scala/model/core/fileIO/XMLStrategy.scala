@@ -11,11 +11,7 @@ import scala.xml.XML
 case class XMLStrategy(override val dir: File = new File("./savegames")) extends IFileIOStrategy:
 
   override def load(string: Option[String]): Try[IGameStateManager] =
-    val file: Option[File] = string match
-      case Some(x) => getFile(x)
-      case _ => getLatest
-
-    file match
+    getFileByNameOrLatest(string) match
       case Some(x) => Try(XMLConverter.xmlToGameStateManager(XML.loadFile(x)))
       case _ => Failure(new FileNotFoundException("No file found."))
 

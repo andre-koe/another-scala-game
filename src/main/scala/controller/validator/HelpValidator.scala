@@ -33,3 +33,4 @@ case class HelpValidator(orig: String, gsm: IGameStateManager) extends IValidato
       case _ => MessageCommand(couldNotFind(str.head), HELP, gsm)
 
   private def couldNotFind(str: String): String = s"Could not find any information on '$str'"
+
